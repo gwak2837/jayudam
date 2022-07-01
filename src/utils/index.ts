@@ -1,6 +1,8 @@
 import { NextRouter } from 'next/router'
 import { KeyboardEvent, MouseEvent } from 'react'
 
+import { NEXT_PUBLIC_BACKEND_URL } from './constants'
+
 export function mulberry32(a: number) {
   return function () {
     let t = (a += 0x6d2b79f5)
@@ -69,7 +71,7 @@ export function isEmpty(object: Record<string, unknown>) {
 }
 
 export async function uploadImageFiles(formData: FormData) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/upload`, {
     method: 'POST',
     body: formData,
   })

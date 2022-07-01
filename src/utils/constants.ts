@@ -1,3 +1,37 @@
+const NEXT_PUBLIC_VERCEL_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV
+const NEXT_PUBLIC_VERCEL_URL = process.env.NEXT_PUBLIC_VERCEL_URL
+
+export const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string
+
+export const NEXT_PUBLIC_BBATON_CLIENT_ID = process.env.NEXT_PUBLIC_BBATON_CLIENT_ID as string
+
+export const NEXT_PUBLIC_NAVER_CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID as string
+
+export const NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY = process.env
+  .NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY as string
+export const NEXT_PUBLIC_KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY as string
+
+export const NEXT_PUBLIC_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+export const NEXT_PUBLIC_GOOGLE_ANALYTICS_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID as string
+
+if (!NEXT_PUBLIC_BACKEND_URL) throw new Error('`NEXT_PUBLIC_BACKEND_URL` 환경 변수를 설정해주세요.')
+
+if (!NEXT_PUBLIC_BBATON_CLIENT_ID)
+  throw new Error('`NEXT_PUBLIC_BBATON_CLIENT_ID` 환경 변수를 설정해주세요.')
+
+if (!NEXT_PUBLIC_NAVER_CLIENT_ID)
+  throw new Error('`NEXT_PUBLIC_NAVER_CLIENT_ID` 환경 변수를 설정해주세요.')
+
+if (!NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY)
+  throw new Error('`NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY` 환경 변수를 설정해주세요.')
+if (!NEXT_PUBLIC_KAKAO_REST_API_KEY)
+  throw new Error('`NEXT_PUBLIC_KAKAO_REST_API_KEY` 환경 변수를 설정해주세요.')
+
+if (!NEXT_PUBLIC_GOOGLE_CLIENT_ID)
+  throw new Error('`NEXT_PUBLIC_GOOGLE_CLIENT_ID` 환경 변수를 설정해주세요.')
+if (!NEXT_PUBLIC_GOOGLE_ANALYTICS_ID)
+  throw new Error('`NEXT_PUBLIC_GOOGLE_ANALYTICS_ID` 환경 변수를 설정해주세요.')
+
 export const MOBILE_MIN_WIDTH = '280px'
 export const TABLET_MIN_WIDTH = '560px'
 export const DESKTOP_MIN_WIDTH = '1024px'
@@ -9,8 +43,8 @@ export const SUBJECT = '공공보건 증진을 위한 의료기록 가명 인증
 export const KEYWORDS = `${APPLICATION_SHORT_NAME},jayudam,공공보건,의료기록,가명인증` // 최대 10개
 export const AUTHOR = '로빈리뷰(LobinReview)'
 export const CANONICAL_URL =
-  process.env.NEXT_PUBLIC_VERCEL_ENV === 'production'
+  NEXT_PUBLIC_VERCEL_ENV === 'production'
     ? 'https://jayudam.vercel.app'
     : process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+    ? `https://${NEXT_PUBLIC_VERCEL_URL}`
     : 'http://localhost:3000'

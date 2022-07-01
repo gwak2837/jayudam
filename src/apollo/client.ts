@@ -1,10 +1,11 @@
 import { ApolloClient, NormalizedCacheObject, createHttpLink } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+import { NEXT_PUBLIC_BACKEND_URL } from 'src/utils/constants'
 
 import cache from './cache'
 
 const httpLink = createHttpLink({
-  uri: `${process.env.NEXT_PUBLIC_BACKEND_URL}`,
+  uri: `${NEXT_PUBLIC_BACKEND_URL}`,
 })
 
 // Pull the login token from browser Storage every time a request is sent:

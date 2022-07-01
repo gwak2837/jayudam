@@ -193,6 +193,7 @@ export default function HomePage() {
       <br />
 
       <pre>{JSON.stringify(result, null, 2)}</pre>
+      <Link href="/login">로그인</Link>
 
       <Footer>
         <div>

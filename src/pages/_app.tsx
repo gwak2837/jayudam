@@ -15,8 +15,8 @@ import { client } from 'src/apollo/client'
 import Authentication from 'src/components/Authentication'
 import { GlobalStyle } from 'src/styles/global'
 import { theme } from 'src/styles/global'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { GOOGLE_ANALYTICS_ID, pageview } from 'src/utils/google-analytics'
+import { NEXT_PUBLIC_GOOGLE_ANALYTICS_ID } from 'src/utils/constants'
+import { pageview } from 'src/utils/google-analytics'
 import styled, { ThemeProvider } from 'styled-components'
 
 // https://github.com/styled-components/styled-components/issues/3738
@@ -32,7 +32,7 @@ const gaScript = `
   window.dataLayer = window.dataLayer || [];
   function gtag(){window.dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', '${GOOGLE_ANALYTICS_ID}', {page_path: window.location.pathname});
+  gtag('config', '${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}', {page_path: window.location.pathname});
 `
 
 export default function AlpacaSalonApp({ Component, pageProps }: AppProps) {
@@ -55,7 +55,7 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppProps) {
 
       {/* Global site tag (gtag.js) https://nextjs.org/docs/messages/next-script-for-ga */}
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
         strategy="afterInteractive"
       />
       <Script id="google-analytics" strategy="afterInteractive">

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const withPWA = require('next-pwa')
+const NODE_ENV = process.env.NODE_ENV
 
 module.exports = withPWA({
   compiler: {
@@ -21,12 +22,12 @@ module.exports = withPWA({
   images: {
     domains: ['storage.googleapis.com', 'k.kakaocdn.net'],
   },
-  poweredByHeader: process.env.NODE_ENV === 'development',
+  poweredByHeader: NODE_ENV === 'development',
   pwa: {
     dest: 'public',
-    disable: process.env.NODE_ENV === 'development',
+    disable: NODE_ENV === 'development',
   },
-  reactStrictMode: process.env.NODE_ENV === 'development',
+  reactStrictMode: NODE_ENV === 'development',
   swcMinify: true,
   webpack: (config) => {
     config.module.rules.push({

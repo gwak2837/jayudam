@@ -2,73 +2,63 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import PageHead from 'src/components/PageHead'
 import { SquareFrame } from 'src/styles'
+import {
+  NEXT_PUBLIC_BACKEND_URL,
+  NEXT_PUBLIC_BBATON_CLIENT_ID,
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  NEXT_PUBLIC_KAKAO_REST_API_KEY,
+  NEXT_PUBLIC_NAVER_CLIENT_ID,
+} from 'src/utils/constants'
 import styled from 'styled-components'
 
 import CheckBoxIcon from '../svgs/CheckBoxIcon'
-import KakaoIcon from '../svgs/kakao-icon.svg'
+import GoogleLogo from '../svgs/google-logo.svg'
+import KakaoLogo from '../svgs/kakao-logo.svg'
+
+const description = '자유담에 로그인하세요'
 
 export default function LoginPage() {
   const [isChecked, setIsChecked] = useState(false)
 
+  function setAutoLogin(e: any) {
+    if (e.target.checked) {
+      sessionStorage.setItem('autoLogin', 'true')
+      setIsChecked(true)
+    } else {
+      sessionStorage.removeItem('autoLogin')
+      setIsChecked(false)
+    }
+  }
+
   return (
     <PageHead title="로그인 - 자유담" description={description}>
       <FlexGrowPadding>
-        <GridContainerTemplate>
-          <SquareFrame>
-            <Image src="/images/login.png" alt="login" layout="fill" objectFit="cover" />
-          </SquareFrame>
-        </GridContainerTemplate>
-
         <Text>
           자유담은 <br />
           <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
         </Text>
 
-        <H5>비바톤 로그인으로 성인임을 확인해 주세요</H5>
-
-        <BBathonButton onClick={goToBBathonLoginPage}>
-          <KakaoIcon />
-          비바톤으로 3초 만에 인증하기
-        </BBathonButton>
-
-        <H5>이미 인증했다면 소셜 로그인을 진행해주세요</H5>
         <AutoLogin htmlFor="auto-login">
-          <LoginCheckBox
-            id="auto-login"
-            type="checkbox"
-            onChange={(e) => {
-              if (e.target.checked) {
-                sessionStorage.setItem('autoLogin', 'true')
-                setIsChecked(true)
-              } else {
-                sessionStorage.removeItem('autoLogin')
-                setIsChecked(false)
-              }
-            }}
-          />
+          <LoginCheckBox id="auto-login" type="checkbox" onChange={setAutoLogin} />
           <CheckBoxIcon isChecked={isChecked} />
           로그인 상태를 유지할게요
         </AutoLogin>
 
-        <KakaoButton onClick={goToKakaoLoginPage}>
-          <KakaoIcon />
-          카카오톡으로 3초 만에 로그인하기
-        </KakaoButton>
+        <H5>비바톤 계정으로 익명 로그인하거나 소셜 계정으로 로그인 해주세요</H5>
 
-        <KakaoButton onClick={goToNaverLoginPage}>
-          <KakaoIcon />
-          네이버로 3초 만에 로그인하기
-        </KakaoButton>
+        <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
 
         <KakaoButton onClick={goToKakaoLoginPage}>
-          <KakaoIcon />
-          구글로 3초 만에 로그인하기
+          <KakaoLogo />
+          카카오톡 로그인
         </KakaoButton>
 
-        <KakaoButton onClick={goToKakaoLoginPage}>
-          <KakaoIcon />
-          페이스북으로 3초 만에 로그인하기
-        </KakaoButton>
+        <NaverButton onClick={goToNaverLoginPage}>네이버 로그인</NaverButton>
+
+        <GoogleButton onClick={goToGoogleLoginPage}>
+          <GoogleLogo />
+          Google 로그인
+        </GoogleButton>
       </FlexGrowPadding>
     </PageHead>
   )
@@ -78,19 +68,6 @@ const H5 = styled.h5`
   color: #676767;
   padding: 1.5rem 0;
   text-align: center;
-`
-
-const GridContainerTemplate = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
-  grid-template-rows: 1fr 3.5fr 1fr;
-
-  > div {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    width: 100%; // for safari
-    cursor: pointer;
-  }
 `
 
 const AutoLogin = styled.label`
@@ -106,6 +83,7 @@ const LoginCheckBox = styled.input`
   display: none;
 `
 
+// https://developers.kakao.com/docs/latest/ko/reference/design-guide
 const KakaoButton = styled.div`
   display: flex;
   justify-content: center;
@@ -131,6 +109,33 @@ const KakaoButton = styled.div`
   }
 `
 
+// https://developers.google.com/identity/branding-guidelines
+const GoogleButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin: 0 0 2rem;
+  transition: background 0.2s ease-in;
+  border-radius: 10px;
+
+  :hover {
+    background: #ffffffc0;
+  }
+
+  svg {
+    /* position: absolute; */
+    /* top: 50%; */
+    /* left: 1rem; */
+    /* transform: translateY(-50%); */
+  }
+`
+
 const BBathonButton = styled.div`
   display: flex;
   justify-content: center;
@@ -142,11 +147,38 @@ const BBathonButton = styled.div`
   color: #fff;
   padding: 1rem;
   margin: 0 0 2rem;
-  transition: background 0.3s ease-in;
+  transition: background 0.2s ease-in;
   border-radius: 10px;
 
   :hover {
     background: #0071bcc0;
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+  }
+`
+
+// https://developers.naver.com/docs/login/bi/bi.md
+const NaverButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+
+  background: #03c75a;
+  color: #fff;
+  padding: 1rem;
+  margin: 0 0 2rem;
+  transition: background 0.2s ease-in;
+  border-radius: 10px;
+
+  :hover {
+    background: #03c75ac0;
   }
 
   svg {
@@ -183,20 +215,27 @@ const Text = styled.div`
   padding: 1.5rem;
 `
 
-const description = '자유담에 로그인하세요'
-
-function goToKakaoLoginPage() {
+// state={%22personalDataStoringPeriod%22:3}
+function goToBBathonLoginPage() {
   window.location.replace(
-    `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
+    `https://bauth.bbaton.com/oauth/authorize?client_id=${NEXT_PUBLIC_BBATON_CLIENT_ID}&redirect_uri=${NEXT_PUBLIC_BACKEND_URL}/oauth/bbaton&response_type=code&scope=read_profile`
   )
 }
 
-function goToBBathonLoginPage() {
+function goToKakaoLoginPage() {
   window.location.replace(
-    `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
+    `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
   )
 }
 
 function goToNaverLoginPage() {
-  window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=FPQoCRnHgbAWgjWYtlLb&redirect_uri=http://localhost:4000/oauth/naver&state=123`
+  window.location.replace(
+    `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${NEXT_PUBLIC_BACKEND_URL}/oauth/naver`
+  )
+}
+
+function goToGoogleLoginPage() {
+  window.location.replace(
+    `https://accounts.google.com/o/oauth2/v2/auth?client_id=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${NEXT_PUBLIC_BACKEND_URL}/oauth/google&response_type=code&scope=openid+profile`
+  )
 }

@@ -1,8 +1,8 @@
-export const GOOGLE_ANALYTICS_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALITICS_ID ?? ''
+import { NEXT_PUBLIC_GOOGLE_ANALYTICS_ID } from './constants'
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export function pageview(url: string) {
-  window.gtag('config', GOOGLE_ANALYTICS_ID, {
+  window.gtag('config', NEXT_PUBLIC_GOOGLE_ANALYTICS_ID, {
     page_path: url,
   })
 }
