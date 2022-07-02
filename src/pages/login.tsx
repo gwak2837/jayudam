@@ -1,7 +1,7 @@
-import Image from 'next/image'
+import Image from 'next/future/image'
+import Link from 'next/link'
 import React, { useState } from 'react'
 import PageHead from 'src/components/PageHead'
-import { SquareFrame } from 'src/styles'
 import {
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_BBATON_CLIENT_ID,
@@ -15,38 +15,28 @@ import CheckBoxIcon from '../svgs/CheckBoxIcon'
 import GoogleLogo from '../svgs/google-logo.svg'
 import KakaoLogo from '../svgs/kakao-logo.svg'
 
-const description = '자유담에 로그인하세요'
-
 export default function LoginPage() {
-  const [isChecked, setIsChecked] = useState(false)
-
-  function setAutoLogin(e: any) {
-    if (e.target.checked) {
-      sessionStorage.setItem('autoLogin', 'true')
-      setIsChecked(true)
-    } else {
-      sessionStorage.removeItem('autoLogin')
-      setIsChecked(false)
-    }
-  }
-
   return (
-    <PageHead title="로그인 - 자유담" description={description}>
+    <PageHead title="로그인 - 자유담" description="자유담에 로그인하세요">
+      <FlexCenterCenter>
+        <Link href="/">
+          <MarginImage src="/images/logo.webp" alt="jayudam logo" />
+        </Link>
+      </FlexCenterCenter>
+
       <FlexGrowPadding>
         <Text>
           자유담은 <br />
           <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
         </Text>
 
-        <AutoLogin htmlFor="auto-login">
-          <LoginCheckBox id="auto-login" type="checkbox" onChange={setAutoLogin} />
-          <CheckBoxIcon isChecked={isChecked} />
-          로그인 상태를 유지할게요
-        </AutoLogin>
+        <AutoLoginCheckbox />
 
-        <H5>비바톤 계정으로 익명 로그인하거나 소셜 계정으로 로그인 해주세요</H5>
+        <H5>비바톤 계정으로 익명 성인인증을 해주세요</H5>
 
         <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
+
+        <H5>이미 SNS 계정을 연동했다면</H5>
 
         <KakaoButton onClick={goToKakaoLoginPage}>
           <KakaoLogo />
@@ -64,6 +54,39 @@ export default function LoginPage() {
   )
 }
 
+function AutoLoginCheckbox() {
+  const [isChecked, setIsChecked] = useState(false)
+
+  function setAutoLogin(e: any) {
+    if (e.target.checked) {
+      sessionStorage.setItem('autoLogin', 'true')
+      setIsChecked(true)
+    } else {
+      sessionStorage.removeItem('autoLogin')
+      setIsChecked(false)
+    }
+  }
+
+  return (
+    <AutoLogin htmlFor="auto-login">
+      <LoginCheckBox id="auto-login" type="checkbox" onChange={setAutoLogin} />
+      <CheckBoxIcon isChecked={isChecked} />
+      로그인 상태를 유지할게요
+    </AutoLogin>
+  )
+}
+
+const MarginImage = styled(Image)`
+  margin: 2rem 1rem;
+`
+
+const FlexCenterCenter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+`
+
 const H5 = styled.h5`
   color: #676767;
   padding: 1.5rem 0;
@@ -74,8 +97,7 @@ const AutoLogin = styled.label`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 15px 0;
-  gap: 5px;
+  gap: 0.5rem;
   cursor: pointer;
 `
 
@@ -93,19 +115,11 @@ const KakaoButton = styled.div`
 
   background: #fee500;
   padding: 1rem;
-  margin: 0 0 2rem;
   transition: background 0.3s ease-in;
   border-radius: 10px;
 
   :hover {
     background: #fee500c0;
-  }
-
-  svg {
-    position: absolute;
-    top: 50%;
-    left: 1rem;
-    transform: translateY(-50%);
   }
 `
 
@@ -120,19 +134,11 @@ const GoogleButton = styled.div`
   background: #fff;
   border: 1px solid #ccc;
   padding: 1rem;
-  margin: 0 0 2rem;
   transition: background 0.2s ease-in;
   border-radius: 10px;
 
   :hover {
     background: #ffffffc0;
-  }
-
-  svg {
-    /* position: absolute; */
-    /* top: 50%; */
-    /* left: 1rem; */
-    /* transform: translateY(-50%); */
   }
 `
 
@@ -146,7 +152,6 @@ const BBathonButton = styled.div`
   background: #0071bc;
   color: #fff;
   padding: 1rem;
-  margin: 0 0 2rem;
   transition: background 0.2s ease-in;
   border-radius: 10px;
 
@@ -173,7 +178,6 @@ const NaverButton = styled.div`
   background: #03c75a;
   color: #fff;
   padding: 1rem;
-  margin: 0 0 2rem;
   transition: background 0.2s ease-in;
   border-radius: 10px;
 
@@ -199,7 +203,8 @@ export const FlexContainerGrow = styled.div`
 `
 
 const FlexGrowPadding = styled(FlexContainerGrow)`
-  padding: 2rem 1rem 0;
+  padding: 2rem 1rem;
+  gap: 1rem;
 `
 
 const PrimaryColorText = styled.span`
@@ -213,6 +218,7 @@ const Text = styled.div`
   border-radius: 10px;
   line-height: 2rem;
   padding: 1.5rem;
+  text-align: center;
 `
 
 // state={%22personalDataStoringPeriod%22:3}
@@ -230,7 +236,7 @@ function goToKakaoLoginPage() {
 
 function goToNaverLoginPage() {
   window.location.replace(
-    `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${NEXT_PUBLIC_BACKEND_URL}/oauth/naver`
+    `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NEXT_PUBLIC_NAVER_CLIENT_ID}&redirect_uri=${NEXT_PUBLIC_BACKEND_URL}/oauth/naver&state=state`
   )
 }
 
