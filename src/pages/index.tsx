@@ -192,7 +192,8 @@ export default function HomePage() {
       <div>홈</div>
       <br />
 
-      <pre>{JSON.stringify(result, null, 2)}</pre>
+      <pre>videoInputDevices: {JSON.stringify(videoInputDevices, null, 2)}</pre>
+      <pre>result: {JSON.stringify(result, null, 2)}</pre>
       <Link href="/login">로그인</Link>
 
       <Footer>

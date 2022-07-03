@@ -12,7 +12,7 @@ module.exports = withPWA({
       allowFutureImage: true,
     },
     newNextLinkBehavior: true,
-    outputStandalone: true,
+    output: 'standalone',
     runtime: 'experimental-edge',
   },
   i18n: {
