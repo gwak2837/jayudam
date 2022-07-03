@@ -2,162 +2,10 @@ import { BrowserCodeReader, BrowserQRCodeReader } from '@zxing/browser'
 import { Result } from '@zxing/library'
 import Image from 'next/future/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { ReactElement, useEffect, useRef, useState } from 'react'
-import { useRecoilValue } from 'recoil'
+import { toCanvas } from 'qrcode'
+import { useEffect, useRef, useState } from 'react'
 import PageHead from 'src/components/PageHead'
-import { Slider } from 'src/styles'
-import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
-
-const Sticky = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #fff;
-  padding: 0.6rem;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  > svg {
-    width: 15rem;
-    height: 100%;
-    padding: 0.5rem;
-  }
-`
-
-const SliderWithoutScollBar = styled(Slider)`
-  scrollbar-color: transparent transparent;
-  scrollbar-width: 0px;
-
-  ::-webkit-scrollbar {
-    height: 0;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border: none;
-  }
-
-  :hover > li > *,
-  :focus-within > li > * {
-    animation-name: none;
-  }
-
-  @keyframes toNext {
-    75% {
-      left: 0;
-    }
-    95% {
-      left: 100%;
-    }
-    98% {
-      left: 100%;
-    }
-    99% {
-      left: 0;
-    }
-  }
-
-  @keyframes toStart {
-    75% {
-      left: 0;
-    }
-    95% {
-      left: -300%;
-    }
-    98% {
-      left: -300%;
-    }
-    99% {
-      left: 0;
-    }
-  }
-
-  @keyframes snap {
-    96% {
-      scroll-snap-align: center;
-    }
-    97% {
-      scroll-snap-align: none;
-    }
-    99% {
-      scroll-snap-align: none;
-    }
-    100% {
-      scroll-snap-align: center;
-    }
-  }
-`
-
-const WhiteButton = styled.button`
-  border: 1px solid #eee;
-  border-radius: 5px;
-
-  padding: 0.7rem;
-`
-
-const Snap = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  scroll-snap-align: center;
-
-  animation-timing-function: ease;
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation-name: none;
-  }
-`
-
-const SnapNext = styled(Snap)`
-  animation-name: toNext, snap;
-`
-
-const SnapStart = styled(Snap)`
-  animation-name: toStart, snap;
-`
-
-const Frame16to10 = styled.li<{ background?: string }>`
-  aspect-ratio: 16 / 10;
-  background: ${(p) => p.background ?? '#fff'};
-  flex: 0 0 100%;
-  position: relative;
-`
-
-const FlexWrap = styled.div`
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  gap: 0rem 1rem;
-
-  /* font-size: 0.6rem; */
-`
-
-const GreySmallText = styled.p`
-  color: #888;
-  font-size: 0.6rem;
-  line-height: 1rem;
-`
-
-const GreyH5 = styled.h5`
-  color: #888;
-`
-
-const Footer = styled.footer`
-  display: grid;
-  gap: 1rem;
-
-  padding: 1rem;
-`
 
 export default function HomePage() {
   const qrCodeReaderRef = useRef<HTMLVideoElement>(null)
@@ -186,15 +34,28 @@ export default function HomePage() {
     }
   }, [selectedDeviceId, videoInputDevices])
 
+  const qrCodeImageRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    toCanvas(
+      qrCodeImageRef.current,
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+    )
+      .then((error) => {
+        if (error) console.error(error)
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
   return (
     <PageHead>
       <video ref={qrCodeReaderRef} />
-      <div>홈</div>
       <br />
-
       <pre>videoInputDevices: {JSON.stringify(videoInputDevices, null, 2)}</pre>
       <pre>result: {JSON.stringify(result, null, 2)}</pre>
       <Link href="/login">로그인</Link>
+
+      <canvas ref={qrCodeImageRef} />
 
       <Footer>
         <div>
@@ -205,9 +66,13 @@ export default function HomePage() {
         <h3>Copyright © {new Date().getUTCFullYear()} RobinReview. All rights reserved.</h3>
 
         <FlexWrap>
-          <Link href="/faq">
+          <a
+            href="https://jayudam.notion.site/2022-07-01-a668b74717fa4b39b022610cde11911d"
+            target="_blank"
+            rel="noreferrer"
+          >
             <h5>자주 묻는 질문</h5>
-          </Link>
+          </a>
           <a
             href="https://jayudam.notion.site/2022-07-01-a668b74717fa4b39b022610cde11911d"
             target="_blank"
@@ -222,9 +87,13 @@ export default function HomePage() {
           >
             <h5>개인정보처리방침</h5>
           </a>
-          <Link href="/code-of-conduct">
+          <a
+            href="https://jayudam.notion.site/2022-06-29-a393f91912884de2b9c54ce8b9ab2208"
+            target="_blank"
+            rel="noreferrer"
+          >
             <h5>서비스 이용 지침</h5>
-          </Link>
+          </a>
         </FlexWrap>
 
         <GreySmallText>
@@ -245,3 +114,29 @@ export default function HomePage() {
     </PageHead>
   )
 }
+
+const FlexWrap = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 0rem 1rem;
+
+  /* font-size: 0.6rem; */
+`
+
+const GreySmallText = styled.p`
+  color: #888;
+  font-size: 0.6rem;
+  line-height: 1rem;
+`
+
+const GreyH5 = styled.h5`
+  color: #888;
+`
+
+const Footer = styled.footer`
+  display: grid;
+  gap: 1rem;
+
+  padding: 1rem;
+`
