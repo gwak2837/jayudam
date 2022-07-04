@@ -1,0 +1,11 @@
+query VerifyCertificateJWT($jwt: JWT!) {
+  verifyCertificateJWT(jwt: $jwt) {
+    id
+    birthDate
+    content
+    effectiveDate
+    issueDate
+    name
+    sex
+  }
+}

@@ -43,14 +43,16 @@ export type Scalars = {
 export type Certificate = {
   __typename?: 'Certificate'
   birthDate?: Maybe<Scalars['String']>
-  certificateId?: Maybe<Scalars['String']>
   content?: Maybe<Scalars['String']>
-  creationTime: Scalars['DateTime']
   effectiveDate?: Maybe<Scalars['Date']>
+  id: Scalars['ID']
   issueDate?: Maybe<Scalars['Date']>
   name?: Maybe<Scalars['NonEmptyString']>
   sex?: Maybe<Sex>
-  userId: Scalars['UUID']
+}
+
+export type CertificateAgreementInput = {
+  showName: Scalars['Boolean']
 }
 
 export type CertificateCreationInput = {
@@ -139,6 +141,10 @@ export type Query = {
   verifyCertificateJWT?: Maybe<Certificate>
 }
 
+export type QueryGetCertificateJwtArgs = {
+  input: CertificateAgreementInput
+}
+
 export type QueryIsUniqueNicknameArgs = {
   nickname: Scalars['NonEmptyString']
 }
@@ -198,6 +204,30 @@ export type MeQueryVariables = Exact<{ [key: string]: never }>
 export type MeQuery = {
   __typename?: 'Query'
   me?: { __typename?: 'User'; id: any; nickname?: string | null } | null
+}
+
+export type GetCertificateJwtQueryVariables = Exact<{
+  input: CertificateAgreementInput
+}>
+
+export type GetCertificateJwtQuery = { __typename?: 'Query'; getCertificateJWT: any }
+
+export type VerifyCertificateJwtQueryVariables = Exact<{
+  jwt: Scalars['JWT']
+}>
+
+export type VerifyCertificateJwtQuery = {
+  __typename?: 'Query'
+  verifyCertificateJWT?: {
+    __typename?: 'Certificate'
+    id: string
+    birthDate?: string | null
+    content?: string | null
+    effectiveDate?: any | null
+    issueDate?: any | null
+    name?: any | null
+    sex?: Sex | null
+  } | null
 }
 
 export const CreatePostDocument = gql`
@@ -281,28 +311,132 @@ export function useMeLazyQuery(
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
+export const GetCertificateJwtDocument = gql`
+  query GetCertificateJWT($input: CertificateAgreementInput!) {
+    getCertificateJWT(input: $input)
+  }
+`
+
+/**
+ * __useGetCertificateJwtQuery__
+ *
+ * To run a query within a React component, call `useGetCertificateJwtQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCertificateJwtQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCertificateJwtQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGetCertificateJwtQuery(
+  baseOptions: Apollo.QueryHookOptions<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>(
+    GetCertificateJwtDocument,
+    options
+  )
+}
+export function useGetCertificateJwtLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>(
+    GetCertificateJwtDocument,
+    options
+  )
+}
+export type GetCertificateJwtQueryHookResult = ReturnType<typeof useGetCertificateJwtQuery>
+export type GetCertificateJwtLazyQueryHookResult = ReturnType<typeof useGetCertificateJwtLazyQuery>
+export type GetCertificateJwtQueryResult = Apollo.QueryResult<
+  GetCertificateJwtQuery,
+  GetCertificateJwtQueryVariables
+>
+export const VerifyCertificateJwtDocument = gql`
+  query VerifyCertificateJWT($jwt: JWT!) {
+    verifyCertificateJWT(jwt: $jwt) {
+      id
+      birthDate
+      content
+      effectiveDate
+      issueDate
+      name
+      sex
+    }
+  }
+`
+
+/**
+ * __useVerifyCertificateJwtQuery__
+ *
+ * To run a query within a React component, call `useVerifyCertificateJwtQuery` and pass it any options that fit your needs.
+ * When your component renders, `useVerifyCertificateJwtQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useVerifyCertificateJwtQuery({
+ *   variables: {
+ *      jwt: // value for 'jwt'
+ *   },
+ * });
+ */
+export function useVerifyCertificateJwtQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    VerifyCertificateJwtQuery,
+    VerifyCertificateJwtQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<VerifyCertificateJwtQuery, VerifyCertificateJwtQueryVariables>(
+    VerifyCertificateJwtDocument,
+    options
+  )
+}
+export function useVerifyCertificateJwtLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    VerifyCertificateJwtQuery,
+    VerifyCertificateJwtQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<VerifyCertificateJwtQuery, VerifyCertificateJwtQueryVariables>(
+    VerifyCertificateJwtDocument,
+    options
+  )
+}
+export type VerifyCertificateJwtQueryHookResult = ReturnType<typeof useVerifyCertificateJwtQuery>
+export type VerifyCertificateJwtLazyQueryHookResult = ReturnType<
+  typeof useVerifyCertificateJwtLazyQuery
+>
+export type VerifyCertificateJwtQueryResult = Apollo.QueryResult<
+  VerifyCertificateJwtQuery,
+  VerifyCertificateJwtQueryVariables
+>
 export type CertificateKeySpecifier = (
   | 'birthDate'
-  | 'certificateId'
   | 'content'
-  | 'creationTime'
   | 'effectiveDate'
+  | 'id'
   | 'issueDate'
   | 'name'
   | 'sex'
-  | 'userId'
   | CertificateKeySpecifier
 )[]
 export type CertificateFieldPolicy = {
   birthDate?: FieldPolicy<any> | FieldReadFunction<any>
-  certificateId?: FieldPolicy<any> | FieldReadFunction<any>
   content?: FieldPolicy<any> | FieldReadFunction<any>
-  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   effectiveDate?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
   issueDate?: FieldPolicy<any> | FieldReadFunction<any>
   name?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
-  userId?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type MutationKeySpecifier = (
   | 'createPost'

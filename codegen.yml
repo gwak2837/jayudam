@@ -1,8 +1,7 @@
 overwrite: true
 schema:
-  # 외부 GraphQL API
   - ${NEXT_PUBLIC_BACKEND_URL}/graphql
-documents: src/graphql/**/*.graphql
+documents: src/**/*.graphql
 generates:
   src/graphql/generated/types-and-hooks.ts:
     plugins:

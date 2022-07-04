@@ -1,7 +1,16 @@
 import React from 'react'
 import PageHead from 'src/components/PageHead'
+import Navigation from 'src/layouts/Navigation'
 import { NAVIGATION_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
+
+export default function PostsPage() {
+  return (
+    <PageHead title="이야기 - 자유담" description="">
+      <Navigation>asd</Navigation>
+    </PageHead>
+  )
+}
 
 export const PrimaryH3 = styled.h3`
   color: ${(p) => p.theme.primary};
@@ -45,12 +54,3 @@ const FixedButton = styled(PrimaryButton)`
 `
 
 const limit = 10
-const description = ''
-
-export default function PostsPage() {
-  return (
-    <PageHead title="이야기 - 자유담" description={description}>
-      ㅁㄴㅇ
-    </PageHead>
-  )
-}

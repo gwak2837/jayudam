@@ -1,6 +1,8 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState } from 'react'
+import { useRecoilValue } from 'recoil'
 import PageHead from 'src/components/PageHead'
 import {
   NEXT_PUBLIC_BACKEND_URL,
@@ -8,7 +10,9 @@ import {
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
+  TABLET_MIN_WIDTH,
 } from 'src/utils/constants'
+import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import CheckBoxIcon from '../svgs/CheckBoxIcon'
@@ -16,40 +20,47 @@ import GoogleLogo from '../svgs/google-logo.svg'
 import KakaoLogo from '../svgs/kakao-logo.svg'
 
 export default function LoginPage() {
+  const { nickname } = useRecoilValue(currentUser)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (nickname) router.replace('/')
+  }, [nickname, router])
+
   return (
     <PageHead title="로그인 - 자유담" description="자유담에 로그인하세요">
-      <FlexCenterCenter>
-        <Link href="/">
-          <MarginImage src="/images/logo.webp" alt="jayudam logo" />
-        </Link>
-      </FlexCenterCenter>
+      <FlexCenter>
+        <GridPadding>
+          <Link href="/">
+            <MarginImage src="/images/logo.webp" alt="jayudam logo" />
+          </Link>
 
-      <FlexGrowPadding>
-        <Text>
-          자유담은 <br />
-          <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
-        </Text>
+          <Text>
+            자유담은 <br />
+            <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
+          </Text>
 
-        <AutoLoginCheckbox />
+          <AutoLoginCheckbox />
 
-        <H5>비바톤 계정으로 익명 성인인증을 해주세요</H5>
+          <H5>비바톤 계정으로 익명 성인인증을 해주세요</H5>
 
-        <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
+          <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
 
-        <H5>이미 SNS 계정을 연동했다면</H5>
+          <H5>이미 SNS 계정을 연동했다면</H5>
 
-        <KakaoButton onClick={goToKakaoLoginPage}>
-          <KakaoLogo />
-          카카오톡 로그인
-        </KakaoButton>
+          <KakaoButton onClick={goToKakaoLoginPage}>
+            <KakaoLogo />
+            카카오톡 로그인
+          </KakaoButton>
 
-        <NaverButton onClick={goToNaverLoginPage}>네이버 로그인</NaverButton>
+          <NaverButton onClick={goToNaverLoginPage}>네이버 로그인</NaverButton>
 
-        <GoogleButton onClick={goToGoogleLoginPage}>
-          <GoogleLogo />
-          Google 로그인
-        </GoogleButton>
-      </FlexGrowPadding>
+          <GoogleButton onClick={goToGoogleLoginPage}>
+            <GoogleLogo />
+            Google 로그인
+          </GoogleButton>
+        </GridPadding>
+      </FlexCenter>
     </PageHead>
   )
 }
@@ -76,15 +87,18 @@ function AutoLoginCheckbox() {
   )
 }
 
-const MarginImage = styled(Image)`
-  margin: 2rem 1rem;
+const FlexCenter = styled.div`
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    display: flex;
+    justify-content: center;
+  }
 `
 
-const FlexCenterCenter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+const MarginImage = styled(Image)`
+  padding: 2rem 1rem;
+  min-width: 200px;
+  width: 50%;
+  margin: auto;
 `
 
 const H5 = styled.h5`
@@ -119,7 +133,7 @@ const KakaoButton = styled.div`
   border-radius: 10px;
 
   :hover {
-    background: #fee500c0;
+    background: #ecd400;
   }
 `
 
@@ -138,7 +152,7 @@ const GoogleButton = styled.div`
   border-radius: 10px;
 
   :hover {
-    background: #ffffffc0;
+    background: #eee;
   }
 `
 
@@ -156,7 +170,7 @@ const BBathonButton = styled.div`
   border-radius: 10px;
 
   :hover {
-    background: #0071bcc0;
+    background: #005f9f;
   }
 
   svg {
@@ -182,7 +196,7 @@ const NaverButton = styled.div`
   border-radius: 10px;
 
   :hover {
-    background: #03c75ac0;
+    background: #03b152;
   }
 
   svg {
@@ -193,18 +207,18 @@ const NaverButton = styled.div`
   }
 `
 
-export const FlexContainerGrow = styled.div`
-  display: flex;
-  flex-flow: column;
-
-  > :last-child {
-    flex-grow: 1;
-  }
-`
-
-const FlexGrowPadding = styled(FlexContainerGrow)`
+const GridPadding = styled.div`
+  display: grid;
   padding: 2rem 1rem;
   gap: 1rem;
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${TABLET_MIN_WIDTH};
+  }
+
+  > a {
+    text-align: center;
+  }
 `
 
 const PrimaryColorText = styled.span`

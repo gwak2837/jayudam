@@ -3328,15 +3328,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-infinite-scroller@npm:^1.2.3":
-  version: 1.2.3
-  resolution: "@types/react-infinite-scroller@npm:1.2.3"
-  dependencies:
-    "@types/react": "*"
-  checksum: ae11063b5e114bff1f06e9d3d2ca0948a3a224f13b4a30fbfe56f84e535ee6232de9667456695bbbb409de51887d701f8558fd28c36a2ea172e8593346de85d1
-  languageName: node
-  linkType: hard
-
 "@types/react@npm:*":
   version: 17.0.39
   resolution: "@types/react@npm:17.0.39"
@@ -3590,40 +3581,6 @@ __metadata:
   dependencies:
     tslib: ^2.3.0
   checksum: c3f6b200aefc64b5cd9976b7ed0dd22852eb826d835c5dccd3d03ef788d258af50ca64e8de654e5f812134afdb9d5890f334c8de2276d0dca1751785694654f9
-  languageName: node
-  linkType: hard
-
-"@zxing/browser@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@zxing/browser@npm:0.1.1"
-  dependencies:
-    "@zxing/text-encoding": ^0.9.0
-  peerDependencies:
-    "@zxing/library": ^0.19.1
-  dependenciesMeta:
-    "@zxing/text-encoding":
-      optional: true
-  checksum: c681b8b8c61d33c75b2e67cab05ced4de01d00d3999a8ab287c8daf349cc593e4ba62f933497cd794b83468c853eec1e30b15651da3d0665b5bcd8815e5fae17
-  languageName: node
-  linkType: hard
-
-"@zxing/library@npm:^0.19.1":
-  version: 0.19.1
-  resolution: "@zxing/library@npm:0.19.1"
-  dependencies:
-    "@zxing/text-encoding": ~0.9.0
-    ts-custom-error: ^3.0.0
-  dependenciesMeta:
-    "@zxing/text-encoding":
-      optional: true
-  checksum: ed650e4afc74560950efad3d1479f4bcd9878b6baadd4ac9280cec45bdbeba957bb1185cde7858e49493b3f0052d25bd0be3a1c277433e4e09e1f29018aec2f3
-  languageName: node
-  linkType: hard
-
-"@zxing/text-encoding@npm:^0.9.0, @zxing/text-encoding@npm:~0.9.0":
-  version: 0.9.0
-  resolution: "@zxing/text-encoding@npm:0.9.0"
-  checksum: c23b12aee7639382e4949961304a1294776afaffa40f579e09ffecd0e5e68cf26ef3edd75009de46da8a536e571448755ca68b3e2ea707d53793c0edb2e2c34a
   languageName: node
   linkType: hard
 
@@ -5271,13 +5228,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-walk@npm:^0.1.0":
-  version: 0.1.2
-  resolution: "dom-walk@npm:0.1.2"
-  checksum: 19eb0ce9c6de39d5e231530685248545d9cd2bd97b2cb3486e0bfc0f2a393a9addddfd5557463a932b52fdfcf68ad2a619020cd2c74a5fe46fbecaa8e80872f3
-  languageName: node
-  linkType: hard
-
 "domelementtype@npm:^2.0.1, domelementtype@npm:^2.2.0":
   version: 2.2.0
   resolution: "domelementtype@npm:2.2.0"
@@ -6481,16 +6431,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"global@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "global@npm:4.4.0"
-  dependencies:
-    min-document: ^2.19.0
-    process: ^0.11.10
-  checksum: 9c057557c8f5a5bcfbeb9378ba4fe2255d04679452be504608dd5f13b54edf79f7be1db1031ea06a4ec6edd3b9f5f17d2d172fb47e6c69dae57fd84b7e72b77f
-  languageName: node
-  linkType: hard
-
 "globals@npm:^11.1.0":
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
@@ -6754,6 +6694,13 @@ __metadata:
   version: 2.0.2
   resolution: "html-escaper@npm:2.0.2"
   checksum: d2df2da3ad40ca9ee3a39c5cc6475ef67c8f83c234475f24d8e9ce0dc80a2c82df8e1d6fa78ddd1e9022a586ea1bd247a615e80a5cd9273d90111ddda7d9e974
+  languageName: node
+  linkType: hard
+
+"html5-qrcode@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "html5-qrcode@npm:2.2.1"
+  checksum: 1f1753b28e6d33008b8f9c6939f3f679410b627f512d1d81239173bb3d6c2fb907d79c0de16dbaa33862c960aa88f06f337cef2afd6ad462e41308aae865a3b3
   languageName: node
   linkType: hard
 
@@ -7455,10 +7402,7 @@ __metadata:
     "@types/qrcode": ^1.4.2
     "@types/react": ^18.0.14
     "@types/react-dom": ^18.0.5
-    "@types/react-infinite-scroller": ^1.2.3
     "@types/styled-components": ^5.1.25
-    "@zxing/browser": ^0.1.1
-    "@zxing/library": ^0.19.1
     date-fns: ^2.28.0
     dotenv: ^16.0.1
     eslint: ^8.18.0
@@ -7468,8 +7412,8 @@ __metadata:
     eslint-plugin-jest: ^26.5.3
     eslint-plugin-n: ^15.2.3
     eslint-plugin-promise: ^6.0.0
-    global: ^4.4.0
     graphql: ^16.5.0
+    html5-qrcode: ^2.2.1
     husky: ^8.0.1
     jest: ^28.1.2
     next: 12.2.0
@@ -8636,15 +8580,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"min-document@npm:^2.19.0":
-  version: 2.19.0
-  resolution: "min-document@npm:2.19.0"
-  dependencies:
-    dom-walk: ^0.1.0
-  checksum: da6437562ea2228041542a2384528e74e22d1daa1a4ec439c165abf0b9d8a63e17e3b8a6dc6e0c731845e85301198730426932a0e813d23f932ca668340c9623
-  languageName: node
-  linkType: hard
-
 "minimatch@npm:3.0.4":
   version: 3.0.4
   resolution: "minimatch@npm:3.0.4"
@@ -9563,13 +9498,6 @@ __metadata:
     ansi-styles: ^5.0.0
     react-is: ^18.0.0
   checksum: 7fde4e2d6fd57cef8cf2fa9d5560cc62126de481f09c65dccfe89a3e6158a04355cff278853ace07fdf7f2f48c3d77877c00c47d7d3c1c028dcff5c322300d79
-  languageName: node
-  linkType: hard
-
-"process@npm:^0.11.10":
-  version: 0.11.10
-  resolution: "process@npm:0.11.10"
-  checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
   languageName: node
   linkType: hard
 
@@ -11110,13 +11038,6 @@ __metadata:
   version: 0.0.3
   resolution: "tr46@npm:0.0.3"
   checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
-  languageName: node
-  linkType: hard
-
-"ts-custom-error@npm:^3.0.0":
-  version: 3.2.0
-  resolution: "ts-custom-error@npm:3.2.0"
-  checksum: b1d2016de891cecea46a70c4adbaf1e6f7c6178994f72070ee3c218cc1a9e2b12c3011defb8385f15dc03ddfafd8d88ef2c9217e23700fb6e537755f33b9c801
   languageName: node
   linkType: hard
 

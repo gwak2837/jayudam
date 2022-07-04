@@ -4,11 +4,9 @@
     "body": [
       "import PageHead from 'src/components/PageHead'",
       "",
-      "const description = ''",
-      "",
       "export default function $1Page() {",
       "  return (",
-      "    <PageHead title=\"$2 - 자유담\" description={description}>",
+      "    <PageHead title=\"$2 - 자유담\" description=\"\">",
       "      {}",
       "    </PageHead>",
       "  )",
