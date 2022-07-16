@@ -1,14 +1,14 @@
 import { toCanvas } from 'qrcode'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
 import PageHead from 'src/components/PageHead'
-import { useGetCertificateJwtLazyQuery } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 
 export default function QRCodePage() {
   useNeedToLogin()
 
-  const [a, b] = useGetCertificateJwtLazyQuery()
+  const [a, setA] = useState(false)
 
   // Generate QR code image
   const qrCodeImageRef = useRef<HTMLCanvasElement>(null)
@@ -24,6 +24,15 @@ export default function QRCodePage() {
     <PageHead title="QR Code - 자유담" description="">
       <Navigation>
         <canvas ref={qrCodeImageRef} />
+
+        <AppleCheckbox
+          onChange={(e) => {
+            setA(e.target.checked)
+          }}
+          width="50px"
+          background="#26ade3"
+          value={a}
+        />
       </Navigation>
     </PageHead>
   )

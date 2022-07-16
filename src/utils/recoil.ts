@@ -1,8 +1,8 @@
 import { atom } from 'recoil'
 
-export const currentUser = atom({
+export const currentUser = atom<{ nickname: string | null | undefined }>({
   key: 'currentUser',
-  default: { nickname: '' },
+  default: { nickname: null },
 })
 
 export const commentIdToMoveToAtom = atom({

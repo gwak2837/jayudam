@@ -11,7 +11,7 @@ export default function OAuthPage() {
   const queryString = useRef<URLSearchParams>()
   const url = useRef('')
   const [loading, setLoading] = useState(true)
-  const [doesRefetchMe, setDoesRefetchMe] = useState(false)
+  const [didRefetchMe, setDidRefetchMe] = useState(false)
 
   useEffect(() => {
     queryString.current = new URLSearchParams(location.search)
@@ -42,13 +42,13 @@ export default function OAuthPage() {
     if (!nickname) {
       url.current = '/register'
     } else {
-      const redirectionUrlAfterLogin = sessionStorage.getItem('redirectionUrlAfterLogin') ?? '/'
-      // sessionStorage.removeItem('redirectionUrlAfterLogin')
+      const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
+      sessionStorage.removeItem('redirectToAfterLogin')
 
-      if (redirectionUrlAfterLogin === '/@') {
+      if (redirectToAfterLogin === '/@') {
         url.current = `/@${nickname}`
       } else {
-        url.current = redirectionUrlAfterLogin
+        url.current = redirectToAfterLogin
       }
     }
 
@@ -57,7 +57,7 @@ export default function OAuthPage() {
         include: ['Me'],
       })
       .then(() => {
-        setDoesRefetchMe(true)
+        setDidRefetchMe(true)
         toast.success('소셜 로그인에 성공했어요')
       })
       .catch((error) => console.error(error))
@@ -66,10 +66,10 @@ export default function OAuthPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (url.current && doesRefetchMe) {
+    if (url.current && didRefetchMe) {
       router.replace(url.current)
     }
-  }, [doesRefetchMe, router])
+  }, [didRefetchMe, router])
 
   return (
     <PageHead title="소셜 로그인 - 자유담" description={description}>

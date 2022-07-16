@@ -34,11 +34,11 @@
   "Function Component": {
     "prefix": "fc",
     "body": [
+      "export default ${TM_FILENAME_BASE}",
+      "",
       "function ${TM_FILENAME_BASE}() {",
       "  return <>$1</>",
       "}",
-      "",
-      "export default ${TM_FILENAME_BASE}",
       ""
     ],
     "description": "Function Component"
@@ -50,11 +50,11 @@
       "  $1",
       "}",
       "",
+      "export default ${TM_FILENAME_BASE}",
+      "",
       "function ${TM_FILENAME_BASE}({  }: Props) {",
       "  return <></>",
       "}",
-      "",
-      "export default ${TM_FILENAME_BASE}",
       ""
     ],
     "description": "Function Component with Props"

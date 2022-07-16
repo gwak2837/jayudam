@@ -16,7 +16,7 @@ function Authentication({ children }: Props) {
       if (me?.nickname) {
         setCurrentUser({ nickname: me.nickname })
       } else {
-        setCurrentUser({ nickname: 'temp' })
+        setCurrentUser({ nickname: undefined })
       }
     },
     onError: (error) => {

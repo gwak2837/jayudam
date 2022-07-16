@@ -222,7 +222,7 @@ const GridPadding = styled.div`
 `
 
 const PrimaryColorText = styled.span`
-  color: ${(p) => p.theme.primary};
+  color: ${(p) => p.theme.primaryText};
   font-size: 1.3rem;
   font-weight: 500;
 `

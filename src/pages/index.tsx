@@ -19,11 +19,7 @@ export default function HomePage() {
           <h3>Copyright © {new Date().getUTCFullYear()} RobinReview. All rights reserved.</h3>
 
           <FlexWrap>
-            <a
-              href="https://jayudam.notion.site/2022-07-01-a668b74717fa4b39b022610cde11911d"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="https://jayudam.notion.site" target="_blank" rel="noreferrer">
               <h5>자주 묻는 질문</h5>
             </a>
             <a
@@ -40,11 +36,7 @@ export default function HomePage() {
             >
               <h5>개인정보처리방침</h5>
             </a>
-            <a
-              href="https://jayudam.notion.site/2022-06-29-a393f91912884de2b9c54ce8b9ab2208"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="https://jayudam.notion.site" target="_blank" rel="noreferrer">
               <h5>서비스 이용 지침</h5>
             </a>
           </FlexWrap>

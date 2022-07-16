@@ -4,15 +4,17 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { currentUser } from 'src/utils/recoil'
 
-export default function useNeedToLogin() {
+export default function useNeedToLogin(when?: boolean) {
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
 
   useEffect(() => {
-    if (!nickname) {
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      toast.info('로그인이 필요합니다')
+    if (!nickname && when) {
+      sessionStorage.setItem('redirectToAfterLogin', router.asPath)
+      toast.warn('로그인이 필요합니다')
       router.replace('/login')
     }
-  }, [nickname, router])
+  }, [nickname, router, when])
+
+  return nickname
 }

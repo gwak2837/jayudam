@@ -58,7 +58,7 @@ export default function PostsPage() {
       router.push('/post/create')
     } else {
       toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', '/post/create')
+      sessionStorage.setItem('redirectToAfterLogin', '/post/create')
       router.push('/login')
     }
   }

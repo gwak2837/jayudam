@@ -1,0 +1,15 @@
+query GetMySettings {
+  me {
+    id
+    certificateAgreement {
+      showBirthyear
+      showName
+      showSTDTestDetails
+      stdTestSince
+      showImmunizationDetails
+      immunizationSince
+      showSexualCrimeDetails
+      sexualCrimeSince
+    }
+  }
+}
