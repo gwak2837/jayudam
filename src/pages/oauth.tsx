@@ -45,7 +45,7 @@ export default function OAuthPage() {
       const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
       sessionStorage.removeItem('redirectToAfterLogin')
 
-      if (redirectToAfterLogin === '/@') {
+      if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
         url.current = `/@${nickname}`
       } else {
         url.current = redirectToAfterLogin

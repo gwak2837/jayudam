@@ -71,7 +71,7 @@ export default function RegisterPage() {
             if (data?.isUniqueNickname) {
               return resolve(true)
             } else {
-              return resolve(`이미 사용 중인 닉네임이에요. ${variables?.nickname}`)
+              return resolve(`이미 사용 중인 이름이에요. ${variables?.nickname}`)
             }
           })
           .catch((error) => reject(error))
@@ -88,7 +88,7 @@ export default function RegisterPage() {
         const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
         sessionStorage.removeItem('redirectToAfterLogin')
 
-        if (redirectToAfterLogin.startsWith('/@')) {
+        if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
           router.replace(`/@${updateUser.nickname}`)
         } else {
           router.replace(redirectToAfterLogin)
