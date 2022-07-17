@@ -1,7 +1,7 @@
 import React from 'react'
 import PageHead from 'src/components/PageHead'
 import Navigation from 'src/layouts/Navigation'
-import { NAVIGATION_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
+import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
 
 export default function PostsPage() {
@@ -37,20 +37,6 @@ export const PrimaryButton = styled.button`
   border-radius: 99px;
   color: #fff;
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
-`
-
-const FixedButton = styled(PrimaryButton)`
-  position: fixed;
-  bottom: ${NAVIGATION_HEIGHT};
-  right: 50%;
-  transform: translateX(50vw);
-
-  margin: 1.25rem;
-  padding: 0.7rem 1.2rem;
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    transform: translateX(230%);
-  }
 `
 
 const limit = 10
