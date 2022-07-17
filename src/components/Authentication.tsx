@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { useRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import { useMeQuery } from 'src/graphql/generated/types-and-hooks'
+import { useAuthQuery } from 'src/graphql/generated/types-and-hooks'
 import { currentUser } from 'src/utils/recoil'
 
 type Props = {
@@ -11,12 +11,12 @@ type Props = {
 function Authentication({ children }: Props) {
   const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
 
-  useMeQuery({
-    onCompleted: ({ me }) => {
-      if (me?.nickname) {
-        setCurrentUser({ nickname: me.nickname })
+  useAuthQuery({
+    onCompleted: ({ myNickname }) => {
+      if (myNickname?.nickname) {
+        setCurrentUser({ nickname: myNickname.nickname, loading: false })
       } else {
-        setCurrentUser({ nickname: undefined })
+        setCurrentUser({ nickname: undefined, loading: false })
       }
     },
     onError: (error) => {

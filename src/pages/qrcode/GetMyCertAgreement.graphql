@@ -1,0 +1,13 @@
+query GetMyCertAgreement {
+  myCertAgreement {
+    showBirthdate
+    showName
+    showSex
+    showSTDTestDetails
+    stdTestSince
+    showImmunizationDetails
+    immunizationSince
+    showSexualCrimeDetails
+    sexualCrimeSince
+  }
+}

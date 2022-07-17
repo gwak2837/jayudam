@@ -1,5 +1,5 @@
-query VerifyCertificateJWT($jwt: JWT!) {
-  verifyCertificateJWT(jwt: $jwt) {
+mutation VerifyCertJWT($jwt: JWT!) {
+  verifyCertJWT(jwt: $jwt) {
     id
     birthDate
     content

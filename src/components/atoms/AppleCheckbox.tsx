@@ -1,32 +1,34 @@
+import { useState } from 'react'
 import styled from 'styled-components'
 
 type Props = {
-  onChange: (value: any) => any
-  value: any
-  width: string
   background: string
+  checked?: boolean
+  disabled?: boolean
+  onChange: (value: any) => any
+  width: string
 }
 
 export default AppleCheckbox
 
-function AppleCheckbox({ onChange, value, width, background }: Props) {
+function AppleCheckbox({ background, checked, disabled = false, onChange, width }: Props) {
   return (
-    <Label background={background}width={width} >
-      <Input  checked={value} onChange={onChange} type="checkbox"/>
+    <Label disabled={disabled} background={background} width={width}>
+      <Input checked={checked} disabled={disabled} onChange={onChange} type="checkbox" />
       <Span width={width} />
     </Label>
   )
 }
 
-const Label = styled.label<{ width: string; background: string }>`
+const Label = styled.label<{ width: string; background: string; disabled: boolean }>`
   text-align: left;
   width: ${(p) => p.width};
   height: calc(${(p) => p.width} / 2);
   border-radius: 9999px;
-  background: ${(p) => p.background};
+  background: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primary)};
   display: inline-block;
   position: relative;
-  cursor: pointer;
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
 `
 
 const Input = styled.input`

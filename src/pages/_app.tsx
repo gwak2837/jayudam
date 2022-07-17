@@ -50,18 +50,17 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppProps) {
         {gaScript}
       </Script>
 
-      <main>
-        <ThemeProvider2 theme={theme}>
-          <GlobalStyle2 />
-          <ApolloProvider client={client}>
-            <RecoilRoot>
-              <Authentication>
-                <Component {...pageProps} />
-              </Authentication>
-            </RecoilRoot>
-          </ApolloProvider>
-        </ThemeProvider2>
-      </main>
+      <ThemeProvider2 theme={theme}>
+        <GlobalStyle2 />
+        <ApolloProvider client={client}>
+          <RecoilRoot>
+            <Authentication>
+              <Component {...pageProps} />
+            </Authentication>
+          </RecoilRoot>
+        </ApolloProvider>
+      </ThemeProvider2>
+
       <ToastContainer autoClose={2000} hideProgressBar position="top-center" transition={fade} />
     </>
   )

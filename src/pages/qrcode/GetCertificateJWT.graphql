@@ -1,3 +1,0 @@
-query GetCertificateJWT($input: CertificateAgreementInput!) {
-  getCertificateJWT(input: $input)
-}

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import PageHead from 'src/components/PageHead'
 import {
+  MOBILE_HORIZONTAL_MIN_WIDTH,
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_BBATON_CLIENT_ID,
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
@@ -88,7 +89,7 @@ function AutoLoginCheckbox() {
 }
 
 const FlexCenter = styled.div`
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
+  @media (min-width: ${MOBILE_HORIZONTAL_MIN_WIDTH}) {
     display: flex;
     justify-content: center;
   }
@@ -212,8 +213,8 @@ const GridPadding = styled.div`
   padding: 2rem 1rem;
   gap: 1rem;
 
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${TABLET_MIN_WIDTH};
+  @media (min-width: ${MOBILE_HORIZONTAL_MIN_WIDTH}) {
+    min-width: ${MOBILE_HORIZONTAL_MIN_WIDTH};
   }
 
   > a {

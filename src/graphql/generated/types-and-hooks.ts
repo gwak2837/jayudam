@@ -14,34 +14,22 @@ export type Scalars = {
   Boolean: boolean
   Int: number
   Float: number
-  /** Any value */
   Any: any
-  /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   Date: any
-  /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: any
-  /** A field whose value conforms to the standard internet email address format as specified in RFC822: https://www.w3.org/Protocols/rfc822/. */
   EmailAddress: any
-  /** A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction. */
   JWT: any
-  /** A field whose value is a valid decimal degrees latitude number (53.471): https://en.wikipedia.org/wiki/Latitude */
   Latitude: any
-  /** A field whose value is a valid decimal degrees longitude number (53.471): https://en.wikipedia.org/wiki/Longitude */
   Longitude: any
-  /** A string that cannot be passed as an empty value */
   NonEmptyString: any
-  /** Integers that will have a value of 0 or more. */
   NonNegativeInt: any
-  /** Integers that will have a value greater than 0. */
   PositiveInt: any
-  /** A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt. */
   URL: any
-  /** A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier. */
   UUID: any
 }
 
-export type Certificate = {
-  __typename?: 'Certificate'
+export type Cert = {
+  __typename?: 'Cert'
   birthDate?: Maybe<Scalars['Date']>
   content?: Maybe<Scalars['String']>
   effectiveDate?: Maybe<Scalars['Date']>
@@ -49,24 +37,26 @@ export type Certificate = {
   issueDate?: Maybe<Scalars['Date']>
   name?: Maybe<Scalars['NonEmptyString']>
   sex: Sex
+  type: CertType
 }
 
-export type CertificateAgreement = {
-  __typename?: 'CertificateAgreement'
+export type CertAgreement = {
+  __typename?: 'CertAgreement'
   immunizationSince?: Maybe<Scalars['Date']>
   sexualCrimeSince?: Maybe<Scalars['Date']>
-  showBirthyear: Scalars['Boolean']
+  showBirthdate: Scalars['Boolean']
   showImmunizationDetails: Scalars['Boolean']
   showName: Scalars['Boolean']
   showSTDTestDetails: Scalars['Boolean']
+  showSex: Scalars['Boolean']
   showSexualCrimeDetails: Scalars['Boolean']
   stdTestSince?: Maybe<Scalars['Date']>
 }
 
-export type CertificateAgreementInput = {
+export type CertAgreementInput = {
   immunizationSince?: InputMaybe<Scalars['Date']>
   sexualCrimeSince?: InputMaybe<Scalars['Date']>
-  showBirthyear?: InputMaybe<Scalars['Boolean']>
+  showBirthdate?: InputMaybe<Scalars['Boolean']>
   showImmunizationDetails?: InputMaybe<Scalars['Boolean']>
   showName?: InputMaybe<Scalars['Boolean']>
   showSTDTestDetails?: InputMaybe<Scalars['Boolean']>
@@ -75,12 +65,18 @@ export type CertificateAgreementInput = {
   stdTestSince?: InputMaybe<Scalars['Date']>
 }
 
-export type CertificateCreationInput = {
+export type CertCreation = {
   birthDate: Scalars['DateTime']
   issueDate: Scalars['DateTime']
   name: Scalars['NonEmptyString']
   sex: Sex
   verificationCode: Scalars['NonEmptyString']
+}
+
+export enum CertType {
+  Immunization = 'IMMUNIZATION',
+  SexualCrime = 'SEXUAL_CRIME',
+  StdTest = 'STD_TEST',
 }
 
 export type Mutation = {
@@ -94,11 +90,14 @@ export type Mutation = {
   disconnectFromKakaoOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromNaverOAuth?: Maybe<Scalars['Boolean']>
   logout?: Maybe<User>
-  submitCertificateInfo?: Maybe<Scalars['Boolean']>
+  submitCertInfo?: Maybe<Scalars['Boolean']>
   takeAttendance?: Maybe<User>
   unregister?: Maybe<User>
+  updateCertAgreementAndGetCertJWT: Scalars['JWT']
+  updateMyCertAgreement?: Maybe<CertAgreement>
   updatePost?: Maybe<Post>
   updateUser?: Maybe<User>
+  verifyCertJWT?: Maybe<Array<Cert>>
   verifyTown?: Maybe<User>
   wakeUser?: Maybe<User>
 }
@@ -111,8 +110,16 @@ export type MutationDeletePostArgs = {
   id: Scalars['ID']
 }
 
-export type MutationSubmitCertificateInfoArgs = {
-  input: CertificateCreationInput
+export type MutationSubmitCertInfoArgs = {
+  input: CertCreation
+}
+
+export type MutationUpdateCertAgreementAndGetCertJwtArgs = {
+  input: CertAgreementInput
+}
+
+export type MutationUpdateMyCertAgreementArgs = {
+  input?: InputMaybe<CertAgreementInput>
 }
 
 export type MutationUpdatePostArgs = {
@@ -121,6 +128,10 @@ export type MutationUpdatePostArgs = {
 
 export type MutationUpdateUserArgs = {
   input: UserUpdate
+}
+
+export type MutationVerifyCertJwtArgs = {
+  jwt: Scalars['JWT']
 }
 
 export type MutationVerifyTownArgs = {
@@ -165,18 +176,14 @@ export type PostUpdateInput = {
 
 export type Query = {
   __typename?: 'Query'
-  getCertificateJWT: Scalars['JWT']
-  getMyCertificates?: Maybe<Array<Certificate>>
   isUniqueNickname: Scalars['Boolean']
   me?: Maybe<User>
+  myCertAgreement?: Maybe<CertAgreement>
+  myCerts?: Maybe<Array<Cert>>
+  myNickname?: Maybe<User>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
   userByNickname?: Maybe<User>
-  verifyCertificateJWT?: Maybe<Certificate>
-}
-
-export type QueryGetCertificateJwtArgs = {
-  input?: InputMaybe<CertificateAgreementInput>
 }
 
 export type QueryIsUniqueNicknameArgs = {
@@ -191,20 +198,16 @@ export type QueryUserByNicknameArgs = {
   nickname: Scalars['NonEmptyString']
 }
 
-export type QueryVerifyCertificateJwtArgs = {
-  jwt: Scalars['JWT']
-}
-
 export type ServiceAgreement = {
   __typename?: 'ServiceAgreement'
-  adAgreement?: Maybe<Scalars['Boolean']>
+  adAgreement: Scalars['Boolean']
   adAgreementTime?: Maybe<Scalars['DateTime']>
-  locationAgreement?: Maybe<Scalars['Boolean']>
+  locationAgreement: Scalars['Boolean']
   locationAgreementTime?: Maybe<Scalars['DateTime']>
-  personalDataStoringYear?: Maybe<Scalars['NonNegativeInt']>
-  privacyAgreement?: Maybe<Scalars['Boolean']>
+  personalDataStoringYear: Scalars['NonNegativeInt']
+  privacyAgreement: Scalars['Boolean']
   privacyAgreementTime?: Maybe<Scalars['DateTime']>
-  termsAgreement?: Maybe<Scalars['Boolean']>
+  termsAgreement: Scalars['Boolean']
   termsAgreementTime?: Maybe<Scalars['DateTime']>
 }
 
@@ -235,7 +238,7 @@ export type User = {
   birthyear?: Maybe<Scalars['Int']>
   blockingEndTime?: Maybe<Scalars['DateTime']>
   blockingStartTime?: Maybe<Scalars['DateTime']>
-  certificateAgreement?: Maybe<CertificateAgreement>
+  certAgreement?: Maybe<CertAgreement>
   cherry: Scalars['NonNegativeInt']
   creationTime: Scalars['DateTime']
   email?: Maybe<Scalars['EmailAddress']>
@@ -255,7 +258,7 @@ export type User = {
 
 export type UserUpdate = {
   bio?: InputMaybe<Scalars['NonEmptyString']>
-  certificateAgreement?: InputMaybe<CertificateAgreementInput>
+  certAgreement?: InputMaybe<CertAgreementInput>
   email?: InputMaybe<Scalars['EmailAddress']>
   imageUrls?: InputMaybe<Array<Scalars['URL']>>
   nickname?: InputMaybe<Scalars['NonEmptyString']>
@@ -264,46 +267,54 @@ export type UserUpdate = {
   town2Name?: InputMaybe<Scalars['NonEmptyString']>
 }
 
-export type CreatePostMutationVariables = Exact<{
-  input: PostCreationInput
-}>
+export type AuthQueryVariables = Exact<{ [key: string]: never }>
 
-export type CreatePostMutation = {
+export type AuthQuery = {
+  __typename?: 'Query'
+  myNickname?: { __typename?: 'User'; id: any; nickname?: string | null } | null
+}
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never }>
+
+export type LogoutMutation = {
   __typename?: 'Mutation'
-  createPost?: { __typename?: 'Post'; id: string } | null
+  logout?: { __typename?: 'User'; id: any } | null
 }
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>
 
 export type MeQuery = {
   __typename?: 'Query'
-  me?: { __typename?: 'User'; id: any; nickname?: string | null } | null
-}
-
-export type GetCertificateJwtQueryVariables = Exact<{
-  input: CertificateAgreementInput
-}>
-
-export type GetCertificateJwtQuery = { __typename?: 'Query'; getCertificateJWT: any }
-
-export type GetMySettingsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetMySettingsQuery = {
-  __typename?: 'Query'
   me?: {
     __typename?: 'User'
     id: any
-    certificateAgreement?: {
-      __typename?: 'CertificateAgreement'
-      showBirthyear: boolean
-      showName: boolean
-      showSTDTestDetails: boolean
-      stdTestSince?: any | null
-      showImmunizationDetails: boolean
-      immunizationSince?: any | null
-      showSexualCrimeDetails: boolean
-      sexualCrimeSince?: any | null
-    } | null
+    bio?: string | null
+    nickname?: string | null
+    sex: Sex
+  } | null
+}
+
+export type GetCertJwtMutationVariables = Exact<{
+  input: CertAgreementInput
+}>
+
+export type GetCertJwtMutation = { __typename?: 'Mutation'; updateCertAgreementAndGetCertJWT: any }
+
+export type GetMyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetMyCertAgreementQuery = {
+  __typename?: 'Query'
+  myCertAgreement?: {
+    __typename?: 'CertAgreement'
+    showBirthdate: boolean
+    showName: boolean
+    showSex: boolean
+    showSTDTestDetails: boolean
+    stdTestSince?: any | null
+    showImmunizationDetails: boolean
+    immunizationSince?: any | null
+    showSexualCrimeDetails: boolean
+    sexualCrimeSince?: any | null
   } | null
 }
 
@@ -322,14 +333,14 @@ export type UpdateUserMutation = {
   updateUser?: { __typename?: 'User'; id: any; nickname?: string | null } | null
 }
 
-export type VerifyCertificateJwtQueryVariables = Exact<{
+export type VerifyCertJwtMutationVariables = Exact<{
   jwt: Scalars['JWT']
 }>
 
-export type VerifyCertificateJwtQuery = {
-  __typename?: 'Query'
-  verifyCertificateJWT?: {
-    __typename?: 'Certificate'
+export type VerifyCertJwtMutation = {
+  __typename?: 'Mutation'
+  verifyCertJWT?: Array<{
+    __typename?: 'Cert'
     id: string
     birthDate?: any | null
     content?: string | null
@@ -337,58 +348,90 @@ export type VerifyCertificateJwtQuery = {
     issueDate?: any | null
     name?: any | null
     sex: Sex
-  } | null
+  }> | null
 }
 
-export const CreatePostDocument = gql`
-  mutation CreatePost($input: PostCreationInput!) {
-    createPost(input: $input) {
+export const AuthDocument = gql`
+  query Auth {
+    myNickname {
+      id
+      nickname
+    }
+  }
+`
+
+/**
+ * __useAuthQuery__
+ *
+ * To run a query within a React component, call `useAuthQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAuthQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAuthQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAuthQuery(baseOptions?: Apollo.QueryHookOptions<AuthQuery, AuthQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<AuthQuery, AuthQueryVariables>(AuthDocument, options)
+}
+export function useAuthLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<AuthQuery, AuthQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<AuthQuery, AuthQueryVariables>(AuthDocument, options)
+}
+export type AuthQueryHookResult = ReturnType<typeof useAuthQuery>
+export type AuthLazyQueryHookResult = ReturnType<typeof useAuthLazyQuery>
+export type AuthQueryResult = Apollo.QueryResult<AuthQuery, AuthQueryVariables>
+export const LogoutDocument = gql`
+  mutation Logout {
+    logout {
       id
     }
   }
 `
-export type CreatePostMutationFn = Apollo.MutationFunction<
-  CreatePostMutation,
-  CreatePostMutationVariables
->
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>
 
 /**
- * __useCreatePostMutation__
+ * __useLogoutMutation__
  *
- * To run a mutation, you first call `useCreatePostMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreatePostMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
  *   variables: {
- *      input: // value for 'input'
  *   },
  * });
  */
-export function useCreatePostMutation(
-  baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>
+export function useLogoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(
-    CreatePostDocument,
-    options
-  )
+  return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options)
 }
-export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>
-export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>
-export type CreatePostMutationOptions = Apollo.BaseMutationOptions<
-  CreatePostMutation,
-  CreatePostMutationVariables
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<
+  LogoutMutation,
+  LogoutMutationVariables
 >
 export const MeDocument = gql`
   query Me {
     me {
       id
+      bio
       nickname
+      sex
     }
   }
 `
@@ -421,108 +464,107 @@ export function useMeLazyQuery(
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
-export const GetCertificateJwtDocument = gql`
-  query GetCertificateJWT($input: CertificateAgreementInput!) {
-    getCertificateJWT(input: $input)
+export const GetCertJwtDocument = gql`
+  mutation GetCertJWT($input: CertAgreementInput!) {
+    updateCertAgreementAndGetCertJWT(input: $input)
   }
 `
+export type GetCertJwtMutationFn = Apollo.MutationFunction<
+  GetCertJwtMutation,
+  GetCertJwtMutationVariables
+>
 
 /**
- * __useGetCertificateJwtQuery__
+ * __useGetCertJwtMutation__
  *
- * To run a query within a React component, call `useGetCertificateJwtQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCertificateJwtQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useGetCertJwtMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGetCertJwtMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useGetCertificateJwtQuery({
+ * const [getCertJwtMutation, { data, loading, error }] = useGetCertJwtMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useGetCertificateJwtQuery(
-  baseOptions: Apollo.QueryHookOptions<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>
+export function useGetCertJwtMutation(
+  baseOptions?: Apollo.MutationHookOptions<GetCertJwtMutation, GetCertJwtMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>(
-    GetCertificateJwtDocument,
+  return Apollo.useMutation<GetCertJwtMutation, GetCertJwtMutationVariables>(
+    GetCertJwtDocument,
     options
   )
 }
-export function useGetCertificateJwtLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<GetCertificateJwtQuery, GetCertificateJwtQueryVariables>(
-    GetCertificateJwtDocument,
-    options
-  )
-}
-export type GetCertificateJwtQueryHookResult = ReturnType<typeof useGetCertificateJwtQuery>
-export type GetCertificateJwtLazyQueryHookResult = ReturnType<typeof useGetCertificateJwtLazyQuery>
-export type GetCertificateJwtQueryResult = Apollo.QueryResult<
-  GetCertificateJwtQuery,
-  GetCertificateJwtQueryVariables
+export type GetCertJwtMutationHookResult = ReturnType<typeof useGetCertJwtMutation>
+export type GetCertJwtMutationResult = Apollo.MutationResult<GetCertJwtMutation>
+export type GetCertJwtMutationOptions = Apollo.BaseMutationOptions<
+  GetCertJwtMutation,
+  GetCertJwtMutationVariables
 >
-export const GetMySettingsDocument = gql`
-  query GetMySettings {
-    me {
-      id
-      certificateAgreement {
-        showBirthyear
-        showName
-        showSTDTestDetails
-        stdTestSince
-        showImmunizationDetails
-        immunizationSince
-        showSexualCrimeDetails
-        sexualCrimeSince
-      }
+export const GetMyCertAgreementDocument = gql`
+  query GetMyCertAgreement {
+    myCertAgreement {
+      showBirthdate
+      showName
+      showSex
+      showSTDTestDetails
+      stdTestSince
+      showImmunizationDetails
+      immunizationSince
+      showSexualCrimeDetails
+      sexualCrimeSince
     }
   }
 `
 
 /**
- * __useGetMySettingsQuery__
+ * __useGetMyCertAgreementQuery__
  *
- * To run a query within a React component, call `useGetMySettingsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMySettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetMyCertAgreementQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMyCertAgreementQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetMySettingsQuery({
+ * const { data, loading, error } = useGetMyCertAgreementQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetMySettingsQuery(
-  baseOptions?: Apollo.QueryHookOptions<GetMySettingsQuery, GetMySettingsQueryVariables>
+export function useGetMyCertAgreementQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetMyCertAgreementQuery, GetMyCertAgreementQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<GetMySettingsQuery, GetMySettingsQueryVariables>(
-    GetMySettingsDocument,
+  return Apollo.useQuery<GetMyCertAgreementQuery, GetMyCertAgreementQueryVariables>(
+    GetMyCertAgreementDocument,
     options
   )
 }
-export function useGetMySettingsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<GetMySettingsQuery, GetMySettingsQueryVariables>
+export function useGetMyCertAgreementLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMyCertAgreementQuery,
+    GetMyCertAgreementQueryVariables
+  >
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<GetMySettingsQuery, GetMySettingsQueryVariables>(
-    GetMySettingsDocument,
+  return Apollo.useLazyQuery<GetMyCertAgreementQuery, GetMyCertAgreementQueryVariables>(
+    GetMyCertAgreementDocument,
     options
   )
 }
-export type GetMySettingsQueryHookResult = ReturnType<typeof useGetMySettingsQuery>
-export type GetMySettingsLazyQueryHookResult = ReturnType<typeof useGetMySettingsLazyQuery>
-export type GetMySettingsQueryResult = Apollo.QueryResult<
-  GetMySettingsQuery,
-  GetMySettingsQueryVariables
+export type GetMyCertAgreementQueryHookResult = ReturnType<typeof useGetMyCertAgreementQuery>
+export type GetMyCertAgreementLazyQueryHookResult = ReturnType<
+  typeof useGetMyCertAgreementLazyQuery
+>
+export type GetMyCertAgreementQueryResult = Apollo.QueryResult<
+  GetMyCertAgreementQuery,
+  GetMyCertAgreementQueryVariables
 >
 export const IsUniqueNicknameDocument = gql`
   query IsUniqueNickname($nickname: NonEmptyString!) {
@@ -615,9 +657,9 @@ export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserMutation,
   UpdateUserMutationVariables
 >
-export const VerifyCertificateJwtDocument = gql`
-  query VerifyCertificateJWT($jwt: JWT!) {
-    verifyCertificateJWT(jwt: $jwt) {
+export const VerifyCertJwtDocument = gql`
+  mutation VerifyCertJWT($jwt: JWT!) {
+    verifyCertJWT(jwt: $jwt) {
       id
       birthDate
       content
@@ -628,56 +670,44 @@ export const VerifyCertificateJwtDocument = gql`
     }
   }
 `
+export type VerifyCertJwtMutationFn = Apollo.MutationFunction<
+  VerifyCertJwtMutation,
+  VerifyCertJwtMutationVariables
+>
 
 /**
- * __useVerifyCertificateJwtQuery__
+ * __useVerifyCertJwtMutation__
  *
- * To run a query within a React component, call `useVerifyCertificateJwtQuery` and pass it any options that fit your needs.
- * When your component renders, `useVerifyCertificateJwtQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useVerifyCertJwtMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyCertJwtMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useVerifyCertificateJwtQuery({
+ * const [verifyCertJwtMutation, { data, loading, error }] = useVerifyCertJwtMutation({
  *   variables: {
  *      jwt: // value for 'jwt'
  *   },
  * });
  */
-export function useVerifyCertificateJwtQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    VerifyCertificateJwtQuery,
-    VerifyCertificateJwtQueryVariables
-  >
+export function useVerifyCertJwtMutation(
+  baseOptions?: Apollo.MutationHookOptions<VerifyCertJwtMutation, VerifyCertJwtMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<VerifyCertificateJwtQuery, VerifyCertificateJwtQueryVariables>(
-    VerifyCertificateJwtDocument,
+  return Apollo.useMutation<VerifyCertJwtMutation, VerifyCertJwtMutationVariables>(
+    VerifyCertJwtDocument,
     options
   )
 }
-export function useVerifyCertificateJwtLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    VerifyCertificateJwtQuery,
-    VerifyCertificateJwtQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<VerifyCertificateJwtQuery, VerifyCertificateJwtQueryVariables>(
-    VerifyCertificateJwtDocument,
-    options
-  )
-}
-export type VerifyCertificateJwtQueryHookResult = ReturnType<typeof useVerifyCertificateJwtQuery>
-export type VerifyCertificateJwtLazyQueryHookResult = ReturnType<
-  typeof useVerifyCertificateJwtLazyQuery
+export type VerifyCertJwtMutationHookResult = ReturnType<typeof useVerifyCertJwtMutation>
+export type VerifyCertJwtMutationResult = Apollo.MutationResult<VerifyCertJwtMutation>
+export type VerifyCertJwtMutationOptions = Apollo.BaseMutationOptions<
+  VerifyCertJwtMutation,
+  VerifyCertJwtMutationVariables
 >
-export type VerifyCertificateJwtQueryResult = Apollo.QueryResult<
-  VerifyCertificateJwtQuery,
-  VerifyCertificateJwtQueryVariables
->
-export type CertificateKeySpecifier = (
+export type CertKeySpecifier = (
   | 'birthDate'
   | 'content'
   | 'effectiveDate'
@@ -685,9 +715,10 @@ export type CertificateKeySpecifier = (
   | 'issueDate'
   | 'name'
   | 'sex'
-  | CertificateKeySpecifier
+  | 'type'
+  | CertKeySpecifier
 )[]
-export type CertificateFieldPolicy = {
+export type CertFieldPolicy = {
   birthDate?: FieldPolicy<any> | FieldReadFunction<any>
   content?: FieldPolicy<any> | FieldReadFunction<any>
   effectiveDate?: FieldPolicy<any> | FieldReadFunction<any>
@@ -695,25 +726,28 @@ export type CertificateFieldPolicy = {
   issueDate?: FieldPolicy<any> | FieldReadFunction<any>
   name?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
+  type?: FieldPolicy<any> | FieldReadFunction<any>
 }
-export type CertificateAgreementKeySpecifier = (
+export type CertAgreementKeySpecifier = (
   | 'immunizationSince'
   | 'sexualCrimeSince'
-  | 'showBirthyear'
+  | 'showBirthdate'
   | 'showImmunizationDetails'
   | 'showName'
   | 'showSTDTestDetails'
+  | 'showSex'
   | 'showSexualCrimeDetails'
   | 'stdTestSince'
-  | CertificateAgreementKeySpecifier
+  | CertAgreementKeySpecifier
 )[]
-export type CertificateAgreementFieldPolicy = {
+export type CertAgreementFieldPolicy = {
   immunizationSince?: FieldPolicy<any> | FieldReadFunction<any>
   sexualCrimeSince?: FieldPolicy<any> | FieldReadFunction<any>
-  showBirthyear?: FieldPolicy<any> | FieldReadFunction<any>
+  showBirthdate?: FieldPolicy<any> | FieldReadFunction<any>
   showImmunizationDetails?: FieldPolicy<any> | FieldReadFunction<any>
   showName?: FieldPolicy<any> | FieldReadFunction<any>
   showSTDTestDetails?: FieldPolicy<any> | FieldReadFunction<any>
+  showSex?: FieldPolicy<any> | FieldReadFunction<any>
   showSexualCrimeDetails?: FieldPolicy<any> | FieldReadFunction<any>
   stdTestSince?: FieldPolicy<any> | FieldReadFunction<any>
 }
@@ -727,11 +761,14 @@ export type MutationKeySpecifier = (
   | 'disconnectFromKakaoOAuth'
   | 'disconnectFromNaverOAuth'
   | 'logout'
-  | 'submitCertificateInfo'
+  | 'submitCertInfo'
   | 'takeAttendance'
   | 'unregister'
+  | 'updateCertAgreementAndGetCertJWT'
+  | 'updateMyCertAgreement'
   | 'updatePost'
   | 'updateUser'
+  | 'verifyCertJWT'
   | 'verifyTown'
   | 'wakeUser'
   | MutationKeySpecifier
@@ -746,11 +783,14 @@ export type MutationFieldPolicy = {
   disconnectFromKakaoOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromNaverOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   logout?: FieldPolicy<any> | FieldReadFunction<any>
-  submitCertificateInfo?: FieldPolicy<any> | FieldReadFunction<any>
+  submitCertInfo?: FieldPolicy<any> | FieldReadFunction<any>
   takeAttendance?: FieldPolicy<any> | FieldReadFunction<any>
   unregister?: FieldPolicy<any> | FieldReadFunction<any>
+  updateCertAgreementAndGetCertJWT?: FieldPolicy<any> | FieldReadFunction<any>
+  updateMyCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   updatePost?: FieldPolicy<any> | FieldReadFunction<any>
   updateUser?: FieldPolicy<any> | FieldReadFunction<any>
+  verifyCertJWT?: FieldPolicy<any> | FieldReadFunction<any>
   verifyTown?: FieldPolicy<any> | FieldReadFunction<any>
   wakeUser?: FieldPolicy<any> | FieldReadFunction<any>
 }
@@ -776,25 +816,25 @@ export type PostFieldPolicy = {
   modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
-  | 'getCertificateJWT'
-  | 'getMyCertificates'
   | 'isUniqueNickname'
   | 'me'
+  | 'myCertAgreement'
+  | 'myCerts'
+  | 'myNickname'
   | 'post'
   | 'posts'
   | 'userByNickname'
-  | 'verifyCertificateJWT'
   | QueryKeySpecifier
 )[]
 export type QueryFieldPolicy = {
-  getCertificateJWT?: FieldPolicy<any> | FieldReadFunction<any>
-  getMyCertificates?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueNickname?: FieldPolicy<any> | FieldReadFunction<any>
   me?: FieldPolicy<any> | FieldReadFunction<any>
+  myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
+  myCerts?: FieldPolicy<any> | FieldReadFunction<any>
+  myNickname?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
   userByNickname?: FieldPolicy<any> | FieldReadFunction<any>
-  verifyCertificateJWT?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type ServiceAgreementKeySpecifier = (
   | 'adAgreement'
@@ -829,7 +869,7 @@ export type UserKeySpecifier = (
   | 'birthyear'
   | 'blockingEndTime'
   | 'blockingStartTime'
-  | 'certificateAgreement'
+  | 'certAgreement'
   | 'cherry'
   | 'creationTime'
   | 'email'
@@ -852,7 +892,7 @@ export type UserFieldPolicy = {
   birthyear?: FieldPolicy<any> | FieldReadFunction<any>
   blockingEndTime?: FieldPolicy<any> | FieldReadFunction<any>
   blockingStartTime?: FieldPolicy<any> | FieldReadFunction<any>
-  certificateAgreement?: FieldPolicy<any> | FieldReadFunction<any>
+  certAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   cherry?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   email?: FieldPolicy<any> | FieldReadFunction<any>
@@ -870,16 +910,13 @@ export type UserFieldPolicy = {
   towns?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type StrictTypedTypePolicies = {
-  Certificate?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
-    keyFields?: false | CertificateKeySpecifier | (() => undefined | CertificateKeySpecifier)
-    fields?: CertificateFieldPolicy
+  Cert?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | CertKeySpecifier | (() => undefined | CertKeySpecifier)
+    fields?: CertFieldPolicy
   }
-  CertificateAgreement?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
-    keyFields?:
-      | false
-      | CertificateAgreementKeySpecifier
-      | (() => undefined | CertificateAgreementKeySpecifier)
-    fields?: CertificateAgreementFieldPolicy
+  CertAgreement?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | CertAgreementKeySpecifier | (() => undefined | CertAgreementKeySpecifier)
+    fields?: CertAgreementFieldPolicy
   }
   Mutation?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | MutationKeySpecifier | (() => undefined | MutationKeySpecifier)

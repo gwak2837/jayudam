@@ -1,0 +1,3 @@
+mutation GetCertJWT($input: CertAgreementInput!) {
+  updateCertAgreementAndGetCertJWT(input: $input)
+}

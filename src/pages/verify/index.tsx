@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import PageHead from 'src/components/PageHead'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
+import { TABLET_MIN_WIDTH } from 'src/utils/constants'
+import styled from 'styled-components'
 
 export default function VerificationPage() {
   useNeedToLogin()
@@ -45,14 +47,20 @@ export default function VerificationPage() {
   return (
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
-        <button onClick={startScanningQRCode}>start</button>
-        <button onClick={stopScanningQRCode}>stop</button>
-        <br />
-        <div id="reader" />
-        <br />
-        <pre>cameraDevice: {JSON.stringify(cameraDevice, null, 2)}</pre>
-        <pre>decodedResult: {JSON.stringify(decodedResult, null, 2)}</pre>
+        <MaxWidth>
+          <button onClick={startScanningQRCode}>start</button>
+          <button onClick={stopScanningQRCode}>stop</button>
+          <br />
+          <div id="reader" />
+          <br />
+          <pre>decodedResult: {JSON.stringify(decodedResult, null, 2)}</pre>
+        </MaxWidth>
       </Navigation>
     </PageHead>
   )
 }
+
+const MaxWidth = styled.main`
+  max-width: ${TABLET_MIN_WIDTH};
+  overflow: hidden;
+`
