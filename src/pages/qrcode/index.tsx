@@ -11,7 +11,7 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { vw } from 'src/utils'
+import { viewportWidth } from 'src/utils'
 import { MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
@@ -28,6 +28,7 @@ export default function QRCodePage() {
     defaultValues: {
       showBirthdate: false,
       showName: false,
+      showSex: false,
       showSTDTestDetails: false,
       stdTestSince: undefined,
       showImmunizationDetails: false,
@@ -38,12 +39,13 @@ export default function QRCodePage() {
   })
 
   // 인증서 동의 항목 불러오기
-  const { data, loading: certAgreementLoading } = useGetMyCertAgreementQuery({
+  const { loading: certAgreementLoading } = useGetMyCertAgreementQuery({
     onCompleted: ({ myCertAgreement }) => {
       if (myCertAgreement) {
         const {
           showBirthdate,
           showName,
+          showSex,
           showSTDTestDetails,
           stdTestSince,
           showImmunizationDetails,
@@ -54,6 +56,7 @@ export default function QRCodePage() {
 
         setValue('showBirthdate', showBirthdate)
         setValue('showName', showName)
+        setValue('showSex', showSex)
         setValue('showSTDTestDetails', showSTDTestDetails)
         setValue('stdTestSince', stdTestSince)
         setValue('showImmunizationDetails', showImmunizationDetails)
@@ -66,6 +69,7 @@ export default function QRCodePage() {
             input: {
               showBirthdate,
               showName,
+              showSex,
               showSTDTestDetails,
               stdTestSince,
               showImmunizationDetails,
@@ -84,7 +88,7 @@ export default function QRCodePage() {
   // 인증용 JWT 불러오기
   const [getCertJwtMutation, { loading: certJwtLoading }] = useGetCertJwtMutation({
     onCompleted: ({ updateCertAgreementAndGetCertJWT: certJwt }) => {
-      toCanvas(qrCodeImageRef.current, certJwt, { width: Math.max(300, Math.min(vw, 400)) })
+      toCanvas(qrCodeImageRef.current, certJwt, rendererOption)
     },
     onError: toastApolloError,
   })
@@ -129,50 +133,38 @@ export default function QRCodePage() {
             <ul>
               <div>생년월일</div>
               <AppleCheckbox
-                background="#26ade3"
                 checked={watch('showBirthdate')}
                 onChange={(e) => setValue('showBirthdate', e.target.checked)}
-                width="50px"
               />
 
               <div>이름</div>
               <AppleCheckbox
-                background="#26ade3"
                 checked={watch('showName')}
                 onChange={(e) => setValue('showName', e.target.checked)}
-                width="50px"
               />
 
               <div>성별</div>
               <AppleCheckbox
-                background="#26ade3"
                 checked={watch('showSex')}
                 onChange={(e) => setValue('showSex', e.target.checked)}
-                width="50px"
               />
 
               <div>성병검사</div>
               <AppleCheckbox
-                background="#26ade3"
                 checked={watch('showSTDTestDetails')}
                 onChange={(e) => setValue('showSTDTestDetails', e.target.checked)}
-                width="50px"
               />
 
               <div>성병예방접종</div>
               <AppleCheckbox
-                background="#26ade3"
                 checked={watch('showImmunizationDetails')}
                 onChange={(e) => setValue('showImmunizationDetails', e.target.checked)}
-                width="50px"
               />
 
               <div>(성)범죄</div>
               <AppleCheckbox
-                background="#26ade3"
                 checked={watch('showSexualCrimeDetails')}
                 onChange={(e) => setValue('showSexualCrimeDetails', e.target.checked)}
-                width="50px"
               />
             </ul>
 
@@ -205,3 +197,5 @@ type CertAgreementForm = {
   showSexualCrimeDetails?: boolean
   sexualCrimeSince?: Date
 }
+
+const rendererOption = { width: Math.max(300, Math.min(viewportWidth, 400)) }

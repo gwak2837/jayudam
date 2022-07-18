@@ -2,16 +2,22 @@ import { useState } from 'react'
 import styled from 'styled-components'
 
 type Props = {
-  background: string
+  background?: string
   checked?: boolean
   disabled?: boolean
   onChange: (value: any) => any
-  width: string
+  width?: string
 }
 
 export default AppleCheckbox
 
-function AppleCheckbox({ background, checked, disabled = false, onChange, width }: Props) {
+function AppleCheckbox({
+  background = '#26ade3',
+  checked,
+  disabled = false,
+  onChange,
+  width = '50px',
+}: Props) {
   return (
     <Label disabled={disabled} background={background} width={width}>
       <Input checked={checked} disabled={disabled} onChange={onChange} type="checkbox" />

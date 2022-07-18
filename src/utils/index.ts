@@ -3,12 +3,12 @@ import { KeyboardEvent, MouseEvent } from 'react'
 
 import { NEXT_PUBLIC_BACKEND_URL } from './constants'
 
-export const vw = Math.max(
+export const viewportWidth = Math.max(
   globalThis.document?.documentElement.clientWidth || 0,
   globalThis.window?.innerWidth || 0
 )
 
-export const vh = Math.max(
+export const viewportHeight = Math.max(
   globalThis.document?.documentElement.clientHeight || 0,
   globalThis.window?.innerHeight || 0
 )

@@ -1,10 +1,14 @@
 import { Html5Qrcode } from 'html5-qrcode'
 import { CameraDevice, Html5QrcodeResult } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'react-toastify'
+import { toastApolloError } from 'src/apollo/error'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
+import { useVerifyCertJwtMutation } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
+import { viewportWidth } from 'src/utils'
 import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
 
@@ -20,7 +24,7 @@ export default function VerificationPage() {
 
   // Start scanning QR code
   const [scanningDevices, setScanningDevices] = useState<CameraDevice[]>()
-  const [decodedResult, setDecodedResult] = useState<Html5QrcodeResult>()
+  const [decodedResult, setDecodedResult] = useState<any>()
 
   async function startScanningQRCode() {
     if (html5QrcodeRef.current) {
@@ -30,12 +34,7 @@ export default function VerificationPage() {
         setScanningDevices(devices)
       }
 
-      html5QrcodeRef.current.start(
-        devices[0].id,
-        { fps: 2, qrbox: { width: 250, height: 250 } },
-        (_, decodedResult) => setDecodedResult(decodedResult),
-        undefined
-      )
+      html5QrcodeRef.current.start(devices[0].id, qrcodeConfig, verifyJwt, undefined)
     }
   }
 
@@ -48,14 +47,21 @@ export default function VerificationPage() {
   function changeScanningDevice(deviceId: string) {
     if (html5QrcodeRef.current && scanningDevices) {
       html5QrcodeRef.current.stop()
-      html5QrcodeRef.current.start(
-        deviceId,
-        { fps: 2, qrbox: { width: 250, height: 250 } },
-        (_, decodedResult) => setDecodedResult(decodedResult),
-        undefined
-      )
+      html5QrcodeRef.current.start(deviceId, qrcodeConfig, verifyJwt, undefined)
     }
   }
+
+  function verifyJwt(jwt: string) {
+    toast.success('qrcode 인식 완료')
+    verifyCertJwtMutation({ variables: { jwt } })
+  }
+
+  const [verifyCertJwtMutation, { loading }] = useVerifyCertJwtMutation({
+    onCompleted: ({ verifyCertJWT }) => {
+      setDecodedResult(verifyCertJWT)
+    },
+    onError: toastApolloError,
+  })
 
   return (
     <PageHead title="인증하기 - 자유담" description="">
@@ -76,14 +82,22 @@ export default function VerificationPage() {
             </SingleSelectionButtons>
           )}
 
-          <pre>cameraDevice: {JSON.stringify(scanningDevices, null, 2)}</pre>
-          <pre>decodedResult: {JSON.stringify(decodedResult, null, 2)}</pre>
+          <pre>decodedResult: {decodedResult}</pre>
+
           <br />
           <div id="reader" />
         </MaxWidth>
       </Navigation>
     </PageHead>
   )
+}
+
+const qrcodeConfig = {
+  fps: 2,
+  qrbox: {
+    width: Math.max(250, Math.min(viewportWidth, 300)),
+    height: Math.max(250, Math.min(viewportWidth, 300)),
+  },
 }
 
 const MaxWidth = styled.main`

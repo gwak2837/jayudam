@@ -30,7 +30,7 @@ export type Scalars = {
 
 export type Cert = {
   __typename?: 'Cert'
-  birthDate?: Maybe<Scalars['Date']>
+  birthdate?: Maybe<Scalars['Date']>
   content?: Maybe<Scalars['String']>
   effectiveDate?: Maybe<Scalars['Date']>
   id: Scalars['ID']
@@ -66,7 +66,7 @@ export type CertAgreementInput = {
 }
 
 export type CertCreation = {
-  birthDate: Scalars['DateTime']
+  birthdate: Scalars['DateTime']
   issueDate: Scalars['DateTime']
   name: Scalars['NonEmptyString']
   sex: Sex
@@ -342,7 +342,7 @@ export type VerifyCertJwtMutation = {
   verifyCertJWT?: Array<{
     __typename?: 'Cert'
     id: string
-    birthDate?: any | null
+    birthdate?: any | null
     content?: string | null
     effectiveDate?: any | null
     issueDate?: any | null
@@ -661,7 +661,7 @@ export const VerifyCertJwtDocument = gql`
   mutation VerifyCertJWT($jwt: JWT!) {
     verifyCertJWT(jwt: $jwt) {
       id
-      birthDate
+      birthdate
       content
       effectiveDate
       issueDate
@@ -708,7 +708,7 @@ export type VerifyCertJwtMutationOptions = Apollo.BaseMutationOptions<
   VerifyCertJwtMutationVariables
 >
 export type CertKeySpecifier = (
-  | 'birthDate'
+  | 'birthdate'
   | 'content'
   | 'effectiveDate'
   | 'id'
@@ -719,7 +719,7 @@ export type CertKeySpecifier = (
   | CertKeySpecifier
 )[]
 export type CertFieldPolicy = {
-  birthDate?: FieldPolicy<any> | FieldReadFunction<any>
+  birthdate?: FieldPolicy<any> | FieldReadFunction<any>
   content?: FieldPolicy<any> | FieldReadFunction<any>
   effectiveDate?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>

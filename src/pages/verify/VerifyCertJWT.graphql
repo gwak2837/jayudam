@@ -1,7 +1,7 @@
 mutation VerifyCertJWT($jwt: JWT!) {
   verifyCertJWT(jwt: $jwt) {
     id
-    birthDate
+    birthdate
     content
     effectiveDate
     issueDate
