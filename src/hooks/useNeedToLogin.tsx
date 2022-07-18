@@ -1,16 +1,18 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { toast } from 'react-toastify'
-import { useRecoilValue } from 'recoil'
-import { currentUser } from 'src/utils/recoil'
 
 export default function useNeedToLogin(when = true) {
-  const { nickname, loading } = useRecoilValue(currentUser)
   const router = useRouter()
 
+  const jwt = useMemo(
+    () => globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt'),
+    []
+  )
+
   useEffect(() => {
-    if (!loading && !nickname && when) {
+    if (!jwt && when) {
       sessionStorage.setItem('redirectToAfterLogin', router.asPath)
       toast.warn(
         <div>
@@ -18,7 +20,5 @@ export default function useNeedToLogin(when = true) {
         </div>
       )
     }
-  }, [nickname, router, when])
-
-  return nickname
+  }, [jwt, router, when])
 }

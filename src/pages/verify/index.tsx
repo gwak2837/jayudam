@@ -1,6 +1,7 @@
 import { Html5Qrcode } from 'html5-qrcode'
 import { CameraDevice, Html5QrcodeResult } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
+import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
@@ -10,7 +11,7 @@ import styled from 'styled-components'
 export default function VerificationPage() {
   useNeedToLogin()
 
-  // Set up the camera for scanning QR code
+  // 카메라 영역 설정
   const html5QrcodeRef = useRef<Html5Qrcode>()
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export default function VerificationPage() {
   }, [])
 
   // Start scanning QR code
-  const [cameraDevice, setCameraDevice] = useState<CameraDevice[]>()
+  const [scanningDevices, setScanningDevices] = useState<CameraDevice[]>()
   const [decodedResult, setDecodedResult] = useState<Html5QrcodeResult>()
 
   async function startScanningQRCode() {
@@ -26,7 +27,7 @@ export default function VerificationPage() {
       const devices = await Html5Qrcode.getCameras()
 
       if (devices && devices.length) {
-        setCameraDevice(devices)
+        setScanningDevices(devices)
       }
 
       html5QrcodeRef.current.start(
@@ -44,6 +45,18 @@ export default function VerificationPage() {
     }
   }
 
+  function changeScanningDevice(deviceId: any) {
+    if (html5QrcodeRef.current && scanningDevices) {
+      html5QrcodeRef.current.stop()
+      html5QrcodeRef.current.start(
+        scanningDevices[deviceId].id,
+        { fps: 2, qrbox: { width: 250, height: 250 } },
+        (_, decodedResult) => setDecodedResult(decodedResult),
+        undefined
+      )
+    }
+  }
+
   return (
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
@@ -51,9 +64,22 @@ export default function VerificationPage() {
           <button onClick={startScanningQRCode}>start</button>
           <button onClick={stopScanningQRCode}>stop</button>
           <br />
-          <div id="reader" />
-          <br />
+
+          {scanningDevices && (
+            <SingleSelectionButtons
+              onClick={(newDeviceId) => changeScanningDevice(newDeviceId)}
+              values={[scanningDevices.map((device) => device.id)]}
+            >
+              {scanningDevices.map((device, i) => (
+                <div key={i}>{device.label}</div>
+              ))}
+            </SingleSelectionButtons>
+          )}
+
+          <pre>cameraDevice: {JSON.stringify(scanningDevices, null, 2)}</pre>
           <pre>decodedResult: {JSON.stringify(decodedResult, null, 2)}</pre>
+          <br />
+          <div id="reader" />
         </MaxWidth>
       </Navigation>
     </PageHead>

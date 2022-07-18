@@ -12,13 +12,10 @@ export default function HomePage() {
         <MaxWidth>
           <Link href="/login">로그인</Link>
 
-          <Footer>
-            <div>
-              <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
-              <GreyH5>인증 기반 커뮤니티</GreyH5>
-            </div>
+          <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
 
-            <h3>Copyright © {new Date().getUTCFullYear()} RobinReview.</h3>
+          <Footer>
+            <h3>Copyright © {new Date().getUTCFullYear()} LobinReview.</h3>
             <h4>All rights reserved.</h4>
 
             <FlexWrap>
@@ -72,8 +69,6 @@ const FlexWrap = styled.div`
   flex-flow: row wrap;
   align-items: center;
   gap: 0rem 1rem;
-
-  /* font-size: 0.6rem; */
 `
 
 const GreySmallText = styled.p`

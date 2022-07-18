@@ -57,10 +57,10 @@ const StickyNav = styled.nav`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
-  font-size: 0.9rem;
 
   background: #fff;
   border-top: 1px solid #26ade3;
+  font-size: 0.9rem;
 
   svg {
     width: 1.5rem;
@@ -74,7 +74,7 @@ const StickyNav = styled.nav`
 `
 
 const BlockLink = styled(Link)`
-  padding: 0.5rem;
+  padding: 0.5rem 0.5rem 1rem;
   text-align: center;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {

@@ -40,7 +40,7 @@ export const HD_DESKTOP_MIN_WIDTH = '1920px'
 
 export const APPLICATION_NAME = '자유담 - 보건기록 가명인증' // = site.webmanifest name
 export const APPLICATION_SHORT_NAME = '자유담' // = site.webmanifest short_name
-export const SUBJECT = '공공보건 증진을 위한 의료기록 가명 인증 서비스'
+export const SUBJECT = '공공보건 증진을 위한 보건기록 가명인증 서비스'
 export const KEYWORDS = `${APPLICATION_SHORT_NAME},jayudam,공공보건,보건기록,가명인증` // 최대 10개
 export const AUTHOR = '로빈리뷰(LobinReview)'
 export const CANONICAL_URL =

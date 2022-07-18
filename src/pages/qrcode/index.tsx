@@ -131,7 +131,6 @@ export default function QRCodePage() {
               <AppleCheckbox
                 background="#26ade3"
                 checked={watch('showBirthdate')}
-                disabled={true}
                 onChange={(e) => setValue('showBirthdate', e.target.checked)}
                 width="50px"
               />

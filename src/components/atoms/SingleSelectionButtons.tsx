@@ -31,15 +31,16 @@ export default function SingleSelectionButtons({ children, initialValue, onClick
 }
 
 const Ul = styled.ul`
+  border: 1px solid ${(p) => p.theme.primary};
   border-radius: 8px;
   display: flex;
-  outline: 1px solid ${(p) => p.theme.primary};
   overflow: hidden;
 `
 
 const Button = styled.button`
   background: ${(p) => (p.disabled ? p.theme.primaryBackground : '#fff')};
   color: ${(p) => (p.disabled ? '#000' : p.theme.primaryAchromatic)};
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   outline: 1px solid ${(p) => p.theme.primary};
   padding: 1rem;
   transition: all 0.2s ease-out;

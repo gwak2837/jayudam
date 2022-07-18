@@ -6,15 +6,17 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
-import React, { useEffect } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { ToastContainer, cssTransition } from 'react-toastify'
-import { RecoilRoot } from 'recoil'
+import { RecoilRoot, useRecoilState } from 'recoil'
 import { client } from 'src/apollo/client'
-import Authentication from 'src/components/Authentication'
+import { toastApolloError } from 'src/apollo/error'
+import { useAuthQuery } from 'src/graphql/generated/types-and-hooks'
 import { GlobalStyle } from 'src/styles/global'
 import { theme } from 'src/styles/global'
 import { NEXT_PUBLIC_GOOGLE_ANALYTICS_ID } from 'src/utils/constants'
 import { pageview } from 'src/utils/google-analytics'
+import { currentUser } from 'src/utils/recoil'
 import { ThemeProvider } from 'styled-components'
 
 // https://github.com/styled-components/styled-components/issues/3738
@@ -24,7 +26,7 @@ const GlobalStyle2: any = GlobalStyle
 export default function AlpacaSalonApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
-  // Google Analytics 초기 설정
+  // Google Analytics 설정
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') {
       const handleRouteChange = (url: string) => pageview(url)
@@ -64,6 +66,36 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppProps) {
       <ToastContainer autoClose={2000} hideProgressBar position="top-center" transition={fade} />
     </>
   )
+}
+
+type Props = {
+  children: ReactNode
+}
+
+function Authentication({ children }: Props) {
+  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
+
+  useAuthQuery({
+    onCompleted: ({ myNickname }) => {
+      if (myNickname?.nickname) {
+        setCurrentUser({ nickname: myNickname.nickname })
+      } else {
+        setCurrentUser({ nickname: undefined })
+      }
+    },
+    onError: (error) => {
+      toastApolloError(error)
+      globalThis.sessionStorage?.removeItem('jwt')
+      globalThis.localStorage?.removeItem('jwt')
+    },
+    // Storage에 jwt가 존재하는데 nickname이 없을 때만
+    skip: Boolean(
+      nickname ||
+        (!globalThis.sessionStorage?.getItem('jwt') && !globalThis.localStorage?.getItem('jwt'))
+    ),
+  })
+
+  return <>{children}</>
 }
 
 const fade = cssTransition({
