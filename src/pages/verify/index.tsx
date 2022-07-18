@@ -45,11 +45,11 @@ export default function VerificationPage() {
     }
   }
 
-  function changeScanningDevice(deviceId: any) {
+  function changeScanningDevice(deviceId: string) {
     if (html5QrcodeRef.current && scanningDevices) {
       html5QrcodeRef.current.stop()
       html5QrcodeRef.current.start(
-        scanningDevices[deviceId].id,
+        deviceId,
         { fps: 2, qrbox: { width: 250, height: 250 } },
         (_, decodedResult) => setDecodedResult(decodedResult),
         undefined
@@ -68,7 +68,7 @@ export default function VerificationPage() {
           {scanningDevices && (
             <SingleSelectionButtons
               onClick={(newDeviceId) => changeScanningDevice(newDeviceId)}
-              values={[scanningDevices.map((device) => device.id)]}
+              values={scanningDevices.map((device) => device.id)}
             >
               {scanningDevices.map((device, i) => (
                 <div key={i}>{device.label}</div>
