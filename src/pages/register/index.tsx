@@ -177,7 +177,7 @@ export default function RegisterPage() {
           <GridSmallGap>
             <H3>휴면계정 전환 기간</H3>
             <SingleSelectionButtons
-              onClick={(e) => setValue('personalDataStoringYear', e)}
+              onChange={(e) => setValue('personalDataStoringYear', e)}
               values={[1, 3, 5, 10]}
             >
               <div>1년</div>

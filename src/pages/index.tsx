@@ -15,7 +15,7 @@ export default function HomePage() {
           <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
 
           <Footer>
-            <h3>Copyright © {new Date().getUTCFullYear()} LobinReview.</h3>
+            <h3>Copyright © {new Date().getUTCFullYear()} LobinReview</h3>
             <h4>All rights reserved.</h4>
 
             <FlexWrap>
@@ -89,5 +89,6 @@ const Footer = styled.footer`
   display: grid;
   gap: 1rem;
 
+  background: ${(p) => p.theme.background};
   padding: 1rem;
 `

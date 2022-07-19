@@ -95,7 +95,7 @@ export default function VerificationPage() {
 
             {scanningDevices && (
               <SingleSelectionButtons
-                onClick={(newDeviceId) => changeScanningDevice(newDeviceId)}
+                onChange={(newDeviceId) => changeScanningDevice(newDeviceId)}
                 values={scanningDevices.map((device) => device.id)}
               >
                 {scanningDevices.map((device, i) => (

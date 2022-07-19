@@ -3,12 +3,19 @@ import styled from 'styled-components'
 
 type Props = {
   children: ReactNode[]
+  className?: string
   initialValue?: unknown
-  onClick: (newValue: any) => void
+  onChange: (newValue: any) => void
   values: unknown[]
 }
 
-export default function SingleSelectionButtons({ children, initialValue, onClick, values }: Props) {
+export default function SingleSelectionButtons({
+  children,
+  className,
+  initialValue,
+  onChange,
+  values,
+}: Props) {
   const [selected, setSelected] = useState(initialValue ?? values[0])
 
   return (
@@ -16,10 +23,11 @@ export default function SingleSelectionButtons({ children, initialValue, onClick
       {[...Array(children.length)].map((_, i) => (
         <Button
           key={i}
+          className={className}
           disabled={selected === values[i]}
           onClick={() => {
             setSelected(values[i])
-            onClick(values[i])
+            onChange(values[i])
           }}
           type="button"
         >

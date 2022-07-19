@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
+import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
   useGetMyCertAgreementQuery,
@@ -128,6 +129,7 @@ export default function QRCodePage() {
   })
 
   const isInputDisabled = !nickname || certAgreementLoading || updateCertAgreementLoading
+  const selectionSince = [null, new Date(), new Date(), new Date(), null]
 
   return (
     <PageHead title="QR Code - 자유담" description="">
@@ -170,6 +172,18 @@ export default function QRCodePage() {
                 />
               </li>
               <li>
+                <GridSmallGap>
+                  <label>성병검사 기간</label>
+                  <SSingleSelectionButtons onChange={(e) => console.log(e)} values={selectionSince}>
+                    <div>전체</div>
+                    <div>최근 1개월</div>
+                    <div>최근 6개월</div>
+                    <div>최근 1년</div>
+                    <div>선택</div>
+                  </SSingleSelectionButtons>
+                </GridSmallGap>
+              </li>
+              <li>
                 <div>성병예방접종</div>
                 <AppleCheckbox
                   checked={watch('showImmunizationDetails')}
@@ -178,12 +192,36 @@ export default function QRCodePage() {
                 />
               </li>
               <li>
+                <GridSmallGap>
+                  <label>성병예방접종 기간</label>
+                  <SSingleSelectionButtons onChange={(e) => console.log(e)} values={selectionSince}>
+                    <div>전체</div>
+                    <div>최근 1개월</div>
+                    <div>최근 6개월</div>
+                    <div>최근 1년</div>
+                    <div>선택</div>
+                  </SSingleSelectionButtons>
+                </GridSmallGap>
+              </li>
+              <li>
                 <div>(성)범죄</div>
                 <AppleCheckbox
                   checked={watch('showSexualCrimeDetails')}
                   disabled={isInputDisabled}
                   onChange={(e) => setValue('showSexualCrimeDetails', e.target.checked)}
                 />
+              </li>
+              <li>
+                <GridSmallGap>
+                  <label>(성)범죄 기간</label>
+                  <SSingleSelectionButtons onChange={(e) => console.log(e)} values={selectionSince}>
+                    <div>전체</div>
+                    <div>최근 1개월</div>
+                    <div>최근 6개월</div>
+                    <div>최근 1년</div>
+                    <div>선택</div>
+                  </SSingleSelectionButtons>
+                </GridSmallGap>
               </li>
               <SubmitButton disabled={isInputDisabled} type="submit">
                 QR Code 재생성하기
@@ -215,6 +253,15 @@ const Ul = styled.ul`
     display: flex;
     justify-content: space-between;
   }
+`
+
+const SSingleSelectionButtons = styled(SingleSelectionButtons)`
+  padding: 0.5rem;
+`
+
+const GridSmallGap = styled.div`
+  display: grid;
+  gap: 0.5rem;
 `
 
 type CertAgreementForm = {
