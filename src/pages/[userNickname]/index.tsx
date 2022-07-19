@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { useLogoutMutation } from 'src/graphql/generated/types-and-hooks'
+import { useLogoutMutation, useUserQuery } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { getUserNickname } from 'src/utils'
@@ -13,8 +13,10 @@ import {
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
+  TABLET_MIN_WIDTH,
 } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
+import styled from 'styled-components'
 
 import GoogleLogo from '../../svgs/google-logo.svg'
 import KakaoLogo from '../../svgs/kakao-logo.svg'
@@ -36,7 +38,13 @@ export default function UserPage() {
     }
   }, [nickname, router])
 
-  const [logoutMutation, { loading }] = useLogoutMutation({
+  const { data, loading: userLoading } = useUserQuery({
+    onError: toastApolloError,
+    skip: userNickname === 'null' || userNickname === 'undefined',
+    variables: { nickname: userNickname === nickname ? null : userNickname },
+  })
+
+  const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
     onCompleted: ({ logout }) => {
       if (logout) {
         globalThis.sessionStorage?.removeItem('jwt')
@@ -60,34 +68,40 @@ export default function UserPage() {
   return (
     <PageHead title={`@${userNickname} - 자유담`} description="">
       <Navigation>
-        {nickname}
+        <MinWidth>
+          <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
+          {nickname && (
+            <>
+              {nickname}
+              <button disabled={logoutLoading} onClick={logout}>
+                로그아웃
+              </button>
 
-        {nickname && (
-          <>
-            <button disabled={loading} onClick={logout}>
-              로그아웃
-            </button>
+              <KakaoButton disabled={logoutLoading} onClick={goToKakaoLoginPage}>
+                <KakaoLogo />
+                카카오톡 연결하기
+              </KakaoButton>
 
-            <KakaoButton disabled={loading} onClick={goToKakaoLoginPage}>
-              <KakaoLogo />
-              카카오톡 연결하기
-            </KakaoButton>
+              <NaverButton disabled={logoutLoading} onClick={goToNaverLoginPage}>
+                <NaverLogo />
+                네이버 연결하기
+              </NaverButton>
 
-            <NaverButton disabled={loading} onClick={goToNaverLoginPage}>
-              <NaverLogo />
-              네이버 연결하기
-            </NaverButton>
-
-            <GoogleButton disabled={loading} onClick={goToGoogleLoginPage}>
-              <GoogleLogo />
-              Google 연결하기
-            </GoogleButton>
-          </>
-        )}
+              <GoogleButton disabled={logoutLoading} onClick={goToGoogleLoginPage}>
+                <GoogleLogo />
+                Google 연결하기
+              </GoogleButton>
+            </>
+          )}
+        </MinWidth>
       </Navigation>
     </PageHead>
   )
 }
+
+const MinWidth = styled.main`
+  max-width: ${TABLET_MIN_WIDTH};
+`
 
 function goToKakaoLoginPage() {
   const querystring = new URLSearchParams({

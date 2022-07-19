@@ -79,6 +79,12 @@ export enum CertType {
   StdTest = 'STD_TEST',
 }
 
+export enum Grade {
+  Enterprise = 'ENTERPRISE',
+  Free = 'FREE',
+  Pro = 'PRO',
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   createPost?: Maybe<Post>
@@ -180,13 +186,12 @@ export type PostUpdateInput = {
 export type Query = {
   __typename?: 'Query'
   isUniqueNickname: Scalars['Boolean']
-  me?: Maybe<User>
   myCertAgreement?: Maybe<CertAgreement>
   myCerts?: Maybe<Array<Cert>>
   myNickname?: Maybe<User>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
-  userByNickname?: Maybe<User>
+  user?: Maybe<User>
 }
 
 export type QueryIsUniqueNicknameArgs = {
@@ -197,8 +202,8 @@ export type QueryPostArgs = {
   id: Scalars['ID']
 }
 
-export type QueryUserByNicknameArgs = {
-  nickname: Scalars['NonEmptyString']
+export type QueryUserArgs = {
+  nickname?: InputMaybe<Scalars['NonEmptyString']>
 }
 
 export type ServiceAgreement = {
@@ -245,6 +250,7 @@ export type User = {
   cherry: Scalars['NonNegativeInt']
   creationTime: Scalars['DateTime']
   email?: Maybe<Scalars['EmailAddress']>
+  grade?: Maybe<Grade>
   id: Scalars['UUID']
   imageUrls?: Maybe<Array<Scalars['URL']>>
   isVerifiedBirthday: Scalars['Boolean']
@@ -253,11 +259,11 @@ export type User = {
   isVerifiedName: Scalars['Boolean']
   isVerifiedPhoneNumber: Scalars['Boolean']
   isVerifiedSex: Scalars['Boolean']
-  logoutTime: Scalars['DateTime']
+  logoutTime?: Maybe<Scalars['DateTime']>
   nickname?: Maybe<Scalars['String']>
-  oauthProviders?: Maybe<Array<Maybe<OAuthProvider>>>
+  oAuthProviders?: Maybe<Array<OAuthProvider>>
   serviceAgreement?: Maybe<ServiceAgreement>
-  sex: Sex
+  sex?: Maybe<Sex>
   towns?: Maybe<Array<Town>>
 }
 
@@ -283,21 +289,28 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never }>
 
 export type LogoutMutation = {
   __typename?: 'Mutation'
-  logout?: { __typename?: 'User'; logoutTime: any } | null
+  logout?: { __typename?: 'User'; logoutTime?: any | null } | null
 }
 
-export type MeQueryVariables = Exact<{ [key: string]: never }>
+export type UserQueryVariables = Exact<{
+  nickname?: InputMaybe<Scalars['NonEmptyString']>
+}>
 
-export type MeQuery = {
+export type UserQuery = {
   __typename?: 'Query'
-  me?: {
+  user?: {
     __typename?: 'User'
     id: any
     bio?: string | null
+    blockingStartTime?: any | null
+    blockingEndTime?: any | null
     cherry: any
+    grade?: Grade | null
+    imageUrls?: Array<any> | null
+    isVerifiedSex: boolean
     nickname?: string | null
-    oauthProviders?: Array<OAuthProvider | null> | null
-    sex: Sex
+    sex?: Sex | null
+    towns?: Array<{ __typename?: 'Town'; count: any; name: any }> | null
   } | null
 }
 
@@ -432,47 +445,56 @@ export type LogoutMutationOptions = Apollo.BaseMutationOptions<
   LogoutMutation,
   LogoutMutationVariables
 >
-export const MeDocument = gql`
-  query Me {
-    me {
+export const UserDocument = gql`
+  query User($nickname: NonEmptyString) {
+    user(nickname: $nickname) {
       id
       bio
+      blockingStartTime
+      blockingEndTime
       cherry
+      grade
+      imageUrls
+      isVerifiedSex
       nickname
-      oauthProviders
       sex
+      towns {
+        count
+        name
+      }
     }
   }
 `
 
 /**
- * __useMeQuery__
+ * __useUserQuery__
  *
- * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
- * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useMeQuery({
+ * const { data, loading, error } = useUserQuery({
  *   variables: {
+ *      nickname: // value for 'nickname'
  *   },
  * });
  */
-export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+export function useUserQuery(baseOptions?: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options)
+  return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options)
 }
-export function useMeLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>
+export function useUserLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<UserQuery, UserQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options)
+  return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options)
 }
-export type MeQueryHookResult = ReturnType<typeof useMeQuery>
-export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
-export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
+export type UserQueryHookResult = ReturnType<typeof useUserQuery>
+export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
+export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
 export const GetMyCertAgreementDocument = gql`
   query GetMyCertAgreement {
     myCertAgreement {
@@ -825,24 +847,22 @@ export type PostFieldPolicy = {
 }
 export type QueryKeySpecifier = (
   | 'isUniqueNickname'
-  | 'me'
   | 'myCertAgreement'
   | 'myCerts'
   | 'myNickname'
   | 'post'
   | 'posts'
-  | 'userByNickname'
+  | 'user'
   | QueryKeySpecifier
 )[]
 export type QueryFieldPolicy = {
   isUniqueNickname?: FieldPolicy<any> | FieldReadFunction<any>
-  me?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   myCerts?: FieldPolicy<any> | FieldReadFunction<any>
   myNickname?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
-  userByNickname?: FieldPolicy<any> | FieldReadFunction<any>
+  user?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type ServiceAgreementKeySpecifier = (
   | 'adAgreement'
@@ -881,6 +901,7 @@ export type UserKeySpecifier = (
   | 'cherry'
   | 'creationTime'
   | 'email'
+  | 'grade'
   | 'id'
   | 'imageUrls'
   | 'isVerifiedBirthday'
@@ -891,7 +912,7 @@ export type UserKeySpecifier = (
   | 'isVerifiedSex'
   | 'logoutTime'
   | 'nickname'
-  | 'oauthProviders'
+  | 'oAuthProviders'
   | 'serviceAgreement'
   | 'sex'
   | 'towns'
@@ -906,6 +927,7 @@ export type UserFieldPolicy = {
   cherry?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   email?: FieldPolicy<any> | FieldReadFunction<any>
+  grade?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedBirthday?: FieldPolicy<any> | FieldReadFunction<any>
@@ -916,7 +938,7 @@ export type UserFieldPolicy = {
   isVerifiedSex?: FieldPolicy<any> | FieldReadFunction<any>
   logoutTime?: FieldPolicy<any> | FieldReadFunction<any>
   nickname?: FieldPolicy<any> | FieldReadFunction<any>
-  oauthProviders?: FieldPolicy<any> | FieldReadFunction<any>
+  oAuthProviders?: FieldPolicy<any> | FieldReadFunction<any>
   serviceAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
   towns?: FieldPolicy<any> | FieldReadFunction<any>

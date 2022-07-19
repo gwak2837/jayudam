@@ -1,4 +1,4 @@
-import { Html5Qrcode } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode'
 import { CameraDevice } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -20,6 +20,18 @@ export default function VerificationPage() {
 
   useEffect(() => {
     html5QrcodeRef.current = new Html5Qrcode('reader')
+
+    return () => {
+      if (html5QrcodeRef.current) {
+        const state = html5QrcodeRef.current.getState()
+        if (
+          state === Html5QrcodeScannerState.PAUSED ||
+          state === Html5QrcodeScannerState.SCANNING
+        ) {
+          html5QrcodeRef.current.stop()
+        }
+      }
+    }
   }, [])
 
   // QR code 읽기 시작/중지/변경
@@ -62,6 +74,7 @@ export default function VerificationPage() {
 
   function verifyJwt(jwt: string) {
     toast.success('qrcode 인식 완료')
+    html5QrcodeRef.current?.pause()
     verifyCertJwtMutation({ variables: { jwt } })
   }
 
@@ -69,20 +82,28 @@ export default function VerificationPage() {
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
         <MaxWidth>
-          <button onClick={startScanningQRCode}>start</button>
-          <button onClick={stopScanningQRCode}>stop</button>
-          <br />
-
-          {scanningDevices && (
-            <SingleSelectionButtons
-              onClick={(newDeviceId) => changeScanningDevice(newDeviceId)}
-              values={scanningDevices.map((device) => device.id)}
+          <div>
+            <button onClick={startScanningQRCode}>start</button>
+            <button onClick={stopScanningQRCode}>stop</button>
+            <button
+              onClick={() => {
+                html5QrcodeRef.current?.resume()
+              }}
             >
-              {scanningDevices.map((device, i) => (
-                <div key={i}>{device.label}</div>
-              ))}
-            </SingleSelectionButtons>
-          )}
+              resume
+            </button>
+
+            {scanningDevices && (
+              <SingleSelectionButtons
+                onClick={(newDeviceId) => changeScanningDevice(newDeviceId)}
+                values={scanningDevices.map((device) => device.id)}
+              >
+                {scanningDevices.map((device, i) => (
+                  <div key={i}>{device.label}</div>
+                ))}
+              </SingleSelectionButtons>
+            )}
+          </div>
 
           <pre>cert: {JSON.stringify(data)}</pre>
 

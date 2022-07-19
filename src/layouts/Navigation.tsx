@@ -81,6 +81,8 @@ const StickyNav = styled.nav`
     display: block;
     max-width: 200px;
     padding: 0 0.7rem;
+    position: sticky;
+    top: 0;
   }
 `
 

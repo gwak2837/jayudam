@@ -157,6 +157,7 @@ const BBathonButton = styled(LoginButton)`
 // https://developers.kakao.com/docs/latest/ko/reference/design-guide
 export const KakaoButton = styled(LoginButton)`
   background: #fee500;
+  color: #000000ee;
 
   :hover {
     background: #ecd400;
@@ -185,6 +186,7 @@ export const NaverButton = styled(LoginButton)`
 export const GoogleButton = styled(LoginButton)`
   background: #fff;
   border: 1px solid #ccc;
+  color: #000;
 
   :hover {
     background: #eee;
