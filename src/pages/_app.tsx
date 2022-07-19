@@ -87,6 +87,7 @@ function Authentication({ children }: Props) {
       toastApolloError(error)
       globalThis.sessionStorage?.removeItem('jwt')
       globalThis.localStorage?.removeItem('jwt')
+      setCurrentUser({ nickname: null })
     },
     // Storage에 jwt가 존재하는데 nickname이 없을 때만
     skip: Boolean(

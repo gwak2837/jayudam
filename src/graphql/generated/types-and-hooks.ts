@@ -36,7 +36,7 @@ export type Cert = {
   id: Scalars['ID']
   issueDate?: Maybe<Scalars['Date']>
   name?: Maybe<Scalars['NonEmptyString']>
-  sex: Sex
+  sex?: Maybe<Sex>
   type: CertType
 }
 
@@ -93,7 +93,7 @@ export type Mutation = {
   submitCertInfo?: Maybe<Scalars['Boolean']>
   takeAttendance?: Maybe<User>
   unregister?: Maybe<User>
-  updateCertAgreementAndGetCertJWT: Scalars['JWT']
+  updateCertAgreement: Scalars['JWT']
   updateMyCertAgreement?: Maybe<CertAgreement>
   updatePost?: Maybe<Post>
   updateUser?: Maybe<User>
@@ -114,7 +114,7 @@ export type MutationSubmitCertInfoArgs = {
   input: CertCreation
 }
 
-export type MutationUpdateCertAgreementAndGetCertJwtArgs = {
+export type MutationUpdateCertAgreementArgs = {
   input: CertAgreementInput
 }
 
@@ -294,12 +294,6 @@ export type MeQuery = {
   } | null
 }
 
-export type GetCertJwtMutationVariables = Exact<{
-  input: CertAgreementInput
-}>
-
-export type GetCertJwtMutation = { __typename?: 'Mutation'; updateCertAgreementAndGetCertJWT: any }
-
 export type GetMyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetMyCertAgreementQuery = {
@@ -317,6 +311,12 @@ export type GetMyCertAgreementQuery = {
     sexualCrimeSince?: any | null
   } | null
 }
+
+export type UpdateCertAgreementMutationVariables = Exact<{
+  input: CertAgreementInput
+}>
+
+export type UpdateCertAgreementMutation = { __typename?: 'Mutation'; updateCertAgreement: any }
 
 export type IsUniqueNicknameQueryVariables = Exact<{
   nickname: Scalars['NonEmptyString']
@@ -347,7 +347,7 @@ export type VerifyCertJwtMutation = {
     effectiveDate?: any | null
     issueDate?: any | null
     name?: any | null
-    sex: Sex
+    sex?: Sex | null
   }> | null
 }
 
@@ -464,48 +464,6 @@ export function useMeLazyQuery(
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
-export const GetCertJwtDocument = gql`
-  mutation GetCertJWT($input: CertAgreementInput!) {
-    updateCertAgreementAndGetCertJWT(input: $input)
-  }
-`
-export type GetCertJwtMutationFn = Apollo.MutationFunction<
-  GetCertJwtMutation,
-  GetCertJwtMutationVariables
->
-
-/**
- * __useGetCertJwtMutation__
- *
- * To run a mutation, you first call `useGetCertJwtMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGetCertJwtMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [getCertJwtMutation, { data, loading, error }] = useGetCertJwtMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useGetCertJwtMutation(
-  baseOptions?: Apollo.MutationHookOptions<GetCertJwtMutation, GetCertJwtMutationVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<GetCertJwtMutation, GetCertJwtMutationVariables>(
-    GetCertJwtDocument,
-    options
-  )
-}
-export type GetCertJwtMutationHookResult = ReturnType<typeof useGetCertJwtMutation>
-export type GetCertJwtMutationResult = Apollo.MutationResult<GetCertJwtMutation>
-export type GetCertJwtMutationOptions = Apollo.BaseMutationOptions<
-  GetCertJwtMutation,
-  GetCertJwtMutationVariables
->
 export const GetMyCertAgreementDocument = gql`
   query GetMyCertAgreement {
     myCertAgreement {
@@ -565,6 +523,53 @@ export type GetMyCertAgreementLazyQueryHookResult = ReturnType<
 export type GetMyCertAgreementQueryResult = Apollo.QueryResult<
   GetMyCertAgreementQuery,
   GetMyCertAgreementQueryVariables
+>
+export const UpdateCertAgreementDocument = gql`
+  mutation UpdateCertAgreement($input: CertAgreementInput!) {
+    updateCertAgreement(input: $input)
+  }
+`
+export type UpdateCertAgreementMutationFn = Apollo.MutationFunction<
+  UpdateCertAgreementMutation,
+  UpdateCertAgreementMutationVariables
+>
+
+/**
+ * __useUpdateCertAgreementMutation__
+ *
+ * To run a mutation, you first call `useUpdateCertAgreementMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCertAgreementMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCertAgreementMutation, { data, loading, error }] = useUpdateCertAgreementMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCertAgreementMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCertAgreementMutation,
+    UpdateCertAgreementMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdateCertAgreementMutation, UpdateCertAgreementMutationVariables>(
+    UpdateCertAgreementDocument,
+    options
+  )
+}
+export type UpdateCertAgreementMutationHookResult = ReturnType<
+  typeof useUpdateCertAgreementMutation
+>
+export type UpdateCertAgreementMutationResult = Apollo.MutationResult<UpdateCertAgreementMutation>
+export type UpdateCertAgreementMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCertAgreementMutation,
+  UpdateCertAgreementMutationVariables
 >
 export const IsUniqueNicknameDocument = gql`
   query IsUniqueNickname($nickname: NonEmptyString!) {
@@ -764,7 +769,7 @@ export type MutationKeySpecifier = (
   | 'submitCertInfo'
   | 'takeAttendance'
   | 'unregister'
-  | 'updateCertAgreementAndGetCertJWT'
+  | 'updateCertAgreement'
   | 'updateMyCertAgreement'
   | 'updatePost'
   | 'updateUser'
@@ -786,7 +791,7 @@ export type MutationFieldPolicy = {
   submitCertInfo?: FieldPolicy<any> | FieldReadFunction<any>
   takeAttendance?: FieldPolicy<any> | FieldReadFunction<any>
   unregister?: FieldPolicy<any> | FieldReadFunction<any>
-  updateCertAgreementAndGetCertJWT?: FieldPolicy<any> | FieldReadFunction<any>
+  updateCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   updateMyCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   updatePost?: FieldPolicy<any> | FieldReadFunction<any>
   updateUser?: FieldPolicy<any> | FieldReadFunction<any>

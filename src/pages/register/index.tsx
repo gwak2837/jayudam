@@ -253,9 +253,9 @@ export default function RegisterPage() {
           <div>
             <H3>따뜻하고 행복하게</H3>
             <H4>일상을 채울 준비가 되셨나요?</H4>
-            <Button disabled={hasFormError || updateUserLoading} type="submit">
+            <SubmitButton disabled={hasFormError || updateUserLoading} type="submit">
               네, 그럼요!
-            </Button>
+            </SubmitButton>
           </div>
         </GridMinWidth>
       </FlexCenter>
@@ -361,7 +361,7 @@ const WarningH5 = styled(H5)`
   color: ${(p) => p.theme.warn};
 `
 
-const Button = styled.button`
+export const SubmitButton = styled.button`
   padding: 1rem;
   width: 100%;
   border-radius: 8px;

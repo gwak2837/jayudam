@@ -105,8 +105,7 @@ const FlexCenter = styled.div`
 const MarginImage = styled(Image)`
   padding: 2rem 1rem;
   min-width: 200px;
-  width: 50%;
-  margin: auto;
+  height: 7rem;
 `
 
 const H5 = styled.h5`
