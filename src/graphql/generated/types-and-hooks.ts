@@ -81,9 +81,6 @@ export enum CertType {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  connectToGoogleOAuth?: Maybe<Scalars['Boolean']>
-  connectToKakaoOAuth?: Maybe<Scalars['Boolean']>
-  connectToNaverOAuth?: Maybe<Scalars['Boolean']>
   createPost?: Maybe<Post>
   deletePost?: Maybe<Post>
   disconnectFromGoogleOAuth?: Maybe<Scalars['Boolean']>
@@ -137,6 +134,12 @@ export type MutationVerifyCertJwtArgs = {
 export type MutationVerifyTownArgs = {
   lat: Scalars['Latitude']
   lon: Scalars['Longitude']
+}
+
+export enum OAuthProvider {
+  Google = 'GOOGLE',
+  Kakao = 'KAKAO',
+  Naver = 'NAVER',
 }
 
 /** 기본값: 내림차순 */
@@ -250,7 +253,9 @@ export type User = {
   isVerifiedName: Scalars['Boolean']
   isVerifiedPhoneNumber: Scalars['Boolean']
   isVerifiedSex: Scalars['Boolean']
+  logoutTime: Scalars['DateTime']
   nickname?: Maybe<Scalars['String']>
+  oauthProviders?: Maybe<Array<Maybe<OAuthProvider>>>
   serviceAgreement?: Maybe<ServiceAgreement>
   sex: Sex
   towns?: Maybe<Array<Town>>
@@ -278,7 +283,7 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never }>
 
 export type LogoutMutation = {
   __typename?: 'Mutation'
-  logout?: { __typename?: 'User'; id: any } | null
+  logout?: { __typename?: 'User'; logoutTime: any } | null
 }
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>
@@ -289,7 +294,9 @@ export type MeQuery = {
     __typename?: 'User'
     id: any
     bio?: string | null
+    cherry: any
     nickname?: string | null
+    oauthProviders?: Array<OAuthProvider | null> | null
     sex: Sex
   } | null
 }
@@ -391,7 +398,7 @@ export type AuthQueryResult = Apollo.QueryResult<AuthQuery, AuthQueryVariables>
 export const LogoutDocument = gql`
   mutation Logout {
     logout {
-      id
+      logoutTime
     }
   }
 `
@@ -430,7 +437,9 @@ export const MeDocument = gql`
     me {
       id
       bio
+      cherry
       nickname
+      oauthProviders
       sex
     }
   }
@@ -757,9 +766,6 @@ export type CertAgreementFieldPolicy = {
   stdTestSince?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type MutationKeySpecifier = (
-  | 'connectToGoogleOAuth'
-  | 'connectToKakaoOAuth'
-  | 'connectToNaverOAuth'
   | 'createPost'
   | 'deletePost'
   | 'disconnectFromGoogleOAuth'
@@ -779,9 +785,6 @@ export type MutationKeySpecifier = (
   | MutationKeySpecifier
 )[]
 export type MutationFieldPolicy = {
-  connectToGoogleOAuth?: FieldPolicy<any> | FieldReadFunction<any>
-  connectToKakaoOAuth?: FieldPolicy<any> | FieldReadFunction<any>
-  connectToNaverOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   createPost?: FieldPolicy<any> | FieldReadFunction<any>
   deletePost?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromGoogleOAuth?: FieldPolicy<any> | FieldReadFunction<any>
@@ -886,7 +889,9 @@ export type UserKeySpecifier = (
   | 'isVerifiedName'
   | 'isVerifiedPhoneNumber'
   | 'isVerifiedSex'
+  | 'logoutTime'
   | 'nickname'
+  | 'oauthProviders'
   | 'serviceAgreement'
   | 'sex'
   | 'towns'
@@ -909,7 +914,9 @@ export type UserFieldPolicy = {
   isVerifiedName?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedPhoneNumber?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedSex?: FieldPolicy<any> | FieldReadFunction<any>
+  logoutTime?: FieldPolicy<any> | FieldReadFunction<any>
   nickname?: FieldPolicy<any> | FieldReadFunction<any>
+  oauthProviders?: FieldPolicy<any> | FieldReadFunction<any>
   serviceAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
   towns?: FieldPolicy<any> | FieldReadFunction<any>

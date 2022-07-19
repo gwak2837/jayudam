@@ -50,6 +50,7 @@ const Flex = styled.div`
     display: flex;
     flex-flow: row-reverse nowrap;
     justify-content: center;
+    gap: 1rem;
   }
 `
 

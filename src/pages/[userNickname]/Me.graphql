@@ -2,7 +2,9 @@ query Me {
   me {
     id
     bio
+    cherry
     nickname
+    oauthProviders
     sex
   }
 }

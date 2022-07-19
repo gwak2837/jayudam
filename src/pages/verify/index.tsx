@@ -33,7 +33,7 @@ export default function VerificationPage() {
         setScanningDevices(devices)
       }
 
-      html5QrcodeRef.current.start(devices[0].id, qrcodeConfig, verifyJwt, undefined)
+      html5QrcodeRef.current.start(devices[0].id, scannerConfig, verifyJwt, undefined)
     }
   }
 
@@ -46,7 +46,7 @@ export default function VerificationPage() {
   function changeScanningDevice(deviceId: string) {
     if (html5QrcodeRef.current && scanningDevices) {
       html5QrcodeRef.current.stop()
-      html5QrcodeRef.current.start(deviceId, qrcodeConfig, verifyJwt, undefined)
+      html5QrcodeRef.current.start(deviceId, scannerConfig, verifyJwt, undefined)
     }
   }
 
@@ -94,7 +94,7 @@ export default function VerificationPage() {
   )
 }
 
-const qrcodeConfig = {
+const scannerConfig = {
   fps: 2,
   qrbox: {
     width: Math.max(250, Math.min(viewportWidth, 300)),

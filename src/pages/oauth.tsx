@@ -57,7 +57,7 @@ export default function OAuthPage() {
       })
       .then(() => {
         setDoRedirect(true)
-        toast.success('소셜 로그인에 성공했어요')
+        toast.success('소셜 로그인 성공')
       })
       .catch((error) => console.error(error))
   }, [])

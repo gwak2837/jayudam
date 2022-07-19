@@ -19,6 +19,7 @@ import styled from 'styled-components'
 import CheckBoxIcon from '../svgs/CheckBoxIcon'
 import GoogleLogo from '../svgs/google-logo.svg'
 import KakaoLogo from '../svgs/kakao-logo.svg'
+import NaverLogo from '../svgs/naver-logo.svg'
 
 export default function LoginPage() {
   const { nickname } = useRecoilValue(currentUser)
@@ -60,7 +61,10 @@ export default function LoginPage() {
             카카오톡 로그인
           </KakaoButton>
 
-          <NaverButton onClick={goToNaverLoginPage}>네이버 로그인</NaverButton>
+          <NaverButton onClick={goToNaverLoginPage}>
+            <NaverLogo />
+            네이버 로그인
+          </NaverButton>
 
           <GoogleButton onClick={goToGoogleLoginPage}>
             <GoogleLogo />
@@ -125,91 +129,69 @@ const LoginCheckBox = styled.input`
   display: none;
 `
 
-// https://developers.kakao.com/docs/latest/ko/reference/design-guide
-const KakaoButton = styled.div`
+const LoginButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  cursor: pointer;
+  gap: 0.5rem;
 
-  background: #fee500;
-  padding: 1rem;
-  transition: background 0.3s ease-in;
   border-radius: 10px;
-
-  :hover {
-    background: #ecd400;
-  }
-`
-
-// https://developers.google.com/identity/branding-guidelines
-const GoogleButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-
-  background: #fff;
-  border: 1px solid #ccc;
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   padding: 1rem;
   transition: background 0.2s ease-in;
-  border-radius: 10px;
-
-  :hover {
-    background: #eee;
-  }
 `
 
-const BBathonButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-
+const BBathonButton = styled(LoginButton)`
   background: #0071bc;
   color: #fff;
-  padding: 1rem;
-  transition: background 0.2s ease-in;
-  border-radius: 10px;
 
   :hover {
     background: #005f9f;
   }
 
-  svg {
-    position: absolute;
-    top: 50%;
-    left: 1rem;
-    transform: translateY(-50%);
+  > svg {
+    width: 1.5rem;
+  }
+`
+
+// https://developers.kakao.com/docs/latest/ko/reference/design-guide
+export const KakaoButton = styled(LoginButton)`
+  background: #fee500;
+
+  :hover {
+    background: #ecd400;
+  }
+
+  > svg {
+    width: 1.5rem;
   }
 `
 
 // https://developers.naver.com/docs/login/bi/bi.md
-const NaverButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-
+export const NaverButton = styled(LoginButton)`
   background: #03c75a;
   color: #fff;
-  padding: 1rem;
-  transition: background 0.2s ease-in;
-  border-radius: 10px;
 
   :hover {
     background: #03b152;
   }
 
-  svg {
-    position: absolute;
-    top: 50%;
-    left: 1rem;
-    transform: translateY(-50%);
+  > svg {
+    width: 1.5rem;
+  }
+`
+
+// https://developers.google.com/identity/branding-guidelines
+export const GoogleButton = styled(LoginButton)`
+  background: #fff;
+  border: 1px solid #ccc;
+
+  :hover {
+    background: #eee;
+  }
+
+  > svg {
+    width: 1.8rem;
   }
 `
 
