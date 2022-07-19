@@ -38,6 +38,14 @@ export default function QRCodePage() {
     },
   })
 
+  // 인증용 JWT 불러오기
+  const [getCertJwtMutation, { loading: certJwtLoading }] = useGetCertJwtMutation({
+    onCompleted: ({ updateCertAgreementAndGetCertJWT: certJwt }) => {
+      toCanvas(qrCodeImageRef.current, certJwt, rendererOption)
+    },
+    onError: toastApolloError,
+  })
+
   // 인증서 동의 항목 불러오기
   const { loading: certAgreementLoading } = useGetMyCertAgreementQuery({
     onCompleted: ({ myCertAgreement }) => {
@@ -83,14 +91,6 @@ export default function QRCodePage() {
     },
     onError: toastApolloError,
     skip: !nickname,
-  })
-
-  // 인증용 JWT 불러오기
-  const [getCertJwtMutation, { loading: certJwtLoading }] = useGetCertJwtMutation({
-    onCompleted: ({ updateCertAgreementAndGetCertJWT: certJwt }) => {
-      toCanvas(qrCodeImageRef.current, certJwt, rendererOption)
-    },
-    onError: toastApolloError,
   })
 
   function getCertJwt(input: CertAgreementForm) {

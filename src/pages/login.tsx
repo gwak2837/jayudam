@@ -2,6 +2,7 @@ import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import PageHead from 'src/components/PageHead'
 import {
@@ -25,7 +26,13 @@ export default function LoginPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (nickname) router.replace('/')
+    if (nickname) {
+      toast.warn(
+        <div>
+          이미 로그인했어요 <Link href="/">홈으로 가기</Link>
+        </div>
+      )
+    }
   }, [nickname, router])
 
   return (

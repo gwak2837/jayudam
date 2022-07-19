@@ -24,7 +24,6 @@ export default function VerificationPage() {
 
   // Start scanning QR code
   const [scanningDevices, setScanningDevices] = useState<CameraDevice[]>()
-  const [decodedResult, setDecodedResult] = useState<any>()
 
   async function startScanningQRCode() {
     if (html5QrcodeRef.current) {
@@ -56,10 +55,7 @@ export default function VerificationPage() {
     verifyCertJwtMutation({ variables: { jwt } })
   }
 
-  const [verifyCertJwtMutation, { loading }] = useVerifyCertJwtMutation({
-    onCompleted: ({ verifyCertJWT }) => {
-      setDecodedResult(verifyCertJWT)
-    },
+  const [verifyCertJwtMutation, { data, loading }] = useVerifyCertJwtMutation({
     onError: toastApolloError,
   })
 
@@ -82,7 +78,7 @@ export default function VerificationPage() {
             </SingleSelectionButtons>
           )}
 
-          <pre>decodedResult: {decodedResult}</pre>
+          <pre>decodedResult: {JSON.stringify(data)}</pre>
 
           <br />
           <div id="reader" />
