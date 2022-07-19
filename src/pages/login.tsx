@@ -12,7 +12,6 @@ import {
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
-  TABLET_MIN_WIDTH,
 } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'

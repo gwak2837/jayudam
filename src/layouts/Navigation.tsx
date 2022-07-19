@@ -16,7 +16,7 @@ function Navigation({ children }: Props) {
 
   return (
     <Flex>
-      {children}
+      <MinHeight>{children}</MinHeight>
       <StickyNav>
         <BlockLink href="/verify">
           <VerifyIcon />
@@ -45,8 +45,16 @@ function Navigation({ children }: Props) {
 
 export default Navigation
 
-const MaxWidth = styled.main`
-  max-width: ${TABLET_MIN_WIDTH};
+const Flex = styled.div`
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    display: flex;
+    flex-flow: row-reverse nowrap;
+    justify-content: center;
+  }
+`
+
+const MinHeight = styled.div`
+  min-height: 100vh;
 `
 
 const StickyNav = styled.nav`
@@ -67,6 +75,8 @@ const StickyNav = styled.nav`
   }
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
+    border: 1px solid #26ade3;
+    height: 100vh;
     display: block;
     max-width: 200px;
     padding: 0 0.7rem;
@@ -74,7 +84,7 @@ const StickyNav = styled.nav`
 `
 
 const BlockLink = styled(Link)`
-  padding: 0.5rem 0.5rem 1rem;
+  padding: 1rem 0.5rem 1.5rem;
   text-align: center;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
@@ -84,13 +94,5 @@ const BlockLink = styled(Link)`
     :hover {
       background: ${(p) => p.theme.background};
     }
-  }
-`
-
-const Flex = styled.div`
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    display: flex;
-    flex-flow: row-reverse nowrap;
-    justify-content: center;
   }
 `

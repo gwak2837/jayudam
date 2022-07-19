@@ -1,5 +1,5 @@
 import { Html5Qrcode } from 'html5-qrcode'
-import { CameraDevice, Html5QrcodeResult } from 'html5-qrcode/esm/core'
+import { CameraDevice } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -22,7 +22,7 @@ export default function VerificationPage() {
     html5QrcodeRef.current = new Html5Qrcode('reader')
   }, [])
 
-  // Start scanning QR code
+  // QR code 읽기 시작/중지/변경
   const [scanningDevices, setScanningDevices] = useState<CameraDevice[]>()
 
   async function startScanningQRCode() {
@@ -50,14 +50,20 @@ export default function VerificationPage() {
     }
   }
 
+  // QR code 검증하기
+  const [verifyCertJwtMutation, { data, loading }] = useVerifyCertJwtMutation({
+    onCompleted: ({ verifyCertJWT }) => {
+      if (verifyCertJWT) {
+        toast.success('qrcode 인증 완료')
+      }
+    },
+    onError: toastApolloError,
+  })
+
   function verifyJwt(jwt: string) {
     toast.success('qrcode 인식 완료')
     verifyCertJwtMutation({ variables: { jwt } })
   }
-
-  const [verifyCertJwtMutation, { data, loading }] = useVerifyCertJwtMutation({
-    onError: toastApolloError,
-  })
 
   return (
     <PageHead title="인증하기 - 자유담" description="">
@@ -78,7 +84,7 @@ export default function VerificationPage() {
             </SingleSelectionButtons>
           )}
 
-          <pre>decodedResult: {JSON.stringify(data)}</pre>
+          <pre>cert: {JSON.stringify(data)}</pre>
 
           <br />
           <div id="reader" />

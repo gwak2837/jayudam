@@ -11,7 +11,7 @@ export default function OAuthPage() {
   const queryString = useRef<URLSearchParams>()
   const url = useRef('')
   const [loading, setLoading] = useState(true)
-  const [didRefetchMe, setDidRefetchMe] = useState(false)
+  const [doRedirect, setDoRedirect] = useState(false)
 
   useEffect(() => {
     queryString.current = new URLSearchParams(location.search)
@@ -43,7 +43,6 @@ export default function OAuthPage() {
       url.current = '/register'
     } else {
       const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
-      sessionStorage.removeItem('redirectToAfterLogin')
 
       if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
         url.current = `/@${nickname}`
@@ -57,19 +56,21 @@ export default function OAuthPage() {
         include: ['Me'],
       })
       .then(() => {
-        setDidRefetchMe(true)
+        setDoRedirect(true)
         toast.success('소셜 로그인에 성공했어요')
       })
       .catch((error) => console.error(error))
   }, [])
 
+  // 해당 페이지로 이동하기
   const router = useRouter()
 
   useEffect(() => {
-    if (url.current && didRefetchMe) {
+    if (url.current && doRedirect) {
+      sessionStorage.removeItem('redirectToAfterLogin')
       router.replace(url.current)
     }
-  }, [didRefetchMe, router])
+  }, [doRedirect, router])
 
   return (
     <PageHead title="소셜 로그인 - 자유담" description={description}>

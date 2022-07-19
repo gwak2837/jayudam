@@ -161,7 +161,6 @@ export default function QRCodePage() {
                   onChange={(e) => setValue('showSex', e.target.checked)}
                 />
               </li>
-
               <li>
                 <div>성병검사</div>
                 <AppleCheckbox
@@ -170,7 +169,6 @@ export default function QRCodePage() {
                   onChange={(e) => setValue('showSTDTestDetails', e.target.checked)}
                 />
               </li>
-
               <li>
                 <div>성병예방접종</div>
                 <AppleCheckbox
