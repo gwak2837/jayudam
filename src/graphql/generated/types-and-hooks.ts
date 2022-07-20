@@ -42,27 +42,27 @@ export type Cert = {
 
 export type CertAgreement = {
   __typename?: 'CertAgreement'
-  immunizationSince?: Maybe<Scalars['Date']>
-  sexualCrimeSince?: Maybe<Scalars['Date']>
+  immunizationSince?: Maybe<Scalars['DateTime']>
+  sexualCrimeSince?: Maybe<Scalars['DateTime']>
   showBirthdate: Scalars['Boolean']
   showImmunizationDetails: Scalars['Boolean']
   showName: Scalars['Boolean']
   showSTDTestDetails: Scalars['Boolean']
   showSex: Scalars['Boolean']
   showSexualCrimeDetails: Scalars['Boolean']
-  stdTestSince?: Maybe<Scalars['Date']>
+  stdTestSince?: Maybe<Scalars['DateTime']>
 }
 
 export type CertAgreementInput = {
-  immunizationSince?: InputMaybe<Scalars['Date']>
-  sexualCrimeSince?: InputMaybe<Scalars['Date']>
+  immunizationSince?: InputMaybe<Scalars['DateTime']>
+  sexualCrimeSince?: InputMaybe<Scalars['DateTime']>
   showBirthdate?: InputMaybe<Scalars['Boolean']>
   showImmunizationDetails?: InputMaybe<Scalars['Boolean']>
   showName?: InputMaybe<Scalars['Boolean']>
   showSTDTestDetails?: InputMaybe<Scalars['Boolean']>
   showSex?: InputMaybe<Scalars['Boolean']>
   showSexualCrimeDetails?: InputMaybe<Scalars['Boolean']>
-  stdTestSince?: InputMaybe<Scalars['Date']>
+  stdTestSince?: InputMaybe<Scalars['DateTime']>
 }
 
 export type CertCreation = {
@@ -237,7 +237,7 @@ export enum Sex {
 export type Town = {
   __typename?: 'Town'
   count: Scalars['NonNegativeInt']
-  name: Scalars['NonEmptyString']
+  name?: Maybe<Scalars['NonEmptyString']>
 }
 
 export type User = {
@@ -310,13 +310,13 @@ export type UserQuery = {
     isVerifiedSex: boolean
     nickname?: string | null
     sex?: Sex | null
-    towns?: Array<{ __typename?: 'Town'; count: any; name: any }> | null
+    towns?: Array<{ __typename?: 'Town'; count: any; name?: any | null }> | null
   } | null
 }
 
-export type GetMyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
+export type MyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetMyCertAgreementQuery = {
+export type MyCertAgreementQuery = {
   __typename?: 'Query'
   myCertAgreement?: {
     __typename?: 'CertAgreement'
@@ -495,8 +495,8 @@ export function useUserLazyQuery(
 export type UserQueryHookResult = ReturnType<typeof useUserQuery>
 export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
 export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
-export const GetMyCertAgreementDocument = gql`
-  query GetMyCertAgreement {
+export const MyCertAgreementDocument = gql`
+  query MyCertAgreement {
     myCertAgreement {
       showBirthdate
       showName
@@ -512,48 +512,43 @@ export const GetMyCertAgreementDocument = gql`
 `
 
 /**
- * __useGetMyCertAgreementQuery__
+ * __useMyCertAgreementQuery__
  *
- * To run a query within a React component, call `useGetMyCertAgreementQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMyCertAgreementQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useMyCertAgreementQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyCertAgreementQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetMyCertAgreementQuery({
+ * const { data, loading, error } = useMyCertAgreementQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetMyCertAgreementQuery(
-  baseOptions?: Apollo.QueryHookOptions<GetMyCertAgreementQuery, GetMyCertAgreementQueryVariables>
+export function useMyCertAgreementQuery(
+  baseOptions?: Apollo.QueryHookOptions<MyCertAgreementQuery, MyCertAgreementQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<GetMyCertAgreementQuery, GetMyCertAgreementQueryVariables>(
-    GetMyCertAgreementDocument,
+  return Apollo.useQuery<MyCertAgreementQuery, MyCertAgreementQueryVariables>(
+    MyCertAgreementDocument,
     options
   )
 }
-export function useGetMyCertAgreementLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetMyCertAgreementQuery,
-    GetMyCertAgreementQueryVariables
-  >
+export function useMyCertAgreementLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<MyCertAgreementQuery, MyCertAgreementQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<GetMyCertAgreementQuery, GetMyCertAgreementQueryVariables>(
-    GetMyCertAgreementDocument,
+  return Apollo.useLazyQuery<MyCertAgreementQuery, MyCertAgreementQueryVariables>(
+    MyCertAgreementDocument,
     options
   )
 }
-export type GetMyCertAgreementQueryHookResult = ReturnType<typeof useGetMyCertAgreementQuery>
-export type GetMyCertAgreementLazyQueryHookResult = ReturnType<
-  typeof useGetMyCertAgreementLazyQuery
->
-export type GetMyCertAgreementQueryResult = Apollo.QueryResult<
-  GetMyCertAgreementQuery,
-  GetMyCertAgreementQueryVariables
+export type MyCertAgreementQueryHookResult = ReturnType<typeof useMyCertAgreementQuery>
+export type MyCertAgreementLazyQueryHookResult = ReturnType<typeof useMyCertAgreementLazyQuery>
+export type MyCertAgreementQueryResult = Apollo.QueryResult<
+  MyCertAgreementQuery,
+  MyCertAgreementQueryVariables
 >
 export const UpdateCertAgreementDocument = gql`
   mutation UpdateCertAgreement($input: CertAgreementInput!) {

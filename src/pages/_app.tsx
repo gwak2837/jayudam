@@ -23,7 +23,7 @@ import { ThemeProvider } from 'styled-components'
 const ThemeProvider2: any = ThemeProvider
 const GlobalStyle2: any = GlobalStyle
 
-export default function AlpacaSalonApp({ Component, pageProps }: AppProps) {
+export default function JayudamApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
   // Google Analytics 설정

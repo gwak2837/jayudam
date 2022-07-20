@@ -1,5 +1,5 @@
 import { toCanvas } from 'qrcode'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
@@ -7,13 +7,14 @@ import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
-  useGetMyCertAgreementQuery,
+  useMyCertAgreementQuery,
   useUpdateCertAgreementMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { viewportWidth } from 'src/utils'
 import { MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
+import { getNMonthBefore, getNYearBefore } from 'src/utils/date'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -41,6 +42,18 @@ export default function QRCodePage() {
     },
   })
 
+  const [stdTestSince, setSTDTestSince] = useState('')
+  const [immunizationSince, setImmunizationSince] = useState('')
+  const [sexualCrimeSince, setSexualCrimeSince] = useState('')
+
+  const [selectedSTDTestSince, setSelectedSTDTestSince] = useState(0)
+  const [selectedImmunizationSince, setSelectedImmunizationSince] = useState(0)
+  const [selectedSexualCrimeSince, setSelectedSexualCrimeSince] = useState(0)
+
+  const watchShowSTDTestDetails = watch('showSTDTestDetails')
+  const watchShowImmunizationDetails = watch('showImmunizationDetails')
+  const watchShowSexualCrimeDetails = watch('showSexualCrimeDetails')
+
   // 인증용 JWT 불러오기
   const [updateCertAgreementMutation, { loading: updateCertAgreementLoading }] =
     useUpdateCertAgreementMutation({
@@ -48,7 +61,7 @@ export default function QRCodePage() {
         toCanvas(qrCodeImageRef.current, certJwt, rendererOption)
       },
       onError: toastApolloError,
-      refetchQueries: ['GetMyCertAgreement'],
+      refetchQueries: ['MyCertAgreement'],
     })
 
   function updateCertAgreement(input: CertAgreementForm) {
@@ -71,18 +84,18 @@ export default function QRCodePage() {
           ...(showName && { showName }),
           ...(showSex && { showSex }),
           ...(showSTDTestDetails && { showSTDTestDetails }),
-          ...(stdTestSince && { stdTestSince }),
+          ...(showSTDTestDetails && stdTestSince && { stdTestSince }),
           ...(showImmunizationDetails && { showImmunizationDetails }),
-          ...(immunizationSince && { immunizationSince }),
+          ...(showImmunizationDetails && immunizationSince && { immunizationSince }),
           ...(showSexualCrimeDetails && { showSexualCrimeDetails }),
-          ...(sexualCrimeSince && { sexualCrimeSince }),
+          ...(showSexualCrimeDetails && sexualCrimeSince && { sexualCrimeSince }),
         },
       },
     })
   }
 
   // 인증서 동의 항목 불러오기
-  const { loading: certAgreementLoading } = useGetMyCertAgreementQuery({
+  const { loading: certAgreementLoading } = useMyCertAgreementQuery({
     onCompleted: ({ myCertAgreement }) => {
       if (myCertAgreement) {
         const {
@@ -107,6 +120,20 @@ export default function QRCodePage() {
         setValue('showSexualCrimeDetails', showSexualCrimeDetails)
         setValue('sexualCrimeSince', sexualCrimeSince)
 
+        const a = selectionSince.indexOf(stdTestSince)
+        if (a === -1) setSTDTestSince(stdTestSince)
+        setSelectedSTDTestSince(a)
+
+        const b = selectionSince.indexOf(immunizationSince)
+        if (b === -1) setImmunizationSince(immunizationSince)
+        setSelectedImmunizationSince(b)
+
+        const c = selectionSince.indexOf(sexualCrimeSince)
+        if (c === -1) setSexualCrimeSince(sexualCrimeSince)
+        setSelectedSexualCrimeSince(b)
+
+        setSelectedSexualCrimeSince(selectionSince.indexOf(sexualCrimeSince))
+
         updateCertAgreementMutation({
           variables: {
             input: {
@@ -114,11 +141,11 @@ export default function QRCodePage() {
               ...(showName && { showName }),
               ...(showSex && { showSex }),
               ...(showSTDTestDetails && { showSTDTestDetails }),
-              ...(stdTestSince && { stdTestSince }),
+              ...(showSTDTestDetails && stdTestSince && { stdTestSince }),
               ...(showImmunizationDetails && { showImmunizationDetails }),
-              ...(immunizationSince && { immunizationSince }),
+              ...(showImmunizationDetails && immunizationSince && { immunizationSince }),
               ...(showSexualCrimeDetails && { showSexualCrimeDetails }),
-              ...(sexualCrimeSince && { sexualCrimeSince }),
+              ...(showSexualCrimeDetails && sexualCrimeSince && { sexualCrimeSince }),
             },
           },
         })
@@ -129,7 +156,6 @@ export default function QRCodePage() {
   })
 
   const isInputDisabled = !nickname || certAgreementLoading || updateCertAgreementLoading
-  const selectionSince = [null, new Date(), new Date(), new Date(), null]
 
   return (
     <PageHead title="QR Code - 자유담" description="">
@@ -139,93 +165,171 @@ export default function QRCodePage() {
 
           <form onSubmit={handleSubmit(updateCertAgreement)}>
             <Ul>
+              <Sticky>
+                <SubmitButton disabled={isInputDisabled} type="submit">
+                  QR Code 재생성하기
+                </SubmitButton>
+              </Sticky>
+
               <li>
-                <div>생년월일</div>
-                <AppleCheckbox
-                  checked={watch('showBirthdate')}
-                  disabled={isInputDisabled}
-                  onChange={(e) => setValue('showBirthdate', e.target.checked)}
-                />
+                <FlexBetween>
+                  <div>생년월일</div>
+                  <AppleCheckbox
+                    checked={watch('showBirthdate')}
+                    disabled={isInputDisabled}
+                    onChange={(e) => setValue('showBirthdate', e.target.checked)}
+                  />
+                </FlexBetween>
               </li>
               <li>
-                <div>이름</div>
-                <AppleCheckbox
-                  checked={watch('showName')}
-                  disabled={isInputDisabled}
-                  onChange={(e) => setValue('showName', e.target.checked)}
-                />
+                <FlexBetween>
+                  <div>이름</div>
+                  <AppleCheckbox
+                    checked={watch('showName')}
+                    disabled={isInputDisabled}
+                    onChange={(e) => setValue('showName', e.target.checked)}
+                  />
+                </FlexBetween>
               </li>
               <li>
-                <div>성별</div>
-                <AppleCheckbox
-                  checked={watch('showSex')}
-                  disabled={isInputDisabled}
-                  onChange={(e) => setValue('showSex', e.target.checked)}
-                />
-              </li>
-              <li>
-                <div>성병검사</div>
-                <AppleCheckbox
-                  checked={watch('showSTDTestDetails')}
-                  disabled={isInputDisabled}
-                  onChange={(e) => setValue('showSTDTestDetails', e.target.checked)}
-                />
+                <FlexBetween>
+                  <div>성별</div>
+                  <AppleCheckbox
+                    checked={watch('showSex')}
+                    disabled={isInputDisabled}
+                    onChange={(e) => setValue('showSex', e.target.checked)}
+                  />
+                </FlexBetween>
               </li>
               <li>
                 <GridSmallGap>
-                  <label>성병검사 기간</label>
-                  <SSingleSelectionButtons onChange={(e) => console.log(e)} values={selectionSince}>
+                  <FlexBetween>
+                    <div>성병검사</div>
+                    <AppleCheckbox
+                      checked={watchShowSTDTestDetails}
+                      disabled={isInputDisabled}
+                      onChange={(e) => setValue('showSTDTestDetails', e.target.checked)}
+                    />
+                  </FlexBetween>
+                  <SSingleSelectionButtons
+                    disabled={!watchShowSTDTestDetails}
+                    onChange={(e, i) => {
+                      setValue('stdTestSince', e)
+                      setSTDTestSince('')
+                      setSelectedSTDTestSince(i)
+                    }}
+                    selectedIndex={selectedSTDTestSince}
+                    values={selectionSince}
+                  >
                     <div>전체</div>
                     <div>최근 1개월</div>
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
-                    <div>선택</div>
                   </SSingleSelectionButtons>
+                  <FlexBetweenGray disabled={!watchShowSTDTestDetails}>
+                    <label>직접 선택</label>
+                    <div>
+                      <input
+                        disabled={!watchShowSTDTestDetails}
+                        onChange={(e) => {
+                          setValue('stdTestSince', e.target.value)
+                          setSTDTestSince(e.target.value)
+                          setSelectedSTDTestSince(-1)
+                        }}
+                        type="date"
+                        value={stdTestSince}
+                      />{' '}
+                      부터
+                    </div>
+                  </FlexBetweenGray>
                 </GridSmallGap>
               </li>
               <li>
-                <div>성병예방접종</div>
-                <AppleCheckbox
-                  checked={watch('showImmunizationDetails')}
-                  disabled={isInputDisabled}
-                  onChange={(e) => setValue('showImmunizationDetails', e.target.checked)}
-                />
-              </li>
-              <li>
                 <GridSmallGap>
-                  <label>성병예방접종 기간</label>
-                  <SSingleSelectionButtons onChange={(e) => console.log(e)} values={selectionSince}>
+                  <FlexBetween>
+                    <div>성병예방접종</div>
+                    <AppleCheckbox
+                      checked={watchShowImmunizationDetails}
+                      disabled={isInputDisabled}
+                      onChange={(e) => setValue('showImmunizationDetails', e.target.checked)}
+                    />
+                  </FlexBetween>
+                  <SSingleSelectionButtons
+                    disabled={!watchShowImmunizationDetails}
+                    onChange={(e, i) => {
+                      setValue('immunizationSince', e)
+                      setImmunizationSince('')
+                      setSelectedImmunizationSince(i)
+                    }}
+                    selectedIndex={selectedImmunizationSince}
+                    values={selectionSince}
+                  >
                     <div>전체</div>
                     <div>최근 1개월</div>
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
-                    <div>선택</div>
                   </SSingleSelectionButtons>
+                  <FlexBetweenGray disabled={!watchShowImmunizationDetails}>
+                    <label>직접 선택</label>
+                    <div>
+                      <input
+                        disabled={!watchShowImmunizationDetails}
+                        onChange={(e) => {
+                          setValue('immunizationSince', e.target.value)
+                          setImmunizationSince(e.target.value)
+                          setSelectedImmunizationSince(-1)
+                        }}
+                        type="date"
+                        value={immunizationSince}
+                      />{' '}
+                      부터
+                    </div>
+                  </FlexBetweenGray>
                 </GridSmallGap>
               </li>
               <li>
-                <div>(성)범죄</div>
-                <AppleCheckbox
-                  checked={watch('showSexualCrimeDetails')}
-                  disabled={isInputDisabled}
-                  onChange={(e) => setValue('showSexualCrimeDetails', e.target.checked)}
-                />
-              </li>
-              <li>
                 <GridSmallGap>
-                  <label>(성)범죄 기간</label>
-                  <SSingleSelectionButtons onChange={(e) => console.log(e)} values={selectionSince}>
+                  <FlexBetween>
+                    <div>성범죄</div>
+                    <AppleCheckbox
+                      checked={watchShowSexualCrimeDetails}
+                      disabled={isInputDisabled}
+                      onChange={(e) => setValue('showSexualCrimeDetails', e.target.checked)}
+                    />
+                  </FlexBetween>
+                  <SSingleSelectionButtons
+                    disabled={!watchShowSexualCrimeDetails}
+                    onChange={(e, i) => {
+                      setValue('sexualCrimeSince', e)
+                      setSexualCrimeSince('')
+                      setSelectedSexualCrimeSince(i)
+                    }}
+                    selectedIndex={selectedSexualCrimeSince}
+                    values={selectionSince}
+                  >
                     <div>전체</div>
                     <div>최근 1개월</div>
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
-                    <div>선택</div>
                   </SSingleSelectionButtons>
+                  <FlexBetweenGray disabled={!watchShowSexualCrimeDetails}>
+                    <label>직접 선택</label>
+                    <div>
+                      <input
+                        disabled={!watchShowSexualCrimeDetails}
+                        onChange={(e) => {
+                          setValue('sexualCrimeSince', e.target.value)
+                          setSexualCrimeSince(e.target.value)
+                          setSelectedSexualCrimeSince(-1)
+                        }}
+                        type="date"
+                        value={sexualCrimeSince}
+                      />{' '}
+                      부터
+                    </div>
+                  </FlexBetweenGray>
                 </GridSmallGap>
               </li>
-              <SubmitButton disabled={isInputDisabled} type="submit">
-                QR Code 재생성하기
-              </SubmitButton>
             </Ul>
           </form>
         </MaxWidth>
@@ -248,11 +352,16 @@ const Ul = styled.ul`
   gap: 2rem;
   padding: 1rem;
   min-width: ${MOBILE_MIN_WIDTH};
+  position: relative;
+`
 
-  > li {
-    display: flex;
-    justify-content: space-between;
-  }
+const FlexBetween = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
+
+const FlexBetweenGray = styled(FlexBetween)<{ disabled: boolean }>`
+  color: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primaryTextAchromatic)};
 `
 
 const SSingleSelectionButtons = styled(SingleSelectionButtons)`
@@ -261,7 +370,15 @@ const SSingleSelectionButtons = styled(SingleSelectionButtons)`
 
 const GridSmallGap = styled.div`
   display: grid;
-  gap: 0.5rem;
+  gap: 1rem;
+`
+
+const Sticky = styled.div`
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 4;
+  padding: 1rem 0;
 `
 
 type CertAgreementForm = {
@@ -269,12 +386,14 @@ type CertAgreementForm = {
   showName?: boolean
   showSex?: boolean
   showSTDTestDetails?: boolean
-  stdTestSince?: Date
+  stdTestSince?: string
   showImmunizationDetails?: boolean
-  immunizationSince?: Date
+  immunizationSince?: string
   showSexualCrimeDetails?: boolean
-  sexualCrimeSince?: Date
+  sexualCrimeSince?: string
 }
 
-const qrcodeWidth = Math.max(300, Math.min(viewportWidth, 400))
+const qrcodeWidth = Math.max(300, Math.min(viewportWidth, 350))
 const rendererOption = { width: qrcodeWidth }
+
+const selectionSince = [null, getNMonthBefore(1), getNMonthBefore(6), getNYearBefore(1)]

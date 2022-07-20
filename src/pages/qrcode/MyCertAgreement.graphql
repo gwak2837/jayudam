@@ -1,4 +1,4 @@
-query GetMyCertAgreement {
+query MyCertAgreement {
   myCertAgreement {
     showBirthdate
     showName

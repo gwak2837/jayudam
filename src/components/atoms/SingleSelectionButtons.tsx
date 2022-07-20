@@ -1,34 +1,32 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 type Props = {
   children: ReactNode[]
   className?: string
-  initialValue?: unknown
-  onChange: (newValue: any) => void
+  disabled?: boolean
+  selectedIndex?: number
+  onChange: (newValue: any, i: number) => void
   values: unknown[]
 }
 
 export default function SingleSelectionButtons({
   children,
   className,
-  initialValue,
+  disabled,
+  selectedIndex,
   onChange,
   values,
 }: Props) {
-  const [selected, setSelected] = useState(initialValue ?? values[0])
-
   return (
-    <Ul>
+    <Ul disabled={disabled}>
       {[...Array(children.length)].map((_, i) => (
         <Button
           key={i}
           className={className}
-          disabled={selected === values[i]}
-          onClick={() => {
-            setSelected(values[i])
-            onChange(values[i])
-          }}
+          disabled={disabled}
+          selected={selectedIndex === i}
+          onClick={() => onChange(values[i], i)}
           type="button"
         >
           {children[i]}
@@ -38,18 +36,20 @@ export default function SingleSelectionButtons({
   )
 }
 
-const Ul = styled.ul`
-  border: 1px solid ${(p) => p.theme.primary};
+const Ul = styled.ul<{ disabled?: boolean }>`
+  border: 1px solid ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primary)};
   border-radius: 8px;
   display: flex;
   overflow: hidden;
 `
 
-const Button = styled.button`
-  background: ${(p) => (p.disabled ? p.theme.primaryBackground : '#fff')};
-  color: ${(p) => (p.disabled ? '#000' : p.theme.primaryAchromatic)};
-  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
-  outline: 1px solid ${(p) => p.theme.primary};
+const Button = styled.button<{ selected: boolean }>`
+  background: ${(p) =>
+    p.disabled ? p.theme.background : p.selected ? p.theme.primaryBackground : '#fff'};
+  color: ${(p) =>
+    p.disabled ? p.theme.primaryAchromatic : p.selected ? '#000' : p.theme.primaryTextAchromatic};
+  cursor: ${(p) => (p.disabled || p.selected ? 'not-allowed' : 'pointer')};
+  outline: 1px solid ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primary)};
   padding: 1rem;
   transition: all 0.2s ease-out;
   width: 100%;
@@ -57,7 +57,11 @@ const Button = styled.button`
   :hover,
   :focus {
     background: ${(p) =>
-      p.disabled ? p.theme.primaryBackground : p.theme.primaryBackgroundAchromatic};
-    color: #000;
+      p.disabled
+        ? p.theme.background
+        : p.selected
+        ? p.theme.primaryBackground
+        : p.theme.primaryBackgroundAchromatic};
+    color: ${(p) => (p.disabled ? p.theme.primaryAchromatic : '#000')};
   }
 `
