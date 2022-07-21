@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import PageHead from 'src/components/PageHead'
 import {
-  MOBILE_HORIZONTAL_MIN_WIDTH,
+  MOBILE_MIN_HEIGHT,
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_BBATON_CLIENT_ID,
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
@@ -99,7 +99,7 @@ function AutoLoginCheckbox() {
 }
 
 const FlexCenter = styled.div`
-  @media (min-width: ${MOBILE_HORIZONTAL_MIN_WIDTH}) {
+  @media (min-width: ${MOBILE_MIN_HEIGHT}) {
     display: flex;
     justify-content: center;
   }
@@ -202,8 +202,8 @@ const GridPadding = styled.div`
   padding: 2rem 1rem;
   gap: 1rem;
 
-  @media (min-width: ${MOBILE_HORIZONTAL_MIN_WIDTH}) {
-    min-width: ${MOBILE_HORIZONTAL_MIN_WIDTH};
+  @media (min-width: ${MOBILE_MIN_HEIGHT}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
   }
 
   > a {

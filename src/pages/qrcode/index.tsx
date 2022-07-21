@@ -34,11 +34,11 @@ export default function QRCodePage() {
       showName: false,
       showSex: false,
       showSTDTestDetails: false,
-      stdTestSince: undefined,
+      stdTestSince: null,
       showImmunizationDetails: false,
-      immunizationSince: undefined,
+      immunizationSince: null,
       showSexualCrimeDetails: false,
-      sexualCrimeSince: undefined,
+      sexualCrimeSince: null,
     },
   })
 
@@ -171,6 +171,7 @@ export default function QRCodePage() {
                 </SubmitButton>
               </Sticky>
 
+              <h3>정보 제공 동의 항목</h3>
               <li>
                 <FlexBetween>
                   <div>생년월일</div>
@@ -382,15 +383,15 @@ const Sticky = styled.div`
 `
 
 type CertAgreementForm = {
-  showBirthdate?: boolean
-  showName?: boolean
-  showSex?: boolean
-  showSTDTestDetails?: boolean
-  stdTestSince?: string
-  showImmunizationDetails?: boolean
-  immunizationSince?: string
-  showSexualCrimeDetails?: boolean
-  sexualCrimeSince?: string
+  showBirthdate: boolean
+  showName: boolean
+  showSex: boolean
+  showSTDTestDetails: boolean
+  stdTestSince: string | null
+  showImmunizationDetails: boolean
+  immunizationSince: string | null
+  showSexualCrimeDetails: boolean
+  sexualCrimeSince: string | null
 }
 
 const qrcodeWidth = Math.max(300, Math.min(getViewportWidth(), 350))

@@ -33,9 +33,11 @@ if (!NEXT_PUBLIC_GOOGLE_ANALYTICS_ID)
   throw new Error('`NEXT_PUBLIC_GOOGLE_ANALYTICS_ID` 환경 변수를 설정해주세요.')
 
 export const MOBILE_MIN_WIDTH = '320px'
-export const MOBILE_HORIZONTAL_MIN_WIDTH = '568px'
+export const MOBILE_MIN_HEIGHT = '568px'
+export const TABLET_MIN_WIDTH_1 = '767px'
 export const TABLET_MIN_WIDTH = '768px'
-export const DESKTOP_MIN_WIDTH = '1024px'
+export const TABLET_MAX_WIDTH = '1366px'
+export const DESKTOP_MIN_WIDTH = '1440px'
 export const HD_DESKTOP_MIN_WIDTH = '1920px'
 
 export const APPLICATION_NAME = '자유담 - 보건기록 가명인증' // = site.webmanifest name

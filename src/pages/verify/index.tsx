@@ -9,7 +9,7 @@ import { useVerifyCertJwtMutation } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { getViewportWidth } from 'src/utils'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
 import styled from 'styled-components'
 
 export default function VerificationPage() {
@@ -75,10 +75,13 @@ export default function VerificationPage() {
   }
 
   // QR code 검증하기
+  const [showResult, setShowResult] = useState(false)
+
   const [verifyCertJwtMutation, { data, loading }] = useVerifyCertJwtMutation({
     onCompleted: ({ verifyCertJWT }) => {
       if (verifyCertJWT) {
         toast.success('qrcode 인증 완료')
+        setShowResult(true)
       }
     },
     onError: toastApolloError,
@@ -87,6 +90,9 @@ export default function VerificationPage() {
   function verifyJwt(jwt: string) {
     toast.success('qrcode 인식 완료')
     html5QrcodeRef.current?.pause()
+    setShowResult(true)
+    setShowSetting(false)
+    setShowSettingIcon(false)
     verifyCertJwtMutation({ variables: { jwt } })
   }
 
@@ -94,16 +100,16 @@ export default function VerificationPage() {
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
         <MaxWidth>
-          <Absolute show={showStartButton}>
-            <h3>카메라를 허용해주세요</h3>
-            <button onClick={startScanningQRCode}>허용하기</button>
-          </Absolute>
+          <AbsoluteFullFlex show={showStartButton}>
+            <h3>카메라 스캔을 시작해주세요</h3>
+            <button onClick={startScanningQRCode}>시작하기</button>
+          </AbsoluteFullFlex>
 
           <AbsoluteTopRight show={showSettingIcon}>
             <button onClick={() => setShowSetting(true)}>O</button>
           </AbsoluteTopRight>
 
-          <AbsoluteSetting show={showSetting}>
+          <AbsoluteFull show={showSetting}>
             <button onClick={() => setShowSetting(false)}>x</button>
 
             <h3>카메라 제어</h3>
@@ -125,9 +131,21 @@ export default function VerificationPage() {
                 ))}
               </SingleSelectionButtons>
             )}
+          </AbsoluteFull>
 
-            <pre>cert: {JSON.stringify(data)}</pre>
-          </AbsoluteSetting>
+          <AbsoluteFull show={showResult}>
+            <button
+              onClick={() => {
+                setShowSettingIcon(true)
+                setShowResult(false)
+              }}
+            >
+              x
+            </button>
+
+            <pre style={{ overflow: 'scroll' }}>{JSON.stringify(data)}</pre>
+            {loading}
+          </AbsoluteFull>
 
           <div id="reader" />
         </MaxWidth>
@@ -147,31 +165,36 @@ const scannerConfig = {
 const MaxWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
   min-height: inherit;
-
   position: relative;
 
   display: grid;
+  grid-template-rows: 1fr;
   align-items: center;
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
+  }
 `
 
-const Absolute = styled.div<{ show: boolean }>`
-  position: absolute;
-  inset: 0 0 0 0;
-
+const AbsoluteFullFlex = styled.div<{ show: boolean }>`
   display: ${(p) => (p.show ? 'flex' : 'none')};
   flex-flow: column;
   justify-content: center;
   align-items: center;
+
+  @media (max-width: ${TABLET_MIN_WIDTH_1}) {
+    position: absolute;
+    inset: 0 0 0 0;
+  }
 `
 
-const AbsoluteSetting = styled.div<{ show: boolean }>`
+const AbsoluteFull = styled.div<{ show: boolean }>`
   position: absolute;
   inset: 0 0 0 0;
-  z-index: 1;
-
-  display: ${(p) => (p.show ? 'block' : 'none')};
+  z-index: 2;
 
   background: #fff;
+  display: ${(p) => (p.show ? 'block' : 'none')};
   overflow-y: auto;
 `
 
@@ -181,5 +204,5 @@ const AbsoluteTopRight = styled.div<{ show: boolean }>`
   right: 0;
   z-index: 1;
 
-  display: ${(p) => (p.show ? 'flex' : 'none')};
+  display: ${(p) => (p.show ? 'block' : 'none')};
 `
