@@ -74,6 +74,7 @@ export type CertCreation = {
 }
 
 export enum CertType {
+  ClinicalLaboratoryTest = 'CLINICAL_LABORATORY_TEST',
   Immunization = 'IMMUNIZATION',
   SexualCrime = 'SEXUAL_CRIME',
   StdTest = 'STD_TEST',
@@ -189,6 +190,7 @@ export type Query = {
   myCertAgreement?: Maybe<CertAgreement>
   myCerts?: Maybe<Array<Cert>>
   myNickname?: Maybe<User>
+  myVerificationHistories?: Maybe<Array<VerificationHistory>>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
   user?: Maybe<User>
@@ -247,7 +249,6 @@ export type User = {
   blockingEndTime?: Maybe<Scalars['DateTime']>
   blockingStartTime?: Maybe<Scalars['DateTime']>
   certAgreement?: Maybe<CertAgreement>
-  certs?: Maybe<Array<Cert>>
   cherry: Scalars['NonNegativeInt']
   creationTime: Scalars['DateTime']
   email?: Maybe<Scalars['EmailAddress']>
@@ -277,6 +278,13 @@ export type UserUpdate = {
   serviceAgreement?: InputMaybe<ServiceAgreementInput>
   town1Name?: InputMaybe<Scalars['NonEmptyString']>
   town2Name?: InputMaybe<Scalars['NonEmptyString']>
+}
+
+export type VerificationHistory = {
+  __typename?: 'VerificationHistory'
+  content: Scalars['NonEmptyString']
+  creationTime: Scalars['DateTime']
+  id: Scalars['Int']
 }
 
 export type AuthQueryVariables = Exact<{ [key: string]: never }>
@@ -846,6 +854,7 @@ export type QueryKeySpecifier = (
   | 'myCertAgreement'
   | 'myCerts'
   | 'myNickname'
+  | 'myVerificationHistories'
   | 'post'
   | 'posts'
   | 'user'
@@ -856,6 +865,7 @@ export type QueryFieldPolicy = {
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   myCerts?: FieldPolicy<any> | FieldReadFunction<any>
   myNickname?: FieldPolicy<any> | FieldReadFunction<any>
+  myVerificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
   user?: FieldPolicy<any> | FieldReadFunction<any>
@@ -894,7 +904,6 @@ export type UserKeySpecifier = (
   | 'blockingEndTime'
   | 'blockingStartTime'
   | 'certAgreement'
-  | 'certs'
   | 'cherry'
   | 'creationTime'
   | 'email'
@@ -921,7 +930,6 @@ export type UserFieldPolicy = {
   blockingEndTime?: FieldPolicy<any> | FieldReadFunction<any>
   blockingStartTime?: FieldPolicy<any> | FieldReadFunction<any>
   certAgreement?: FieldPolicy<any> | FieldReadFunction<any>
-  certs?: FieldPolicy<any> | FieldReadFunction<any>
   cherry?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   email?: FieldPolicy<any> | FieldReadFunction<any>
@@ -940,6 +948,17 @@ export type UserFieldPolicy = {
   serviceAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
   towns?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type VerificationHistoryKeySpecifier = (
+  | 'content'
+  | 'creationTime'
+  | 'id'
+  | VerificationHistoryKeySpecifier
+)[]
+export type VerificationHistoryFieldPolicy = {
+  content?: FieldPolicy<any> | FieldReadFunction<any>
+  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type StrictTypedTypePolicies = {
   Cert?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
@@ -976,6 +995,13 @@ export type StrictTypedTypePolicies = {
   User?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | UserKeySpecifier | (() => undefined | UserKeySpecifier)
     fields?: UserFieldPolicy
+  }
+  VerificationHistory?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | VerificationHistoryKeySpecifier
+      | (() => undefined | VerificationHistoryKeySpecifier)
+    fields?: VerificationHistoryFieldPolicy
   }
 }
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies

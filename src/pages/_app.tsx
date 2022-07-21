@@ -14,7 +14,10 @@ import { toastApolloError } from 'src/apollo/error'
 import { useAuthQuery } from 'src/graphql/generated/types-and-hooks'
 import { GlobalStyle } from 'src/styles/global'
 import { theme } from 'src/styles/global'
-import { NEXT_PUBLIC_GOOGLE_ANALYTICS_ID } from 'src/utils/constants'
+import {
+  NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
+  NEXT_PUBLIC_GOOGLE_ANALYTICS_ID,
+} from 'src/utils/constants'
 import { pageview } from 'src/utils/google-analytics'
 import { currentUser } from 'src/utils/recoil'
 import { ThemeProvider } from 'styled-components'
@@ -37,6 +40,10 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
     }
   }, [router.events])
 
+  useEffect(() => {
+    bootChanneltalk({ pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY })
+  }, [])
+
   return (
     <>
       <Head>
@@ -50,6 +57,10 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
       />
       <Script id="google-analytics" strategy="afterInteractive">
         {gaScript}
+      </Script>
+
+      <Script id="channel-talk" strategy="afterInteractive">
+        {channelTalkScript}
       </Script>
 
       <ThemeProvider2 theme={theme}>
@@ -79,8 +90,19 @@ function Authentication({ children }: Props) {
     onCompleted: ({ myNickname }) => {
       if (myNickname?.nickname) {
         setCurrentUser({ nickname: myNickname.nickname })
-      } else {
+        bootChanneltalk({
+          pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
+          // memberId: myNickname.id,
+          profile: {
+            name: myNickname.nickname,
+          },
+        })
+      } else if (myNickname) {
         setCurrentUser({ nickname: undefined })
+        bootChanneltalk({
+          pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
+          // memberId: myNickname.id,
+        })
       }
     },
     onError: (error) => {
@@ -88,6 +110,7 @@ function Authentication({ children }: Props) {
       globalThis.sessionStorage?.removeItem('jwt')
       globalThis.localStorage?.removeItem('jwt')
       setCurrentUser({ nickname: null })
+      bootChanneltalk({ pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY })
     },
     // Storage에 jwt가 존재하는데 nickname이 없을 때만
     skip: Boolean(
@@ -110,3 +133,46 @@ const gaScript = `
   gtag('js', new Date());
   gtag('config', '${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}', {page_path: window.location.pathname});
 `
+
+const channelTalkScript = `
+  (function() {
+    var w = window;
+    if (w.ChannelIO) {
+      return (window.console.error || window.console.log || function(){})('ChannelIO script included twice.');
+    }
+    var ch = function() {
+      ch.c(arguments);
+    };
+    ch.q = [];
+    ch.c = function(args) {
+      ch.q.push(args);
+    };
+    w.ChannelIO = ch;
+    function l() {
+      if (w.ChannelIOInitialized) {
+        return;
+      }
+      w.ChannelIOInitialized = true;
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.async = true;
+      s.src = 'https://cdn.channel.io/plugin/ch-plugin-web.js';
+      s.charset = 'UTF-8';
+      var x = document.getElementsByTagName('script')[0];
+      x.parentNode.insertBefore(s, x);
+    }
+    if (document.readyState === 'complete') {
+      l();
+    } else if (window.attachEvent) {
+      window.attachEvent('onload', l);
+    } else {
+      window.addEventListener('DOMContentLoaded', l, false);
+      window.addEventListener('load', l, false);
+    }
+  })();
+`
+
+function bootChanneltalk(option: Record<string, any>) {
+  globalThis.window?.ChannelIO('shutdown')
+  globalThis.window?.ChannelIO('boot', option)
+}

@@ -14,6 +14,9 @@ export const NEXT_PUBLIC_KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST
 export const NEXT_PUBLIC_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string
 export const NEXT_PUBLIC_GOOGLE_ANALYTICS_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID as string
 
+export const NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY = process.env
+  .NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY as string
+
 if (!NEXT_PUBLIC_BACKEND_URL) throw new Error('`NEXT_PUBLIC_BACKEND_URL` 환경 변수를 설정해주세요.')
 
 if (!NEXT_PUBLIC_BBATON_CLIENT_ID)
@@ -31,6 +34,9 @@ if (!NEXT_PUBLIC_GOOGLE_CLIENT_ID)
   throw new Error('`NEXT_PUBLIC_GOOGLE_CLIENT_ID` 환경 변수를 설정해주세요.')
 if (!NEXT_PUBLIC_GOOGLE_ANALYTICS_ID)
   throw new Error('`NEXT_PUBLIC_GOOGLE_ANALYTICS_ID` 환경 변수를 설정해주세요.')
+
+if (!NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY)
+  throw new Error('`NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY` 환경 변수를 설정해주세요.')
 
 export const MOBILE_MIN_WIDTH = '320px'
 export const MOBILE_MIN_HEIGHT = '568px'

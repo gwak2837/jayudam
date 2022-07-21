@@ -12,6 +12,11 @@ export default function HomePage() {
         <MaxWidth>
           {/* 인증서 제출하기 */}
 
+          <h3>개인간 보건기록 인증 서비스</h3>
+
+          <h3>나의 정보 공개 범위를 선택할 수 있는</h3>
+          <h3>가명 인증</h3>
+
           <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
           <Link href="/login">로그인</Link>
 
