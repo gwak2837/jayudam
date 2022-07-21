@@ -8,7 +8,7 @@ import PageHead from 'src/components/PageHead'
 import { useVerifyCertJwtMutation } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { viewportWidth } from 'src/utils'
+import { getViewportWidth } from 'src/utils'
 import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
 
@@ -36,6 +36,9 @@ export default function VerificationPage() {
 
   // QR code 읽기 시작/중지/변경
   const [scanningDevices, setScanningDevices] = useState<CameraDevice[]>()
+  const [showStartButton, setShowStartButton] = useState(true)
+  const [showSettingIcon, setShowSettingIcon] = useState(false)
+  const [showSetting, setShowSetting] = useState(false)
 
   async function startScanningQRCode() {
     if (html5QrcodeRef.current) {
@@ -45,6 +48,8 @@ export default function VerificationPage() {
         setScanningDevices(devices)
       }
 
+      setShowStartButton(false)
+      setShowSettingIcon(true)
       html5QrcodeRef.current.start(devices[0].id, scannerConfig, verifyJwt, undefined)
     }
   }
@@ -52,7 +57,13 @@ export default function VerificationPage() {
   function stopScanningQRCode() {
     if (html5QrcodeRef.current) {
       html5QrcodeRef.current.stop()
+      setShowStartButton(true)
+      setShowSetting(false)
     }
+  }
+
+  function resumeScanningQRCode() {
+    html5QrcodeRef.current?.resume()
   }
 
   function changeScanningDevice(deviceId: string) {
@@ -82,32 +93,35 @@ export default function VerificationPage() {
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
         <MaxWidth>
-          <div>
+          <Absolute show={showStartButton}>
+            <h3>카메라를 허용해주세요</h3>
             <button onClick={startScanningQRCode}>start</button>
-            <button onClick={stopScanningQRCode}>stop</button>
-            <button
-              onClick={() => {
-                html5QrcodeRef.current?.resume()
-              }}
-            >
-              resume
-            </button>
+          </Absolute>
 
-            {scanningDevices && (
-              <SingleSelectionButtons
-                onChange={(newDeviceId) => changeScanningDevice(newDeviceId)}
-                values={scanningDevices.map((device) => device.id)}
-              >
-                {scanningDevices.map((device, i) => (
-                  <div key={i}>{device.label}</div>
-                ))}
-              </SingleSelectionButtons>
-            )}
-          </div>
+          <AbsoluteTopRight show={showSettingIcon}>
+            <button onClick={() => setShowSetting(true)}>O</button>
+          </AbsoluteTopRight>
 
-          <pre>cert: {JSON.stringify(data)}</pre>
+          <AbsoluteSetting show={showSetting}>
+            <button onClick={() => setShowSetting(false)}>x</button>
+            <div>
+              <button onClick={stopScanningQRCode}>stop</button>
+              <button onClick={resumeScanningQRCode}>resume</button>
 
-          <br />
+              {scanningDevices && (
+                <SingleSelectionButtons
+                  onChange={(newDeviceId) => changeScanningDevice(newDeviceId)}
+                  values={scanningDevices.map((device) => device.id)}
+                >
+                  {scanningDevices.map((device, i) => (
+                    <div key={i}>{device.label}</div>
+                  ))}
+                </SingleSelectionButtons>
+              )}
+            </div>
+            <pre>cert: {JSON.stringify(data)}</pre>
+          </AbsoluteSetting>
+
           <div id="reader" />
         </MaxWidth>
       </Navigation>
@@ -118,12 +132,47 @@ export default function VerificationPage() {
 const scannerConfig = {
   fps: 2,
   qrbox: {
-    width: Math.max(250, Math.min(viewportWidth, 300)),
-    height: Math.max(250, Math.min(viewportWidth, 300)),
+    width: Math.max(250, Math.min(getViewportWidth(), 300)),
+    height: Math.max(250, Math.min(getViewportWidth(), 300)),
   },
 }
 
 const MaxWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
-  overflow: hidden;
+  min-height: inherit;
+
+  position: relative;
+
+  display: grid;
+  align-items: center;
+`
+
+const Absolute = styled.div<{ show: boolean }>`
+  position: absolute;
+  inset: 0 0 0 0;
+
+  display: ${(p) => (p.show ? 'flex' : 'none')};
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const AbsoluteSetting = styled.div<{ show: boolean }>`
+  position: absolute;
+  inset: 0 0 0 0;
+  z-index: 1;
+
+  display: ${(p) => (p.show ? 'block' : 'none')};
+
+  background: #fff;
+  overflow-y: auto;
+`
+
+const AbsoluteTopRight = styled.div<{ show: boolean }>`
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+
+  display: ${(p) => (p.show ? 'flex' : 'none')};
 `

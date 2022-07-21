@@ -12,6 +12,8 @@ export default function HomePage() {
         <MaxWidth>
           <Link href="/login">로그인</Link>
 
+          {/* 인증서 제출하기 */}
+
           <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
 
           <Footer>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
@@ -14,10 +14,20 @@ type Props = {
 function Navigation({ children }: Props) {
   const { nickname } = useRecoilValue(currentUser)
 
+  // nav height 계산하기
+  const [navHeight, setNavHeight] = useState(0)
+  const ref = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (ref.current) {
+      setNavHeight(ref.current.clientHeight)
+    }
+  }, [])
+
   return (
     <Flex>
-      <MinHeight>{children}</MinHeight>
-      <StickyNav>
+      <MinHeight navHeight={navHeight}>{children}</MinHeight>
+      <StickyNav ref={ref}>
         <BlockLink href="/verify">
           <VerifyIcon />
           <span>인증</span>
@@ -54,14 +64,17 @@ const Flex = styled.div`
   }
 `
 
-const MinHeight = styled.div`
-  min-height: 100vh;
+const MinHeight = styled.div<{ navHeight: number }>`
+  min-height: calc(100vh - ${(p) => p.navHeight + 1}px);
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-height: 100vh;
+  }
 `
 
 const StickyNav = styled.nav`
   position: sticky;
   bottom: 0;
-  z-index: 3;
+  z-index: 10;
 
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -76,13 +89,13 @@ const StickyNav = styled.nav`
   }
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
+    top: 0;
+
     border: 1px solid #26ade3;
-    height: 100vh;
     display: block;
+    height: 100vh;
     max-width: 200px;
     padding: 0 0.7rem;
-    position: sticky;
-    top: 0;
   }
 `
 

@@ -12,7 +12,7 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { viewportWidth } from 'src/utils'
+import { getViewportWidth } from 'src/utils'
 import { MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { getNMonthBefore, getNYearBefore } from 'src/utils/date'
 import { currentUser } from 'src/utils/recoil'
@@ -393,7 +393,7 @@ type CertAgreementForm = {
   sexualCrimeSince?: string
 }
 
-const qrcodeWidth = Math.max(300, Math.min(viewportWidth, 350))
+const qrcodeWidth = Math.max(300, Math.min(getViewportWidth(), 350))
 const rendererOption = { width: qrcodeWidth }
 
 const selectionSince = [null, getNMonthBefore(1), getNMonthBefore(6), getNYearBefore(1)]

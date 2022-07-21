@@ -42,27 +42,27 @@ export type Cert = {
 
 export type CertAgreement = {
   __typename?: 'CertAgreement'
-  immunizationSince?: Maybe<Scalars['DateTime']>
-  sexualCrimeSince?: Maybe<Scalars['DateTime']>
+  immunizationSince?: Maybe<Scalars['Date']>
+  sexualCrimeSince?: Maybe<Scalars['Date']>
   showBirthdate: Scalars['Boolean']
   showImmunizationDetails: Scalars['Boolean']
   showName: Scalars['Boolean']
   showSTDTestDetails: Scalars['Boolean']
   showSex: Scalars['Boolean']
   showSexualCrimeDetails: Scalars['Boolean']
-  stdTestSince?: Maybe<Scalars['DateTime']>
+  stdTestSince?: Maybe<Scalars['Date']>
 }
 
 export type CertAgreementInput = {
-  immunizationSince?: InputMaybe<Scalars['DateTime']>
-  sexualCrimeSince?: InputMaybe<Scalars['DateTime']>
+  immunizationSince?: InputMaybe<Scalars['Date']>
+  sexualCrimeSince?: InputMaybe<Scalars['Date']>
   showBirthdate?: InputMaybe<Scalars['Boolean']>
   showImmunizationDetails?: InputMaybe<Scalars['Boolean']>
   showName?: InputMaybe<Scalars['Boolean']>
   showSTDTestDetails?: InputMaybe<Scalars['Boolean']>
   showSex?: InputMaybe<Scalars['Boolean']>
   showSexualCrimeDetails?: InputMaybe<Scalars['Boolean']>
-  stdTestSince?: InputMaybe<Scalars['DateTime']>
+  stdTestSince?: InputMaybe<Scalars['Date']>
 }
 
 export type CertCreation = {
@@ -247,6 +247,7 @@ export type User = {
   blockingEndTime?: Maybe<Scalars['DateTime']>
   blockingStartTime?: Maybe<Scalars['DateTime']>
   certAgreement?: Maybe<CertAgreement>
+  certs?: Maybe<Array<Cert>>
   cherry: Scalars['NonNegativeInt']
   creationTime: Scalars['DateTime']
   email?: Maybe<Scalars['EmailAddress']>
@@ -893,6 +894,7 @@ export type UserKeySpecifier = (
   | 'blockingEndTime'
   | 'blockingStartTime'
   | 'certAgreement'
+  | 'certs'
   | 'cherry'
   | 'creationTime'
   | 'email'
@@ -919,6 +921,7 @@ export type UserFieldPolicy = {
   blockingEndTime?: FieldPolicy<any> | FieldReadFunction<any>
   blockingStartTime?: FieldPolicy<any> | FieldReadFunction<any>
   certAgreement?: FieldPolicy<any> | FieldReadFunction<any>
+  certs?: FieldPolicy<any> | FieldReadFunction<any>
   cherry?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   email?: FieldPolicy<any> | FieldReadFunction<any>

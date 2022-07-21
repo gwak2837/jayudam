@@ -72,6 +72,20 @@ export default function OAuthPage() {
     }
   }, [doRedirect, router])
 
+  if (router.locale === 'en') {
+    return (
+      <PageHead title="Social login - Jayudam" description={description}>
+        <Navigation>
+          {loading ? (
+            <div>User authentication is in progress. Please wait a momentarily..</div>
+          ) : (
+            queryString.current && <div>{getErrorMessage(queryString.current)}</div>
+          )}
+        </Navigation>
+      </PageHead>
+    )
+  }
+
   return (
     <PageHead title="소셜 로그인 - 자유담" description={description}>
       <Navigation>

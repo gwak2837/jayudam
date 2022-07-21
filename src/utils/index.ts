@@ -3,15 +3,19 @@ import { KeyboardEvent, MouseEvent } from 'react'
 
 import { NEXT_PUBLIC_BACKEND_URL } from './constants'
 
-export const viewportWidth = Math.max(
-  globalThis.document?.documentElement.clientWidth || 0,
-  globalThis.window?.innerWidth || 0
-)
+export function getViewportWidth() {
+  return Math.max(
+    globalThis.document?.documentElement.clientWidth || 0,
+    globalThis.window?.innerWidth || 0
+  )
+}
 
-export const viewportHeight = Math.max(
-  globalThis.document?.documentElement.clientHeight || 0,
-  globalThis.window?.innerHeight || 0
-)
+export function getViewportHeight() {
+  return Math.max(
+    globalThis.document?.documentElement.clientHeight || 0,
+    globalThis.window?.innerHeight || 0
+  )
+}
 
 export function mulberry32(a: number) {
   return function () {

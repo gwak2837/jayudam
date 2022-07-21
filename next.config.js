@@ -16,8 +16,8 @@ module.exports = withPWA({
     runtime: 'experimental-edge',
   },
   i18n: {
-    locales: ['ko', 'en'],
-    defaultLocale: 'ko',
+    locales: ['ko-KR', 'en'],
+    defaultLocale: 'ko-KR',
   },
   images: {
     domains: ['storage.googleapis.com', 'k.kakaocdn.net'],
