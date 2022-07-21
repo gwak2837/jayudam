@@ -26,7 +26,7 @@ export default function SingleSelectionButtons({
           className={className}
           disabled={disabled}
           selected={selectedIndex === i}
-          onClick={() => onChange(values[i], i)}
+          onClick={() => selectedIndex !== i && onChange(values[i], i)}
           type="button"
         >
           {children[i]}

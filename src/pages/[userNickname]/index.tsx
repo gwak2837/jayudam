@@ -93,6 +93,10 @@ export default function UserPage() {
               </GoogleButton>
             </>
           )}
+
+          <div>내 인증기록</div>
+
+          <div>내 문서</div>
         </MinWidth>
       </Navigation>
     </PageHead>

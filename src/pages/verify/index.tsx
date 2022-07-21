@@ -15,6 +15,8 @@ import styled from 'styled-components'
 export default function VerificationPage() {
   useNeedToLogin()
 
+  const [selectedIndex, setSeletedIndex] = useState(0)
+
   // 카메라 영역 설정
   const html5QrcodeRef = useRef<Html5Qrcode>()
 
@@ -23,12 +25,10 @@ export default function VerificationPage() {
 
     return () => {
       if (html5QrcodeRef.current) {
-        const state = html5QrcodeRef.current.getState()
-        if (
-          state === Html5QrcodeScannerState.PAUSED ||
-          state === Html5QrcodeScannerState.SCANNING
-        ) {
-          html5QrcodeRef.current.stop()
+        switch (html5QrcodeRef.current.getState()) {
+          case Html5QrcodeScannerState.PAUSED:
+          case Html5QrcodeScannerState.SCANNING:
+            html5QrcodeRef.current.stop()
         }
       }
     }
@@ -58,6 +58,7 @@ export default function VerificationPage() {
     if (html5QrcodeRef.current) {
       html5QrcodeRef.current.stop()
       setShowStartButton(true)
+      setShowSettingIcon(false)
       setShowSetting(false)
     }
   }
@@ -95,7 +96,7 @@ export default function VerificationPage() {
         <MaxWidth>
           <Absolute show={showStartButton}>
             <h3>카메라를 허용해주세요</h3>
-            <button onClick={startScanningQRCode}>start</button>
+            <button onClick={startScanningQRCode}>허용하기</button>
           </Absolute>
 
           <AbsoluteTopRight show={showSettingIcon}>
@@ -104,21 +105,27 @@ export default function VerificationPage() {
 
           <AbsoluteSetting show={showSetting}>
             <button onClick={() => setShowSetting(false)}>x</button>
-            <div>
-              <button onClick={stopScanningQRCode}>stop</button>
-              <button onClick={resumeScanningQRCode}>resume</button>
 
-              {scanningDevices && (
-                <SingleSelectionButtons
-                  onChange={(newDeviceId) => changeScanningDevice(newDeviceId)}
-                  values={scanningDevices.map((device) => device.id)}
-                >
-                  {scanningDevices.map((device, i) => (
-                    <div key={i}>{device.label}</div>
-                  ))}
-                </SingleSelectionButtons>
-              )}
-            </div>
+            <h3>카메라 제어</h3>
+            <button onClick={stopScanningQRCode}>중지</button>
+            <button onClick={resumeScanningQRCode}>재시작</button>
+
+            <h3>카메라 소스</h3>
+            {scanningDevices && (
+              <SingleSelectionButtons
+                onChange={(newDeviceId, i) => {
+                  changeScanningDevice(newDeviceId)
+                  setSeletedIndex(i)
+                }}
+                selectedIndex={selectedIndex}
+                values={scanningDevices.map((device) => device.id)}
+              >
+                {scanningDevices.map((device, i) => (
+                  <div key={i}>{device.label}</div>
+                ))}
+              </SingleSelectionButtons>
+            )}
+
             <pre>cert: {JSON.stringify(data)}</pre>
           </AbsoluteSetting>
 

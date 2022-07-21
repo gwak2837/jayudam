@@ -1,7 +1,7 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
@@ -38,6 +38,8 @@ export default function RegisterPage() {
       adAgreement: false,
     },
   })
+
+  const [selectedIndex, setSeletedIndex] = useState(0)
 
   const hasFormError = Object.keys(errors).length !== 0
 
@@ -177,7 +179,11 @@ export default function RegisterPage() {
           <GridSmallGap>
             <H3>휴면계정 전환 기간</H3>
             <SingleSelectionButtons
-              onChange={(e) => setValue('personalDataStoringYear', e)}
+              onChange={(newYear, i) => {
+                setValue('personalDataStoringYear', newYear)
+                setSeletedIndex(i)
+              }}
+              selectedIndex={selectedIndex}
               values={[1, 3, 5, 10]}
             >
               <div>1년</div>
