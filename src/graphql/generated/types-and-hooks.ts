@@ -30,13 +30,10 @@ export type Scalars = {
 
 export type Cert = {
   __typename?: 'Cert'
-  birthdate?: Maybe<Scalars['Date']>
   content?: Maybe<Scalars['String']>
   effectiveDate?: Maybe<Scalars['Date']>
   id: Scalars['ID']
   issueDate?: Maybe<Scalars['Date']>
-  name?: Maybe<Scalars['NonEmptyString']>
-  sex?: Maybe<Sex>
   type: CertType
 }
 
@@ -80,6 +77,16 @@ export enum CertType {
   StdTest = 'STD_TEST',
 }
 
+export type Certs = {
+  __typename?: 'Certs'
+  birthdate?: Maybe<Scalars['Date']>
+  immunizationCerts?: Maybe<Array<Cert>>
+  name?: Maybe<Scalars['NonEmptyString']>
+  sex?: Maybe<Sex>
+  sexualCrimeCerts?: Maybe<Array<Cert>>
+  stdTestCerts?: Maybe<Array<Cert>>
+}
+
 export enum Grade {
   Enterprise = 'ENTERPRISE',
   Free = 'FREE',
@@ -101,7 +108,7 @@ export type Mutation = {
   updateMyCertAgreement?: Maybe<CertAgreement>
   updatePost?: Maybe<Post>
   updateUser?: Maybe<User>
-  verifyCertJWT?: Maybe<Array<Cert>>
+  verifyCertJWT?: Maybe<Certs>
   verifyTown?: Maybe<User>
   wakeUser?: Maybe<User>
 }
@@ -368,16 +375,33 @@ export type VerifyCertJwtMutationVariables = Exact<{
 
 export type VerifyCertJwtMutation = {
   __typename?: 'Mutation'
-  verifyCertJWT?: Array<{
-    __typename?: 'Cert'
-    id: string
+  verifyCertJWT?: {
+    __typename?: 'Certs'
     birthdate?: any | null
-    content?: string | null
-    effectiveDate?: any | null
-    issueDate?: any | null
     name?: any | null
     sex?: Sex | null
-  }> | null
+    stdTestCerts?: Array<{
+      __typename?: 'Cert'
+      id: string
+      content?: string | null
+      effectiveDate?: any | null
+      issueDate?: any | null
+    }> | null
+    immunizationCerts?: Array<{
+      __typename?: 'Cert'
+      id: string
+      content?: string | null
+      effectiveDate?: any | null
+      issueDate?: any | null
+    }> | null
+    sexualCrimeCerts?: Array<{
+      __typename?: 'Cert'
+      id: string
+      content?: string | null
+      effectiveDate?: any | null
+      issueDate?: any | null
+    }> | null
+  } | null
 }
 
 export const AuthDocument = gql`
@@ -700,13 +724,27 @@ export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
 export const VerifyCertJwtDocument = gql`
   mutation VerifyCertJWT($jwt: JWT!) {
     verifyCertJWT(jwt: $jwt) {
-      id
       birthdate
-      content
-      effectiveDate
-      issueDate
       name
       sex
+      stdTestCerts {
+        id
+        content
+        effectiveDate
+        issueDate
+      }
+      immunizationCerts {
+        id
+        content
+        effectiveDate
+        issueDate
+      }
+      sexualCrimeCerts {
+        id
+        content
+        effectiveDate
+        issueDate
+      }
     }
   }
 `
@@ -748,24 +786,18 @@ export type VerifyCertJwtMutationOptions = Apollo.BaseMutationOptions<
   VerifyCertJwtMutationVariables
 >
 export type CertKeySpecifier = (
-  | 'birthdate'
   | 'content'
   | 'effectiveDate'
   | 'id'
   | 'issueDate'
-  | 'name'
-  | 'sex'
   | 'type'
   | CertKeySpecifier
 )[]
 export type CertFieldPolicy = {
-  birthdate?: FieldPolicy<any> | FieldReadFunction<any>
   content?: FieldPolicy<any> | FieldReadFunction<any>
   effectiveDate?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   issueDate?: FieldPolicy<any> | FieldReadFunction<any>
-  name?: FieldPolicy<any> | FieldReadFunction<any>
-  sex?: FieldPolicy<any> | FieldReadFunction<any>
   type?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type CertAgreementKeySpecifier = (
@@ -790,6 +822,23 @@ export type CertAgreementFieldPolicy = {
   showSex?: FieldPolicy<any> | FieldReadFunction<any>
   showSexualCrimeDetails?: FieldPolicy<any> | FieldReadFunction<any>
   stdTestSince?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type CertsKeySpecifier = (
+  | 'birthdate'
+  | 'immunizationCerts'
+  | 'name'
+  | 'sex'
+  | 'sexualCrimeCerts'
+  | 'stdTestCerts'
+  | CertsKeySpecifier
+)[]
+export type CertsFieldPolicy = {
+  birthdate?: FieldPolicy<any> | FieldReadFunction<any>
+  immunizationCerts?: FieldPolicy<any> | FieldReadFunction<any>
+  name?: FieldPolicy<any> | FieldReadFunction<any>
+  sex?: FieldPolicy<any> | FieldReadFunction<any>
+  sexualCrimeCerts?: FieldPolicy<any> | FieldReadFunction<any>
+  stdTestCerts?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type MutationKeySpecifier = (
   | 'createPost'
@@ -968,6 +1017,10 @@ export type StrictTypedTypePolicies = {
   CertAgreement?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | CertAgreementKeySpecifier | (() => undefined | CertAgreementKeySpecifier)
     fields?: CertAgreementFieldPolicy
+  }
+  Certs?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | CertsKeySpecifier | (() => undefined | CertsKeySpecifier)
+    fields?: CertsFieldPolicy
   }
   Mutation?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | MutationKeySpecifier | (() => undefined | MutationKeySpecifier)

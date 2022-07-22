@@ -155,7 +155,7 @@ export default function QRCodePage() {
     skip: !nickname,
   })
 
-  const isInputDisabled = !nickname || certAgreementLoading || updateCertAgreementLoading
+  const disableInput = certAgreementLoading || updateCertAgreementLoading
 
   return (
     <PageHead title="QR Code - 자유담" description="">
@@ -166,7 +166,7 @@ export default function QRCodePage() {
           <form onSubmit={handleSubmit(updateCertAgreement)}>
             <Ul>
               <Sticky>
-                <SubmitButton disabled={isInputDisabled} type="submit">
+                <SubmitButton disabled={disableInput} type="submit">
                   QR Code 재생성하기
                 </SubmitButton>
               </Sticky>
@@ -177,7 +177,7 @@ export default function QRCodePage() {
                   <div>생년월일</div>
                   <AppleCheckbox
                     checked={watch('showBirthdate')}
-                    disabled={isInputDisabled}
+                    disabled={disableInput}
                     onChange={(e) => setValue('showBirthdate', e.target.checked)}
                   />
                 </FlexBetween>
@@ -187,7 +187,7 @@ export default function QRCodePage() {
                   <div>이름</div>
                   <AppleCheckbox
                     checked={watch('showName')}
-                    disabled={isInputDisabled}
+                    disabled={disableInput}
                     onChange={(e) => setValue('showName', e.target.checked)}
                   />
                 </FlexBetween>
@@ -197,7 +197,7 @@ export default function QRCodePage() {
                   <div>성별</div>
                   <AppleCheckbox
                     checked={watch('showSex')}
-                    disabled={isInputDisabled}
+                    disabled={disableInput}
                     onChange={(e) => setValue('showSex', e.target.checked)}
                   />
                 </FlexBetween>
@@ -208,7 +208,7 @@ export default function QRCodePage() {
                     <div>성병검사</div>
                     <AppleCheckbox
                       checked={watchShowSTDTestDetails}
-                      disabled={isInputDisabled}
+                      disabled={disableInput}
                       onChange={(e) => setValue('showSTDTestDetails', e.target.checked)}
                     />
                   </FlexBetween>
@@ -251,7 +251,7 @@ export default function QRCodePage() {
                     <div>성병예방접종</div>
                     <AppleCheckbox
                       checked={watchShowImmunizationDetails}
-                      disabled={isInputDisabled}
+                      disabled={disableInput}
                       onChange={(e) => setValue('showImmunizationDetails', e.target.checked)}
                     />
                   </FlexBetween>
@@ -294,7 +294,7 @@ export default function QRCodePage() {
                     <div>성범죄</div>
                     <AppleCheckbox
                       checked={watchShowSexualCrimeDetails}
-                      disabled={isInputDisabled}
+                      disabled={disableInput}
                       onChange={(e) => setValue('showSexualCrimeDetails', e.target.checked)}
                     />
                   </FlexBetween>
@@ -359,6 +359,7 @@ const Ul = styled.ul`
 const FlexBetween = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `
 
 const FlexBetweenGray = styled(FlexBetween)<{ disabled: boolean }>`

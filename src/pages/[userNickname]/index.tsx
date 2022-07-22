@@ -91,12 +91,12 @@ export default function UserPage() {
                 <GoogleLogo />
                 Google 연결하기
               </GoogleButton>
+
+              <div>내 인증기록</div>
+
+              <div>내 문서</div>
             </>
           )}
-
-          <div>내 인증기록</div>
-
-          <div>내 문서</div>
         </MinWidth>
       </Navigation>
     </PageHead>

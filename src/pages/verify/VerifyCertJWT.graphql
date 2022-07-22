@@ -1,11 +1,25 @@
 mutation VerifyCertJWT($jwt: JWT!) {
   verifyCertJWT(jwt: $jwt) {
-    id
     birthdate
-    content
-    effectiveDate
-    issueDate
     name
     sex
+    stdTestCerts {
+      id
+      content
+      effectiveDate
+      issueDate
+    }
+    immunizationCerts {
+      id
+      content
+      effectiveDate
+      issueDate
+    }
+    sexualCrimeCerts {
+      id
+      content
+      effectiveDate
+      issueDate
+    }
   }
 }

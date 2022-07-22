@@ -12,10 +12,12 @@ import { getViewportWidth } from 'src/utils'
 import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
 import styled from 'styled-components'
 
+import FlipIcon from '../../svgs/flip.svg'
+import SettingIcon from '../../svgs/setting.svg'
+import XIcon from '../../svgs/x-button.svg'
+
 export default function VerificationPage() {
   useNeedToLogin()
-
-  const [selectedIndex, setSeletedIndex] = useState(0)
 
   // 카메라 영역 설정
   const html5QrcodeRef = useRef<Html5Qrcode>()
@@ -39,12 +41,15 @@ export default function VerificationPage() {
   const [showStartButton, setShowStartButton] = useState(true)
   const [showSettingIcon, setShowSettingIcon] = useState(false)
   const [showSetting, setShowSetting] = useState(false)
+  const [selectedIndex, setSeletedIndex] = useState(0)
+
+  const scanningDeviceIds = scanningDevices?.map((device) => device.id)
 
   async function startScanningQRCode() {
     if (html5QrcodeRef.current) {
       const devices = await Html5Qrcode.getCameras()
 
-      if (devices && devices.length) {
+      if (devices && devices.length > 0) {
         setScanningDevices(devices)
       }
 
@@ -74,6 +79,18 @@ export default function VerificationPage() {
     }
   }
 
+  function toggleScanningDevice() {
+    if (scanningDevices && scanningDeviceIds) {
+      if (selectedIndex === scanningDevices.length - 1) {
+        setSeletedIndex(0)
+        changeScanningDevice(scanningDeviceIds[0])
+      } else {
+        setSeletedIndex(selectedIndex + 1)
+        changeScanningDevice(scanningDeviceIds[selectedIndex])
+      }
+    }
+  }
+
   // QR code 검증하기
   const [showResult, setShowResult] = useState(false)
 
@@ -86,6 +103,11 @@ export default function VerificationPage() {
     },
     onError: toastApolloError,
   })
+
+  const allCerts = data?.verifyCertJWT
+  const stdTestCerts = allCerts?.stdTestCerts
+  const immunizationCerts = allCerts?.immunizationCerts
+  const sexualCrimeCerts = allCerts?.sexualCrimeCerts
 
   function verifyJwt(jwt: string) {
     toast.success('qrcode 인식 완료')
@@ -105,45 +127,94 @@ export default function VerificationPage() {
             <button onClick={startScanningQRCode}>시작하기</button>
           </AbsoluteFullFlex>
 
-          <AbsoluteTopRight show={showSettingIcon}>
-            <button onClick={() => setShowSetting(true)}>O</button>
-          </AbsoluteTopRight>
+          <AbsoluteTop show={showSettingIcon}>
+            <FlexBetween>
+              <button disabled={!scanningDevices} onClick={toggleScanningDevice}>
+                <FlipIcon />
+              </button>
+              <button onClick={() => setShowSetting(true)}>
+                <SettingIcon />
+              </button>
+            </FlexBetween>
+          </AbsoluteTop>
 
           <AbsoluteFull show={showSetting}>
-            <button onClick={() => setShowSetting(false)}>x</button>
+            <FlexReverseRow>
+              <button onClick={() => setShowSetting(false)}>
+                <XIcon />
+              </button>
+            </FlexReverseRow>
 
-            <h3>카메라 제어</h3>
-            <button onClick={stopScanningQRCode}>중지</button>
-            <button onClick={resumeScanningQRCode}>재시작</button>
+            <GridGap>
+              <div>
+                <h3>카메라 제어</h3>
+                <button onClick={stopScanningQRCode}>중지</button>
+                <button onClick={resumeScanningQRCode}>재시작</button>
+              </div>
 
-            <h3>카메라 소스</h3>
-            {scanningDevices && (
-              <SingleSelectionButtons
-                onChange={(newDeviceId, i) => {
-                  changeScanningDevice(newDeviceId)
-                  setSeletedIndex(i)
-                }}
-                selectedIndex={selectedIndex}
-                values={scanningDevices.map((device) => device.id)}
-              >
-                {scanningDevices.map((device, i) => (
-                  <div key={i}>{device.label}</div>
-                ))}
-              </SingleSelectionButtons>
-            )}
+              <div>
+                <h3>카메라 입력</h3>
+                {scanningDevices && scanningDeviceIds && (
+                  <SingleSelectionButtons
+                    onChange={(newDeviceId, i) => {
+                      changeScanningDevice(newDeviceId)
+                      setSeletedIndex(i)
+                    }}
+                    selectedIndex={selectedIndex}
+                    values={scanningDeviceIds}
+                  >
+                    {scanningDevices.map((device, i) => (
+                      <div key={i}>{device.label}</div>
+                    ))}
+                  </SingleSelectionButtons>
+                )}
+              </div>
+            </GridGap>
           </AbsoluteFull>
 
           <AbsoluteFull show={showResult}>
-            <button
-              onClick={() => {
-                setShowSettingIcon(true)
-                setShowResult(false)
-              }}
-            >
-              x
-            </button>
+            <FlexReverseRow>
+              <button
+                onClick={() => {
+                  setShowSettingIcon(true)
+                  setShowResult(false)
+                }}
+              >
+                <XIcon />
+              </button>
+            </FlexReverseRow>
 
-            <pre style={{ overflow: 'scroll' }}>{JSON.stringify(data)}</pre>
+            <GridGap>
+              {allCerts?.name}
+              {allCerts?.birthdate}
+              {allCerts?.sex}
+
+              <h3>성병검사</h3>
+              {stdTestCerts ? (
+                <pre style={{ overflow: 'scroll' }}>{JSON.stringify(stdTestCerts, null, 2)}</pre>
+              ) : (
+                <p>상대방이 동의하지 않았어요</p>
+              )}
+
+              <h3>성병예방접종</h3>
+              {immunizationCerts ? (
+                <pre style={{ overflow: 'scroll' }}>
+                  {JSON.stringify(immunizationCerts, null, 2)}
+                </pre>
+              ) : (
+                <p>상대방이 동의하지 않았어요</p>
+              )}
+
+              <h3>성범죄</h3>
+              {sexualCrimeCerts ? (
+                <pre style={{ overflow: 'scroll' }}>
+                  {JSON.stringify(sexualCrimeCerts, null, 2)}
+                </pre>
+              ) : (
+                <p>상대방이 동의하지 않았어요</p>
+              )}
+            </GridGap>
+
             {loading}
           </AbsoluteFull>
 
@@ -176,6 +247,16 @@ const MaxWidth = styled.main`
   }
 `
 
+const FlexReverseRow = styled.div`
+  display: flex;
+  flex-flow: row-reverse;
+
+  > button > svg {
+    width: 3rem;
+    padding: 0.5rem;
+  }
+`
+
 const AbsoluteFullFlex = styled.div<{ show: boolean }>`
   display: ${(p) => (p.show ? 'flex' : 'none')};
   flex-flow: column;
@@ -198,11 +279,30 @@ const AbsoluteFull = styled.div<{ show: boolean }>`
   overflow-y: auto;
 `
 
-const AbsoluteTopRight = styled.div<{ show: boolean }>`
+const AbsoluteTop = styled.div<{ show: boolean }>`
   position: absolute;
   top: 0;
+  left: 0;
   right: 0;
   z-index: 1;
 
   display: ${(p) => (p.show ? 'block' : 'none')};
+`
+
+const GridGap = styled.div`
+  display: grid;
+  gap: 3rem;
+
+  padding: 0 1rem;
+`
+
+const FlexBetween = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  > button > svg {
+    width: 3rem;
+    padding: 0.5rem;
+  }
 `

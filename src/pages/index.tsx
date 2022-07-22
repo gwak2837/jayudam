@@ -10,15 +10,26 @@ export default function HomePage() {
     <PageHead>
       <Navigation>
         <MaxWidth>
-          {/* 인증서 제출하기 */}
+          <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
+
+          <h2>보건기록 인증은 이제 자유담에서</h2>
+          <h5>
+            더 이상 종이 증명서를 가지고 다니지 마세요.
+            <br />
+            자유담과 함께 상대방의 보건 기록 증명서를 QR Code 스캔으로 인증하세요.
+          </h5>
 
           <h3>개인간 보건기록 인증 서비스</h3>
 
           <h3>나의 정보 공개 범위를 선택할 수 있는</h3>
           <h3>가명 인증</h3>
 
-          <Image src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
-          <Link href="/login">로그인</Link>
+          <div>
+            <Link href="/login">로그인</Link>
+          </div>
+          <div>
+            <Link href="/submit">증명서 제출</Link>
+          </div>
 
           <Footer>
             <h3>Copyright © {new Date().getUTCFullYear()} LobinReview</h3>
@@ -85,10 +96,7 @@ const GreySmallText = styled.p`
 
 const MaxWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
-`
-
-const GreyH5 = styled.h5`
-  color: #888;
+  min-height: inherit;
 `
 
 const Footer = styled.footer`
