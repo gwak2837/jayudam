@@ -185,13 +185,50 @@ export default function VerificationPage() {
             </FlexReverseRow>
 
             <GridGap>
-              {allCerts?.name}
-              {allCerts?.birthdate}
-              {allCerts?.sex}
+              <CenterTable>
+                <thead>
+                  <tr>
+                    <th>이름</th>
+                    <th>생년월일</th>
+                    <th>성별</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{allCerts?.name ?? '미동의'}</td>
+                    <td>{allCerts?.birthdate ?? '미동의'}</td>
+                    <td>{allCerts?.sex ?? '미동의'}</td>
+                  </tr>
+                </tbody>
+              </CenterTable>
 
               <h3>성병검사</h3>
               {stdTestCerts ? (
-                <pre style={{ overflow: 'scroll' }}>{JSON.stringify(stdTestCerts, null, 2)}</pre>
+                stdTestCerts.length > 0 ? (
+                  <CenterTable>
+                    <thead>
+                      <tr>
+                        <th>이름</th>
+                        <th>검사일</th>
+                        <th>발급일</th>
+                        <th>장소</th>
+                        <th>결과</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stdTestCerts.map((cert) => (
+                        <tr key={cert.id}>
+                          <td>{cert.name}</td>
+                          <td>{cert.effectiveDate}</td>
+                          <td>{cert.issueDate}</td>
+                          <td>{cert.location}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </CenterTable>
+                ) : (
+                  <p>내역이 존재하지 않아요</p>
+                )
               ) : (
                 <p>상대방이 동의하지 않았어요</p>
               )}
@@ -293,7 +330,7 @@ const GridGap = styled.div`
   display: grid;
   gap: 3rem;
 
-  padding: 0 1rem;
+  padding: 1rem;
 `
 
 const FlexBetween = styled.div`
@@ -304,5 +341,16 @@ const FlexBetween = styled.div`
   > button > svg {
     width: 3rem;
     padding: 0.5rem;
+  }
+`
+
+const CenterTable = styled.table`
+  border-collapse: collapse;
+
+  th,
+  td {
+    border: 1px solid ${(p) => p.theme.primaryAchromatic};
+    padding: 0.5rem;
+    text-align: center;
   }
 `

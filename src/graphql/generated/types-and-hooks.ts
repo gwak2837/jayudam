@@ -34,6 +34,8 @@ export type Cert = {
   effectiveDate?: Maybe<Scalars['Date']>
   id: Scalars['ID']
   issueDate?: Maybe<Scalars['Date']>
+  location?: Maybe<Scalars['String']>
+  name?: Maybe<Scalars['String']>
   type: CertType
 }
 
@@ -80,8 +82,10 @@ export enum CertType {
 export type Certs = {
   __typename?: 'Certs'
   birthdate?: Maybe<Scalars['Date']>
+  creationTime: Scalars['DateTime']
+  id: Scalars['ID']
   immunizationCerts?: Maybe<Array<Cert>>
-  name?: Maybe<Scalars['NonEmptyString']>
+  name?: Maybe<Scalars['String']>
   sex?: Maybe<Sex>
   sexualCrimeCerts?: Maybe<Array<Cert>>
   stdTestCerts?: Maybe<Array<Cert>>
@@ -101,7 +105,7 @@ export type Mutation = {
   disconnectFromKakaoOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromNaverOAuth?: Maybe<Scalars['Boolean']>
   logout?: Maybe<User>
-  submitCertInfo?: Maybe<Scalars['Boolean']>
+  submitCert?: Maybe<Cert>
   takeAttendance?: Maybe<User>
   unregister?: Maybe<User>
   updateCertAgreement: Scalars['JWT']
@@ -121,7 +125,7 @@ export type MutationDeletePostArgs = {
   id: Scalars['ID']
 }
 
-export type MutationSubmitCertInfoArgs = {
+export type MutationSubmitCertArgs = {
   input: CertCreation
 }
 
@@ -193,14 +197,16 @@ export type PostUpdateInput = {
 
 export type Query = {
   __typename?: 'Query'
+  certs?: Maybe<Certs>
   isUniqueNickname: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
-  myCerts?: Maybe<Array<Cert>>
   myNickname?: Maybe<User>
   myVerificationHistories?: Maybe<Array<VerificationHistory>>
+  pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
   user?: Maybe<User>
+  verificationHistories?: Maybe<Array<Certs>>
 }
 
 export type QueryIsUniqueNicknameArgs = {
@@ -246,7 +252,7 @@ export enum Sex {
 export type Town = {
   __typename?: 'Town'
   count: Scalars['NonNegativeInt']
-  name?: Maybe<Scalars['NonEmptyString']>
+  name?: Maybe<Scalars['String']>
 }
 
 export type User = {
@@ -326,7 +332,7 @@ export type UserQuery = {
     isVerifiedSex: boolean
     nickname?: string | null
     sex?: Sex | null
-    towns?: Array<{ __typename?: 'Town'; count: any; name?: any | null }> | null
+    towns?: Array<{ __typename?: 'Town'; count: any; name?: string | null }> | null
   } | null
 }
 
@@ -378,7 +384,7 @@ export type VerifyCertJwtMutation = {
   verifyCertJWT?: {
     __typename?: 'Certs'
     birthdate?: any | null
-    name?: any | null
+    name?: string | null
     sex?: Sex | null
     stdTestCerts?: Array<{
       __typename?: 'Cert'
@@ -386,6 +392,8 @@ export type VerifyCertJwtMutation = {
       content?: string | null
       effectiveDate?: any | null
       issueDate?: any | null
+      location?: string | null
+      name?: string | null
     }> | null
     immunizationCerts?: Array<{
       __typename?: 'Cert'
@@ -393,6 +401,8 @@ export type VerifyCertJwtMutation = {
       content?: string | null
       effectiveDate?: any | null
       issueDate?: any | null
+      location?: string | null
+      name?: string | null
     }> | null
     sexualCrimeCerts?: Array<{
       __typename?: 'Cert'
@@ -400,6 +410,8 @@ export type VerifyCertJwtMutation = {
       content?: string | null
       effectiveDate?: any | null
       issueDate?: any | null
+      location?: string | null
+      name?: string | null
     }> | null
   } | null
 }
@@ -732,18 +744,24 @@ export const VerifyCertJwtDocument = gql`
         content
         effectiveDate
         issueDate
+        location
+        name
       }
       immunizationCerts {
         id
         content
         effectiveDate
         issueDate
+        location
+        name
       }
       sexualCrimeCerts {
         id
         content
         effectiveDate
         issueDate
+        location
+        name
       }
     }
   }
@@ -790,6 +808,8 @@ export type CertKeySpecifier = (
   | 'effectiveDate'
   | 'id'
   | 'issueDate'
+  | 'location'
+  | 'name'
   | 'type'
   | CertKeySpecifier
 )[]
@@ -798,6 +818,8 @@ export type CertFieldPolicy = {
   effectiveDate?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   issueDate?: FieldPolicy<any> | FieldReadFunction<any>
+  location?: FieldPolicy<any> | FieldReadFunction<any>
+  name?: FieldPolicy<any> | FieldReadFunction<any>
   type?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type CertAgreementKeySpecifier = (
@@ -825,6 +847,8 @@ export type CertAgreementFieldPolicy = {
 }
 export type CertsKeySpecifier = (
   | 'birthdate'
+  | 'creationTime'
+  | 'id'
   | 'immunizationCerts'
   | 'name'
   | 'sex'
@@ -834,6 +858,8 @@ export type CertsKeySpecifier = (
 )[]
 export type CertsFieldPolicy = {
   birthdate?: FieldPolicy<any> | FieldReadFunction<any>
+  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
   immunizationCerts?: FieldPolicy<any> | FieldReadFunction<any>
   name?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
@@ -847,7 +873,7 @@ export type MutationKeySpecifier = (
   | 'disconnectFromKakaoOAuth'
   | 'disconnectFromNaverOAuth'
   | 'logout'
-  | 'submitCertInfo'
+  | 'submitCert'
   | 'takeAttendance'
   | 'unregister'
   | 'updateCertAgreement'
@@ -866,7 +892,7 @@ export type MutationFieldPolicy = {
   disconnectFromKakaoOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromNaverOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   logout?: FieldPolicy<any> | FieldReadFunction<any>
-  submitCertInfo?: FieldPolicy<any> | FieldReadFunction<any>
+  submitCert?: FieldPolicy<any> | FieldReadFunction<any>
   takeAttendance?: FieldPolicy<any> | FieldReadFunction<any>
   unregister?: FieldPolicy<any> | FieldReadFunction<any>
   updateCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
@@ -899,25 +925,29 @@ export type PostFieldPolicy = {
   modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
+  | 'certs'
   | 'isUniqueNickname'
   | 'myCertAgreement'
-  | 'myCerts'
   | 'myNickname'
   | 'myVerificationHistories'
+  | 'pendingCerts'
   | 'post'
   | 'posts'
   | 'user'
+  | 'verificationHistories'
   | QueryKeySpecifier
 )[]
 export type QueryFieldPolicy = {
+  certs?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueNickname?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
-  myCerts?: FieldPolicy<any> | FieldReadFunction<any>
   myNickname?: FieldPolicy<any> | FieldReadFunction<any>
   myVerificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
+  pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
   user?: FieldPolicy<any> | FieldReadFunction<any>
+  verificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type ServiceAgreementKeySpecifier = (
   | 'adAgreement'

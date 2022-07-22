@@ -8,18 +8,24 @@ mutation VerifyCertJWT($jwt: JWT!) {
       content
       effectiveDate
       issueDate
+      location
+      name
     }
     immunizationCerts {
       id
       content
       effectiveDate
       issueDate
+      location
+      name
     }
     sexualCrimeCerts {
       id
       content
       effectiveDate
       issueDate
+      location
+      name
     }
   }
 }
