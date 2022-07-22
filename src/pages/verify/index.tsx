@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
-import { useVerifyCertJwtMutation } from 'src/graphql/generated/types-and-hooks'
+import { Sex, useVerifyCertJwtMutation } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { getViewportWidth } from 'src/utils'
@@ -14,6 +14,7 @@ import styled from 'styled-components'
 
 import FlipIcon from '../../svgs/flip.svg'
 import SettingIcon from '../../svgs/setting.svg'
+import VerifyIcon from '../../svgs/verify.svg'
 import XIcon from '../../svgs/x-button.svg'
 
 export default function VerificationPage() {
@@ -104,7 +105,7 @@ export default function VerificationPage() {
     onError: toastApolloError,
   })
 
-  const allCerts = data?.verifyCertJWT
+  const allCerts = sampleData?.verifyCertJWT
   const stdTestCerts = allCerts?.stdTestCerts
   const immunizationCerts = allCerts?.immunizationCerts
   const sexualCrimeCerts = allCerts?.sexualCrimeCerts
@@ -185,47 +186,55 @@ export default function VerificationPage() {
             </FlexReverseRow>
 
             <GridGap>
-              <CenterTable>
-                <thead>
-                  <tr>
-                    <th>이름</th>
-                    <th>생년월일</th>
-                    <th>성별</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{allCerts?.name ?? '미동의'}</td>
-                    <td>{allCerts?.birthdate ?? '미동의'}</td>
-                    <td>{allCerts?.sex ?? '미동의'}</td>
-                  </tr>
-                </tbody>
-              </CenterTable>
+              <Overflow>
+                <CenterTable>
+                  <thead>
+                    <tr>
+                      <th>이름</th>
+                      <th>생년월일</th>
+                      <th>성별</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{allCerts?.name ?? '미동의'}</td>
+                      <td>{allCerts?.birthdate ?? '미동의'}</td>
+                      <td>{allCerts?.sex ? formatSex(allCerts.sex as Sex) : '미동의'}</td>
+                    </tr>
+                  </tbody>
+                </CenterTable>
+              </Overflow>
 
               <h3>성병검사</h3>
               {stdTestCerts ? (
                 stdTestCerts.length > 0 ? (
-                  <CenterTable>
-                    <thead>
-                      <tr>
-                        <th>이름</th>
-                        <th>검사일</th>
-                        <th>발급일</th>
-                        <th>장소</th>
-                        <th>결과</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {stdTestCerts.map((cert) => (
-                        <tr key={cert.id}>
-                          <td>{cert.name}</td>
-                          <td>{cert.effectiveDate}</td>
-                          <td>{cert.issueDate}</td>
-                          <td>{cert.location}</td>
+                  <Overflow>
+                    <CenterTable>
+                      <thead>
+                        <tr>
+                          <th>이름</th>
+                          <th>검사일</th>
+                          <th>발급일</th>
+                          <th>장소</th>
+                          <th>결과</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </CenterTable>
+                      </thead>
+                      <tbody>
+                        {stdTestCerts.map((cert) => (
+                          <AnimatedTr
+                            key={cert.id}
+                            onClick={(e) => e.currentTarget.classList.add('expand')}
+                          >
+                            <td>{cert.name}</td>
+                            <td>{cert.effectiveDate}</td>
+                            <td>{cert.issueDate}</td>
+                            <td>{cert.location}</td>
+                            <td>{formatResult(cert.content)}</td>
+                          </AnimatedTr>
+                        ))}
+                      </tbody>
+                    </CenterTable>
+                  </Overflow>
                 ) : (
                   <p>내역이 존재하지 않아요</p>
                 )
@@ -344,13 +353,193 @@ const FlexBetween = styled.div`
   }
 `
 
+const Overflow = styled.div`
+  box-shadow: 0 0 0 1px ${(p) => p.theme.primaryAchromatic};
+  max-height: 50vh;
+  overflow: auto;
+  position: relative;
+`
+
 const CenterTable = styled.table`
-  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
 
   th,
   td {
-    border: 1px solid ${(p) => p.theme.primaryAchromatic};
+    background: #fff;
+    box-shadow: 0 0 0 1px ${(p) => p.theme.primaryAchromatic};
     padding: 0.5rem;
     text-align: center;
+    white-space: nowrap;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+  }
+
+  td {
+    cursor: pointer;
+    :hover {
+      background: ${(p) => p.theme.background};
+    }
+  }
+
+  svg {
+    width: 1.3rem;
+    vertical-align: middle;
   }
 `
+
+const AnimatedTr = styled.tr`
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1), border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1);
+`
+
+const DangerText = styled.h4`
+  color: ${(p) => p.theme.error};
+`
+
+function formatSex(sex?: Sex) {
+  switch (sex) {
+    case Sex.Unknown:
+      return '알 수 없음'
+    case Sex.Male:
+      return '남'
+    case Sex.Female:
+      return '여'
+    case Sex.Other:
+      return '기타'
+    default:
+      return sex
+  }
+}
+
+function formatResult(content: string) {
+  const testResult = JSON.parse(content)
+
+  let positiveCount = 0
+  for (const s of Object.values(testResult) as string[]) {
+    if (s !== '음성' && s !== 'Non Reactive') positiveCount++
+  }
+
+  switch (positiveCount) {
+    case 0:
+      return <VerifyIcon />
+    default:
+      return <DangerText>{positiveCount}</DangerText>
+  }
+}
+
+const sampleData = {
+  verifyCertJWT: {
+    birthdate: '1998-04-12',
+    name: '곽태욱',
+    sex: 'MALE',
+    stdTestCerts: [
+      {
+        id: '1',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '2',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '3',
+        content:
+          '{"임질(유전자증폭검사법)": "양성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '4',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '5',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '6',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '7',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '8',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '9',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+      {
+        id: '10',
+        content:
+          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
+        effectiveDate: '2020-01-21',
+        issueDate: '2022-06-20',
+        location: '구보건소',
+        name: '임상병리검사',
+        __typename: 'Cert',
+      },
+    ],
+    immunizationCerts: null,
+    sexualCrimeCerts: null,
+    __typename: 'Certs',
+  },
+}

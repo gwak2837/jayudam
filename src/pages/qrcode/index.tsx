@@ -239,8 +239,8 @@ export default function QRCodePage() {
                         }}
                         type="date"
                         value={stdTestSince}
-                      />{' '}
-                      부터
+                      />
+                      <span> 부터</span>
                     </div>
                   </FlexBetweenGray>
                 </GridSmallGap>
@@ -282,8 +282,8 @@ export default function QRCodePage() {
                         }}
                         type="date"
                         value={immunizationSince}
-                      />{' '}
-                      부터
+                      />
+                      <span> 부터</span>
                     </div>
                   </FlexBetweenGray>
                 </GridSmallGap>
@@ -325,8 +325,8 @@ export default function QRCodePage() {
                         }}
                         type="date"
                         value={sexualCrimeSince}
-                      />{' '}
-                      부터
+                      />
+                      <span> 부터</span>
                     </div>
                   </FlexBetweenGray>
                 </GridSmallGap>
