@@ -86,7 +86,7 @@ export default function VerificationPage() {
         changeScanningDevice(scanningDeviceIds[0])
       } else {
         setSeletedIndex(selectedIndex + 1)
-        changeScanningDevice(scanningDeviceIds[selectedIndex])
+        changeScanningDevice(scanningDeviceIds[selectedIndex + 1])
       }
     }
   }
