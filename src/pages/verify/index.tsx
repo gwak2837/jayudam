@@ -3,7 +3,7 @@ import { CameraDevice } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
-import LazyModal from 'src/components/atoms/LazyModal'
+import Modal from 'src/components/atoms/Modal'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
@@ -147,7 +147,22 @@ export default function VerificationPage() {
     sampleCertJwtQuery()
   }
 
-  const [isExpanded, setIsExpanded] = useState<boolean[]>([])
+  // Modal
+  const [open, setOpen] = useState<boolean[]>([])
+
+  function openIthModal(i: number) {
+    return () => {
+      open[i] = true
+      setOpen([...open])
+    }
+  }
+
+  function closeIthModal(i: number) {
+    return (newValue: boolean) => {
+      open[i] = newValue
+      setOpen([...open])
+    }
+  }
 
   return (
     <PageHead title="인증하기 - 자유담" description="">
@@ -259,29 +274,20 @@ export default function VerificationPage() {
                       </thead>
                       <tbody>
                         {stdTestCerts.map((cert, i) => (
-                          <AnimatedTr
-                            key={cert.id}
-                            onClick={() => {
-                              isExpanded[i] = !isExpanded[i]
-                              setIsExpanded([...isExpanded])
-                            }}
-                          >
+                          <RelativeTr key={cert.id} onClick={openIthModal(i)}>
                             <td>{formatResult(cert.content)}</td>
                             <td>{cert.name}</td>
                             <td>{formatISOLocalDate(cert.effectiveDate)}</td>
                             <td>{formatISOLocalDate(cert.issueDate)}</td>
                             <td>{cert.location}</td>
-                            <LazyModal
-                              open={isExpanded[i]}
-                              toggleOpen={(newValue) => {
-                                isExpanded[i] = newValue
-                                setIsExpanded([...isExpanded])
-                              }}
-                            >
-                              <div>asdfasdf</div>
-                            </LazyModal>
-                            {/* <AnimatedDiv expand={isExpanded[i]}>asd</AnimatedDiv> */}
-                          </AnimatedTr>
+                            <Modal open={open[i]} onClose={closeIthModal(i)}>
+                              <AnimatedDiv open={open[i]}>
+                                <pre style={{ overflow: 'auto' }}>
+                                  {JSON.stringify(JSON.parse(cert.content ?? '{}'), null, 2)}
+                                </pre>
+                              </AnimatedDiv>
+                            </Modal>
+                          </RelativeTr>
                         ))}
                       </tbody>
                     </CenterTable>
@@ -427,6 +433,7 @@ const CenterTable = styled.table`
   th {
     position: sticky;
     top: 0;
+    z-index: 1;
   }
 
   td {
@@ -442,20 +449,15 @@ const CenterTable = styled.table`
   }
 `
 
-const AnimatedTr = styled.tr`
+const RelativeTr = styled.tr`
   position: relative;
 `
 
-const AnimatedDiv = styled.div<{ expand: boolean }>`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  width: ${(p) => (p.expand ? '300px' : '0')};
-  height: ${(p) => (p.expand ? '300px' : '0')};
+const AnimatedDiv = styled.div<{ open: boolean }>`
+  width: ${(p) => (p.open ? '90%' : '0')};
+  height: ${(p) => (p.open ? '90%' : '0')};
   background: #fee;
-  z-index: ${(p) => (p.expand ? 1 : 0)};
+  z-index: ${(p) => (p.open ? 10 : 0)};
 
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), height 300ms cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1), border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1);
