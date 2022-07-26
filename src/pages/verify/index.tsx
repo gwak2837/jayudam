@@ -3,17 +3,24 @@ import { CameraDevice } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
+import LazyModal from 'src/components/atoms/LazyModal'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
-import { Sex, useVerifyCertJwtMutation } from 'src/graphql/generated/types-and-hooks'
+import {
+  Sex,
+  useSampleCertJwtLazyQuery,
+  useVerifyCertJwtMutation,
+} from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { getViewportWidth } from 'src/utils'
 import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
+import { formatISOLocalDate } from 'src/utils/date'
 import styled from 'styled-components'
 
 import FlipIcon from '../../svgs/flip.svg'
 import SettingIcon from '../../svgs/setting.svg'
+import TestTubeIcon from '../../svgs/test-tube.svg'
 import VerifyIcon from '../../svgs/verify.svg'
 import XIcon from '../../svgs/x-button.svg'
 
@@ -70,7 +77,9 @@ export default function VerificationPage() {
   }
 
   function resumeScanningQRCode() {
-    html5QrcodeRef.current?.resume()
+    if (html5QrcodeRef.current?.getState() === Html5QrcodeScannerState.PAUSED) {
+      html5QrcodeRef.current.resume()
+    }
   }
 
   function changeScanningDevice(deviceId: string) {
@@ -98,26 +107,47 @@ export default function VerificationPage() {
   const [verifyCertJwtMutation, { data, loading }] = useVerifyCertJwtMutation({
     onCompleted: ({ verifyCertJWT }) => {
       if (verifyCertJWT) {
-        toast.success('qrcode 인증 완료')
+        toast.success('QR code 인증 완료')
         setShowResult(true)
       }
     },
     onError: toastApolloError,
   })
 
-  const allCerts = sampleData?.verifyCertJWT
+  const allCerts = data?.verifyCertJWT
   const stdTestCerts = allCerts?.stdTestCerts
   const immunizationCerts = allCerts?.immunizationCerts
   const sexualCrimeCerts = allCerts?.sexualCrimeCerts
 
   function verifyJwt(jwt: string) {
-    toast.success('qrcode 인식 완료')
-    html5QrcodeRef.current?.pause()
+    toast.success('QR code 인식 완료')
+    resumeScanningQRCode()
     setShowResult(true)
     setShowSetting(false)
     setShowSettingIcon(false)
     verifyCertJwtMutation({ variables: { jwt } })
   }
+
+  // 테스트용 QR code
+  const [sampleCertJwtQuery, { loading: sampleCertJWTLoading }] = useSampleCertJwtLazyQuery({
+    onCompleted: ({ sampleCertJWT }) => {
+      if (sampleCertJWT) {
+        toast.success('테스트용 QR code 인식 완료')
+        html5QrcodeRef.current?.pause()
+        setShowResult(true)
+        setShowSetting(false)
+        setShowSettingIcon(false)
+        verifyCertJwtMutation({ variables: { jwt: sampleCertJWT } })
+      }
+    },
+    onError: toastApolloError,
+  })
+
+  function getSampleCertJWT() {
+    sampleCertJwtQuery()
+  }
+
+  const [isExpanded, setIsExpanded] = useState<boolean[]>([])
 
   return (
     <PageHead title="인증하기 - 자유담" description="">
@@ -133,7 +163,10 @@ export default function VerificationPage() {
               <button disabled={!scanningDevices} onClick={toggleScanningDevice}>
                 <FlipIcon />
               </button>
-              <button onClick={() => setShowSetting(true)}>
+              <button disabled={sampleCertJWTLoading} onClick={getSampleCertJWT}>
+                <TestTubeIcon />
+              </button>
+              <button disabled={!scanningDevices} onClick={() => setShowSetting(true)}>
                 <SettingIcon />
               </button>
             </FlexBetween>
@@ -179,6 +212,7 @@ export default function VerificationPage() {
                 onClick={() => {
                   setShowSettingIcon(true)
                   setShowResult(false)
+                  resumeScanningQRCode()
                 }}
               >
                 <XIcon />
@@ -186,24 +220,28 @@ export default function VerificationPage() {
             </FlexReverseRow>
 
             <GridGap>
-              <Overflow>
-                <CenterTable>
-                  <thead>
-                    <tr>
-                      <th>이름</th>
-                      <th>생년월일</th>
-                      <th>성별</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{allCerts?.name ?? '미동의'}</td>
-                      <td>{allCerts?.birthdate ?? '미동의'}</td>
-                      <td>{allCerts?.sex ? formatSex(allCerts.sex as Sex) : '미동의'}</td>
-                    </tr>
-                  </tbody>
-                </CenterTable>
-              </Overflow>
+              {allCerts && (
+                <Overflow>
+                  <CenterTable>
+                    <thead>
+                      <tr>
+                        <th>이름</th>
+                        <th>생년월일</th>
+                        <th>성별</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{allCerts.name ?? '미동의'}</td>
+                        <td>
+                          {allCerts.birthdate ? formatISOLocalDate(allCerts.birthdate) : '미동의'}
+                        </td>
+                        <td>{allCerts.sex ? formatSex(allCerts.sex as Sex) : '미동의'}</td>
+                      </tr>
+                    </tbody>
+                  </CenterTable>
+                </Overflow>
+              )}
 
               <h3>성병검사</h3>
               {stdTestCerts ? (
@@ -212,24 +250,37 @@ export default function VerificationPage() {
                     <CenterTable>
                       <thead>
                         <tr>
+                          <th>결과</th>
                           <th>이름</th>
                           <th>검사일</th>
                           <th>발급일</th>
                           <th>장소</th>
-                          <th>결과</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {stdTestCerts.map((cert) => (
+                        {stdTestCerts.map((cert, i) => (
                           <AnimatedTr
                             key={cert.id}
-                            onClick={(e) => e.currentTarget.classList.add('expand')}
+                            onClick={() => {
+                              isExpanded[i] = !isExpanded[i]
+                              setIsExpanded([...isExpanded])
+                            }}
                           >
-                            <td>{cert.name}</td>
-                            <td>{cert.effectiveDate}</td>
-                            <td>{cert.issueDate}</td>
-                            <td>{cert.location}</td>
                             <td>{formatResult(cert.content)}</td>
+                            <td>{cert.name}</td>
+                            <td>{formatISOLocalDate(cert.effectiveDate)}</td>
+                            <td>{formatISOLocalDate(cert.issueDate)}</td>
+                            <td>{cert.location}</td>
+                            <LazyModal
+                              open={isExpanded[i]}
+                              toggleOpen={(newValue) => {
+                                isExpanded[i] = newValue
+                                setIsExpanded([...isExpanded])
+                              }}
+                            >
+                              <div>asdfasdf</div>
+                            </LazyModal>
+                            {/* <AnimatedDiv expand={isExpanded[i]}>asd</AnimatedDiv> */}
                           </AnimatedTr>
                         ))}
                       </tbody>
@@ -392,6 +443,20 @@ const CenterTable = styled.table`
 `
 
 const AnimatedTr = styled.tr`
+  position: relative;
+`
+
+const AnimatedDiv = styled.div<{ expand: boolean }>`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: ${(p) => (p.expand ? '300px' : '0')};
+  height: ${(p) => (p.expand ? '300px' : '0')};
+  background: #fee;
+  z-index: ${(p) => (p.expand ? 1 : 0)};
+
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), height 300ms cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1), border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1);
 `
@@ -415,7 +480,9 @@ function formatSex(sex?: Sex) {
   }
 }
 
-function formatResult(content: string) {
+function formatResult(content?: string | null) {
+  if (!content) return ''
+
   const testResult = JSON.parse(content)
 
   let positiveCount = 0
@@ -429,117 +496,4 @@ function formatResult(content: string) {
     default:
       return <DangerText>{positiveCount}</DangerText>
   }
-}
-
-const sampleData = {
-  verifyCertJWT: {
-    birthdate: '1998-04-12',
-    name: '곽태욱',
-    sex: 'MALE',
-    stdTestCerts: [
-      {
-        id: '1',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '2',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '3',
-        content:
-          '{"임질(유전자증폭검사법)": "양성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '4',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '5',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '6',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '7',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '8',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '9',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-      {
-        id: '10',
-        content:
-          '{"임질(유전자증폭검사법)": "음성", "클라미디아(유전자증폭검사법)": "음성", "비트레포네마검사-매독반응검사[일반면역검사](정성)": "음성", "일반면역검사-HIV항체": "음성"}',
-        effectiveDate: '2020-01-21',
-        issueDate: '2022-06-20',
-        location: '구보건소',
-        name: '임상병리검사',
-        __typename: 'Cert',
-      },
-    ],
-    immunizationCerts: null,
-    sexualCrimeCerts: null,
-    __typename: 'Certs',
-  },
 }

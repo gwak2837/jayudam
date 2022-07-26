@@ -205,6 +205,7 @@ export type Query = {
   pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
+  sampleCertJWT: Scalars['JWT']
   user?: Maybe<User>
   verificationHistories?: Maybe<Array<Certs>>
 }
@@ -374,6 +375,10 @@ export type UpdateUserMutation = {
   __typename?: 'Mutation'
   updateUser?: { __typename?: 'User'; id: any; nickname?: string | null } | null
 }
+
+export type SampleCertJwtQueryVariables = Exact<{ [key: string]: never }>
+
+export type SampleCertJwtQuery = { __typename?: 'Query'; sampleCertJWT: any }
 
 export type VerifyCertJwtMutationVariables = Exact<{
   jwt: Scalars['JWT']
@@ -733,6 +738,51 @@ export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserMutation,
   UpdateUserMutationVariables
 >
+export const SampleCertJwtDocument = gql`
+  query SampleCertJWT {
+    sampleCertJWT
+  }
+`
+
+/**
+ * __useSampleCertJwtQuery__
+ *
+ * To run a query within a React component, call `useSampleCertJwtQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSampleCertJwtQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSampleCertJwtQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSampleCertJwtQuery(
+  baseOptions?: Apollo.QueryHookOptions<SampleCertJwtQuery, SampleCertJwtQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<SampleCertJwtQuery, SampleCertJwtQueryVariables>(
+    SampleCertJwtDocument,
+    options
+  )
+}
+export function useSampleCertJwtLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<SampleCertJwtQuery, SampleCertJwtQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<SampleCertJwtQuery, SampleCertJwtQueryVariables>(
+    SampleCertJwtDocument,
+    options
+  )
+}
+export type SampleCertJwtQueryHookResult = ReturnType<typeof useSampleCertJwtQuery>
+export type SampleCertJwtLazyQueryHookResult = ReturnType<typeof useSampleCertJwtLazyQuery>
+export type SampleCertJwtQueryResult = Apollo.QueryResult<
+  SampleCertJwtQuery,
+  SampleCertJwtQueryVariables
+>
 export const VerifyCertJwtDocument = gql`
   mutation VerifyCertJWT($jwt: JWT!) {
     verifyCertJWT(jwt: $jwt) {
@@ -933,6 +983,7 @@ export type QueryKeySpecifier = (
   | 'pendingCerts'
   | 'post'
   | 'posts'
+  | 'sampleCertJWT'
   | 'user'
   | 'verificationHistories'
   | QueryKeySpecifier
@@ -946,6 +997,7 @@ export type QueryFieldPolicy = {
   pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
+  sampleCertJWT?: FieldPolicy<any> | FieldReadFunction<any>
   user?: FieldPolicy<any> | FieldReadFunction<any>
   verificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
 }

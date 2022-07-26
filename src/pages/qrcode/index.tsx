@@ -14,7 +14,7 @@ import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { getViewportWidth } from 'src/utils'
 import { MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { getNMonthBefore, getNYearBefore } from 'src/utils/date'
+import { formatISOLocalDate, getNMonthBefore, getNYearBefore } from 'src/utils/date'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -34,11 +34,11 @@ export default function QRCodePage() {
       showName: false,
       showSex: false,
       showSTDTestDetails: false,
-      stdTestSince: null,
+      stdTestSince: null, // WIP: 미래는 선택 불가
       showImmunizationDetails: false,
-      immunizationSince: null,
+      immunizationSince: null, // WIP: 미래는 선택 불가
       showSexualCrimeDetails: false,
-      sexualCrimeSince: null,
+      sexualCrimeSince: null, // WIP: 미래는 선택 불가
     },
   })
 
@@ -84,11 +84,13 @@ export default function QRCodePage() {
           ...(showName && { showName }),
           ...(showSex && { showSex }),
           ...(showSTDTestDetails && { showSTDTestDetails }),
-          ...(showSTDTestDetails && stdTestSince && { stdTestSince }),
+          ...(showSTDTestDetails && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
           ...(showImmunizationDetails && { showImmunizationDetails }),
-          ...(showImmunizationDetails && immunizationSince && { immunizationSince }),
+          ...(showImmunizationDetails &&
+            immunizationSince && { immunizationSince: new Date(immunizationSince) }),
           ...(showSexualCrimeDetails && { showSexualCrimeDetails }),
-          ...(showSexualCrimeDetails && sexualCrimeSince && { sexualCrimeSince }),
+          ...(showSexualCrimeDetails &&
+            sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince) }),
         },
       },
     })
@@ -110,29 +112,34 @@ export default function QRCodePage() {
           sexualCrimeSince,
         } = myCertAgreement
 
+        const stdTestSinceDate = new Date(stdTestSince)
+        const stdTestSinceTime = stdTestSinceDate.getTime()
+        const immunizationSinceDate = new Date(immunizationSince)
+        const immunizationSinceTime = immunizationSinceDate.getTime()
+        const sexualCrimeSinceDate = new Date(sexualCrimeSince)
+        const sexualCrimeSinceTime = sexualCrimeSinceDate.getTime()
+
         setValue('showBirthdate', showBirthdate)
         setValue('showName', showName)
         setValue('showSex', showSex)
         setValue('showSTDTestDetails', showSTDTestDetails)
-        setValue('stdTestSince', stdTestSince)
+        setValue('stdTestSince', stdTestSinceTime)
         setValue('showImmunizationDetails', showImmunizationDetails)
-        setValue('immunizationSince', immunizationSince)
+        setValue('immunizationSince', immunizationSinceTime)
         setValue('showSexualCrimeDetails', showSexualCrimeDetails)
-        setValue('sexualCrimeSince', sexualCrimeSince)
+        setValue('sexualCrimeSince', sexualCrimeSinceTime)
 
-        const a = selectionSince.indexOf(stdTestSince)
-        if (a === -1) setSTDTestSince(stdTestSince)
-        setSelectedSTDTestSince(a)
+        const index1 = selectionSince.indexOf(stdTestSinceTime)
+        const index2 = selectionSince.indexOf(immunizationSinceTime)
+        const index3 = selectionSince.indexOf(sexualCrimeSinceTime)
 
-        const b = selectionSince.indexOf(immunizationSince)
-        if (b === -1) setImmunizationSince(immunizationSince)
-        setSelectedImmunizationSince(b)
+        setSelectedSTDTestSince(index1)
+        setSelectedImmunizationSince(index2)
+        setSelectedSexualCrimeSince(index3)
 
-        const c = selectionSince.indexOf(sexualCrimeSince)
-        if (c === -1) setSexualCrimeSince(sexualCrimeSince)
-        setSelectedSexualCrimeSince(b)
-
-        setSelectedSexualCrimeSince(selectionSince.indexOf(sexualCrimeSince))
+        if (index1 === -1) setSTDTestSince(formatISOLocalDate(stdTestSinceDate))
+        if (index2 === -1) setImmunizationSince(formatISOLocalDate(immunizationSinceDate))
+        if (index3 === -1) setSexualCrimeSince(formatISOLocalDate(sexualCrimeSinceDate))
 
         updateCertAgreementMutation({
           variables: {
@@ -233,7 +240,7 @@ export default function QRCodePage() {
                       <input
                         disabled={!watchShowSTDTestDetails}
                         onChange={(e) => {
-                          setValue('stdTestSince', e.target.value)
+                          setValue('stdTestSince', new Date(e.target.value).getTime())
                           setSTDTestSince(e.target.value)
                           setSelectedSTDTestSince(-1)
                         }}
@@ -276,7 +283,7 @@ export default function QRCodePage() {
                       <input
                         disabled={!watchShowImmunizationDetails}
                         onChange={(e) => {
-                          setValue('immunizationSince', e.target.value)
+                          setValue('immunizationSince', new Date(e.target.value).getTime())
                           setImmunizationSince(e.target.value)
                           setSelectedImmunizationSince(-1)
                         }}
@@ -319,7 +326,7 @@ export default function QRCodePage() {
                       <input
                         disabled={!watchShowSexualCrimeDetails}
                         onChange={(e) => {
-                          setValue('sexualCrimeSince', e.target.value)
+                          setValue('sexualCrimeSince', new Date(e.target.value).getTime())
                           setSexualCrimeSince(e.target.value)
                           setSelectedSexualCrimeSince(-1)
                         }}
@@ -388,11 +395,11 @@ type CertAgreementForm = {
   showName: boolean
   showSex: boolean
   showSTDTestDetails: boolean
-  stdTestSince: string | null
+  stdTestSince: number | null
   showImmunizationDetails: boolean
-  immunizationSince: string | null
+  immunizationSince: number | null
   showSexualCrimeDetails: boolean
-  sexualCrimeSince: string | null
+  sexualCrimeSince: number | null
 }
 
 const qrcodeWidth = Math.max(300, Math.min(getViewportWidth(), 350))

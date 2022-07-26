@@ -13,14 +13,21 @@ export const parseSimpleDate = parseDate('y. M. d. H:mm')
 
 export function getNMonthBefore(n: number) {
   const before = new Date()
-  before.setUTCMonth(before.getUTCMonth() - n)
+  before.setMonth(before.getMonth() - n)
   before.setHours(0, 0, 0, 0)
-  return before.toISOString().substring(0, 10)
+  return before.getTime()
 }
 
 export function getNYearBefore(n: number) {
   const before = new Date()
-  before.setUTCFullYear(before.getUTCFullYear() - n)
+  before.setFullYear(before.getFullYear() - n)
   before.setHours(0, 0, 0, 0)
-  return before.toISOString().substring(0, 10)
+  return before.getTime()
+}
+
+export function formatISOLocalDate(date2: Date | string) {
+  const date = typeof date2 === 'string' ? new Date(date2) : date2
+  const localMonth = `${date.getMonth() + 1}`.padStart(2, '0')
+  const localDate = `${date.getDate()}`.padStart(2, '0')
+  return `${date.getFullYear()}-${localMonth}-${localDate}`
 }

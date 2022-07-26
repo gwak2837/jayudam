@@ -6,6 +6,7 @@ const Background = styled.div`
   background: #00000080;
   position: fixed;
   inset: 0 0 0 0;
+  z-index: 10;
 
   display: flex;
   justify-content: center;
@@ -15,39 +16,39 @@ const Background = styled.div`
 type Props = {
   children: ReactNode
   open: boolean
-  setOpen: (b: boolean) => void
+  toggleOpen: (isOpened: boolean) => void
 }
 
-function LazyModal({ children, open, setOpen }: Props) {
+function LazyModal({ children, open, toggleOpen }: Props) {
   function closeModal() {
-    setOpen(false)
+    toggleOpen(false)
   }
 
   useEffect(() => {
     function closeOnEscapeKey(e: KeyboardEvent) {
       if (e.code === 'Escape') {
-        setOpen(false)
+        toggleOpen(false)
       }
     }
 
     if (open) {
       const bodyStyle = document.body.style
-      const scrollY = window.scrollY
+      // const scrollY = window.scrollY
 
       document.addEventListener('keydown', closeOnEscapeKey, false)
       bodyStyle.overflow = 'hidden'
-      bodyStyle.position = 'fixed' // For Safari 15
-      bodyStyle.top = `-${scrollY}px` // For Safari 15
+      // bodyStyle.position = 'fixed' // For Safari 15
+      // bodyStyle.top = `-${scrollY}px` // For Safari 15
 
       return () => {
         document.removeEventListener('keydown', closeOnEscapeKey, false)
         bodyStyle.overflow = ''
-        bodyStyle.position = '' // For Safari 15
-        bodyStyle.top = '' // For Safari 15
-        window.scrollTo(0, scrollY) // For Safari 15
+        // bodyStyle.position = '' // For Safari 15
+        // bodyStyle.top = '' // For Safari 15
+        // window.scrollTo(0, scrollY) // For Safari 15
       }
     }
-  }, [open, setOpen])
+  }, [open, toggleOpen])
 
   return open
     ? createPortal(<Background onClick={closeModal}>{children}</Background>, document.body)
