@@ -1,5 +1,5 @@
 query Auth {
-  myNickname {
+  auth {
     id
     nickname
   }

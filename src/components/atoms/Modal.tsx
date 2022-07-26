@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
@@ -12,7 +12,7 @@ const FixedFullscreen = styled.div<{ open: boolean }>`
   justify-content: center;
   align-items: center;
 
-  background: #00000080;
+  background: ${(p) => (p.open ? '#00000080' : 'none')};
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
   > svg {
@@ -49,19 +49,13 @@ function Modal({ children, lazy, open, onClose }: Props) {
 
     if (open) {
       const bodyStyle = document.body.style
-      // const scrollY = window.scrollY
 
       document.addEventListener('keydown', closeOnEscapeKey, false)
       bodyStyle.overflow = 'hidden'
-      // bodyStyle.position = 'fixed' // For Safari 15
-      // bodyStyle.top = `-${scrollY}px` // For Safari 15
 
       return () => {
         document.removeEventListener('keydown', closeOnEscapeKey, false)
         bodyStyle.overflow = ''
-        // bodyStyle.position = '' // For Safari 15
-        // bodyStyle.top = '' // For Safari 15
-        // window.scrollTo(0, scrollY) // For Safari 15
       }
     }
   }, [open, onClose])

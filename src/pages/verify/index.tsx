@@ -76,6 +76,14 @@ export default function VerificationPage() {
     }
   }
 
+  function pauseScanningQRCode() {
+    try {
+      html5QrcodeRef.current?.pause()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   function resumeScanningQRCode() {
     if (html5QrcodeRef.current?.getState() === Html5QrcodeScannerState.PAUSED) {
       html5QrcodeRef.current.resume()
@@ -133,7 +141,7 @@ export default function VerificationPage() {
     onCompleted: ({ sampleCertJWT }) => {
       if (sampleCertJWT) {
         toast.success('테스트용 QR code 인식 완료')
-        html5QrcodeRef.current?.pause()
+        pauseScanningQRCode()
         setShowResult(true)
         setShowSetting(false)
         setShowSettingIcon(false)
@@ -148,19 +156,19 @@ export default function VerificationPage() {
   }
 
   // Modal
-  const [open, setOpen] = useState<boolean[]>([])
+  const [openSTDTest, setOpenSTDTest] = useState<boolean[]>([])
 
-  function openIthModal(i: number) {
+  function openSTDTestModal(i: number) {
     return () => {
-      open[i] = true
-      setOpen([...open])
+      openSTDTest[i] = true
+      setOpenSTDTest([...openSTDTest])
     }
   }
 
-  function closeIthModal(i: number) {
+  function closeSTDTestModal(i: number) {
     return (newValue: boolean) => {
-      open[i] = newValue
-      setOpen([...open])
+      openSTDTest[i] = newValue
+      setOpenSTDTest([...openSTDTest])
     }
   }
 
@@ -274,14 +282,14 @@ export default function VerificationPage() {
                       </thead>
                       <tbody>
                         {stdTestCerts.map((cert, i) => (
-                          <RelativeTr key={cert.id} onClick={openIthModal(i)}>
-                            <td>{formatResult(cert.content)}</td>
+                          <RelativeTr key={cert.id} onClick={openSTDTestModal(i)}>
+                            <td>{formatSTDTestResult(cert.content)}</td>
                             <td>{cert.name}</td>
                             <td>{formatISOLocalDate(cert.effectiveDate)}</td>
                             <td>{formatISOLocalDate(cert.issueDate)}</td>
                             <td>{cert.location}</td>
-                            <Modal open={open[i]} onClose={closeIthModal(i)}>
-                              <AnimatedDiv open={open[i]}>
+                            <Modal open={openSTDTest[i]} onClose={closeSTDTestModal(i)}>
+                              <AnimatedDiv open={openSTDTest[i]}>
                                 <pre style={{ overflow: 'auto' }}>
                                   {JSON.stringify(JSON.parse(cert.content ?? '{}'), null, 2)}
                                 </pre>
@@ -301,18 +309,66 @@ export default function VerificationPage() {
 
               <h3>성병예방접종</h3>
               {immunizationCerts ? (
-                <pre style={{ overflow: 'scroll' }}>
-                  {JSON.stringify(immunizationCerts, null, 2)}
-                </pre>
+                immunizationCerts.length > 0 ? (
+                  <Overflow>
+                    <div>최근 발급일: {formatISOLocalDate(immunizationCerts[0].issueDate)}</div>
+                    <CenterTable>
+                      <thead>
+                        <tr>
+                          <th>접종명</th>
+                          <th>접종차수</th>
+                          <th>접종일</th>
+                          <th>접종기관</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {immunizationCerts.map((cert) => (
+                          <RelativeTr key={cert.id}>
+                            <td>{cert.name}</td>
+                            <td>{JSON.parse(cert.content!).series}</td>
+                            <td>{formatISOLocalDate(cert.effectiveDate)}</td>
+                            <td>{cert.location}</td>
+                          </RelativeTr>
+                        ))}
+                      </tbody>
+                    </CenterTable>
+                  </Overflow>
+                ) : (
+                  <p>내역이 존재하지 않아요</p>
+                )
               ) : (
                 <p>상대방이 동의하지 않았어요</p>
               )}
 
               <h3>성범죄</h3>
               {sexualCrimeCerts ? (
-                <pre style={{ overflow: 'scroll' }}>
-                  {JSON.stringify(sexualCrimeCerts, null, 2)}
-                </pre>
+                sexualCrimeCerts.length > 0 ? (
+                  <Overflow>
+                    <div>최근 발급일: {formatISOLocalDate(sexualCrimeCerts[0].issueDate)}</div>
+                    <CenterTable>
+                      <thead>
+                        <tr>
+                          <th>처분결과</th>
+                          <th>죄명</th>
+                          <th>처분일자</th>
+                          <th>처분관서</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sexualCrimeCerts.map((cert) => (
+                          <RelativeTr key={cert.id}>
+                            <td>{JSON.parse(cert.content ?? '{}').result}</td>
+                            <td>{cert.name}</td>
+                            <td>{formatISOLocalDate(cert.effectiveDate)}</td>
+                            <td>{cert.location}</td>
+                          </RelativeTr>
+                        ))}
+                      </tbody>
+                    </CenterTable>
+                  </Overflow>
+                ) : (
+                  <p>내역이 존재하지 않아요</p>
+                )
               ) : (
                 <p>상대방이 동의하지 않았어요</p>
               )}
@@ -482,7 +538,7 @@ function formatSex(sex?: Sex) {
   }
 }
 
-function formatResult(content?: string | null) {
+function formatSTDTestResult(content?: string | null) {
   if (!content) return ''
 
   const testResult = JSON.parse(content)

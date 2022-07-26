@@ -15,7 +15,6 @@ export type Scalars = {
   Int: number
   Float: number
   Any: any
-  Date: any
   DateTime: any
   EmailAddress: any
   JWT: any
@@ -31,9 +30,9 @@ export type Scalars = {
 export type Cert = {
   __typename?: 'Cert'
   content?: Maybe<Scalars['String']>
-  effectiveDate?: Maybe<Scalars['Date']>
+  effectiveDate?: Maybe<Scalars['DateTime']>
   id: Scalars['ID']
-  issueDate?: Maybe<Scalars['Date']>
+  issueDate?: Maybe<Scalars['DateTime']>
   location?: Maybe<Scalars['String']>
   name?: Maybe<Scalars['String']>
   type: CertType
@@ -41,27 +40,27 @@ export type Cert = {
 
 export type CertAgreement = {
   __typename?: 'CertAgreement'
-  immunizationSince?: Maybe<Scalars['Date']>
-  sexualCrimeSince?: Maybe<Scalars['Date']>
+  immunizationSince?: Maybe<Scalars['DateTime']>
+  sexualCrimeSince?: Maybe<Scalars['DateTime']>
   showBirthdate: Scalars['Boolean']
   showImmunizationDetails: Scalars['Boolean']
   showName: Scalars['Boolean']
   showSTDTestDetails: Scalars['Boolean']
   showSex: Scalars['Boolean']
   showSexualCrimeDetails: Scalars['Boolean']
-  stdTestSince?: Maybe<Scalars['Date']>
+  stdTestSince?: Maybe<Scalars['DateTime']>
 }
 
 export type CertAgreementInput = {
-  immunizationSince?: InputMaybe<Scalars['Date']>
-  sexualCrimeSince?: InputMaybe<Scalars['Date']>
+  immunizationSince?: InputMaybe<Scalars['DateTime']>
+  sexualCrimeSince?: InputMaybe<Scalars['DateTime']>
   showBirthdate?: InputMaybe<Scalars['Boolean']>
   showImmunizationDetails?: InputMaybe<Scalars['Boolean']>
   showName?: InputMaybe<Scalars['Boolean']>
   showSTDTestDetails?: InputMaybe<Scalars['Boolean']>
   showSex?: InputMaybe<Scalars['Boolean']>
   showSexualCrimeDetails?: InputMaybe<Scalars['Boolean']>
-  stdTestSince?: InputMaybe<Scalars['Date']>
+  stdTestSince?: InputMaybe<Scalars['DateTime']>
 }
 
 export type CertCreation = {
@@ -81,7 +80,7 @@ export enum CertType {
 
 export type Certs = {
   __typename?: 'Certs'
-  birthdate?: Maybe<Scalars['Date']>
+  birthdate?: Maybe<Scalars['DateTime']>
   creationTime: Scalars['DateTime']
   id: Scalars['ID']
   immunizationCerts?: Maybe<Array<Cert>>
@@ -197,10 +196,10 @@ export type PostUpdateInput = {
 
 export type Query = {
   __typename?: 'Query'
+  auth?: Maybe<User>
   certs?: Maybe<Certs>
   isUniqueNickname: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
-  myNickname?: Maybe<User>
   myVerificationHistories?: Maybe<Array<VerificationHistory>>
   pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
@@ -305,7 +304,7 @@ export type AuthQueryVariables = Exact<{ [key: string]: never }>
 
 export type AuthQuery = {
   __typename?: 'Query'
-  myNickname?: { __typename?: 'User'; id: any; nickname?: string | null } | null
+  auth?: { __typename?: 'User'; id: any; nickname?: string | null } | null
 }
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
@@ -423,7 +422,7 @@ export type VerifyCertJwtMutation = {
 
 export const AuthDocument = gql`
   query Auth {
-    myNickname {
+    auth {
       id
       nickname
     }
@@ -975,10 +974,10 @@ export type PostFieldPolicy = {
   modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
+  | 'auth'
   | 'certs'
   | 'isUniqueNickname'
   | 'myCertAgreement'
-  | 'myNickname'
   | 'myVerificationHistories'
   | 'pendingCerts'
   | 'post'
@@ -989,10 +988,10 @@ export type QueryKeySpecifier = (
   | QueryKeySpecifier
 )[]
 export type QueryFieldPolicy = {
+  auth?: FieldPolicy<any> | FieldReadFunction<any>
   certs?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueNickname?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
-  myNickname?: FieldPolicy<any> | FieldReadFunction<any>
   myVerificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
   pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
