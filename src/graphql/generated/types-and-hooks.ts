@@ -43,11 +43,11 @@ export type CertAgreement = {
   immunizationSince?: Maybe<Scalars['DateTime']>
   sexualCrimeSince?: Maybe<Scalars['DateTime']>
   showBirthdate: Scalars['Boolean']
-  showImmunizationDetails: Scalars['Boolean']
+  showImmunization: Scalars['Boolean']
   showName: Scalars['Boolean']
-  showSTDTestDetails: Scalars['Boolean']
+  showSTDTest: Scalars['Boolean']
   showSex: Scalars['Boolean']
-  showSexualCrimeDetails: Scalars['Boolean']
+  showSexualCrime: Scalars['Boolean']
   stdTestSince?: Maybe<Scalars['DateTime']>
 }
 
@@ -55,11 +55,11 @@ export type CertAgreementInput = {
   immunizationSince?: InputMaybe<Scalars['DateTime']>
   sexualCrimeSince?: InputMaybe<Scalars['DateTime']>
   showBirthdate?: InputMaybe<Scalars['Boolean']>
-  showImmunizationDetails?: InputMaybe<Scalars['Boolean']>
+  showImmunization?: InputMaybe<Scalars['Boolean']>
   showName?: InputMaybe<Scalars['Boolean']>
-  showSTDTestDetails?: InputMaybe<Scalars['Boolean']>
+  showSTDTest?: InputMaybe<Scalars['Boolean']>
   showSex?: InputMaybe<Scalars['Boolean']>
-  showSexualCrimeDetails?: InputMaybe<Scalars['Boolean']>
+  showSexualCrime?: InputMaybe<Scalars['Boolean']>
   stdTestSince?: InputMaybe<Scalars['DateTime']>
 }
 
@@ -345,11 +345,11 @@ export type MyCertAgreementQuery = {
     showBirthdate: boolean
     showName: boolean
     showSex: boolean
-    showSTDTestDetails: boolean
+    showSTDTest: boolean
     stdTestSince?: any | null
-    showImmunizationDetails: boolean
+    showImmunization: boolean
     immunizationSince?: any | null
-    showSexualCrimeDetails: boolean
+    showSexualCrime: boolean
     sexualCrimeSince?: any | null
   } | null
 }
@@ -387,6 +387,7 @@ export type VerifyCertJwtMutation = {
   __typename?: 'Mutation'
   verifyCertJWT?: {
     __typename?: 'Certs'
+    id: string
     birthdate?: any | null
     name?: string | null
     sex?: Sex | null
@@ -550,11 +551,11 @@ export const MyCertAgreementDocument = gql`
       showBirthdate
       showName
       showSex
-      showSTDTestDetails
+      showSTDTest
       stdTestSince
-      showImmunizationDetails
+      showImmunization
       immunizationSince
-      showSexualCrimeDetails
+      showSexualCrime
       sexualCrimeSince
     }
   }
@@ -785,6 +786,7 @@ export type SampleCertJwtQueryResult = Apollo.QueryResult<
 export const VerifyCertJwtDocument = gql`
   mutation VerifyCertJWT($jwt: JWT!) {
     verifyCertJWT(jwt: $jwt) {
+      id
       birthdate
       name
       sex
@@ -875,11 +877,11 @@ export type CertAgreementKeySpecifier = (
   | 'immunizationSince'
   | 'sexualCrimeSince'
   | 'showBirthdate'
-  | 'showImmunizationDetails'
+  | 'showImmunization'
   | 'showName'
-  | 'showSTDTestDetails'
+  | 'showSTDTest'
   | 'showSex'
-  | 'showSexualCrimeDetails'
+  | 'showSexualCrime'
   | 'stdTestSince'
   | CertAgreementKeySpecifier
 )[]
@@ -887,11 +889,11 @@ export type CertAgreementFieldPolicy = {
   immunizationSince?: FieldPolicy<any> | FieldReadFunction<any>
   sexualCrimeSince?: FieldPolicy<any> | FieldReadFunction<any>
   showBirthdate?: FieldPolicy<any> | FieldReadFunction<any>
-  showImmunizationDetails?: FieldPolicy<any> | FieldReadFunction<any>
+  showImmunization?: FieldPolicy<any> | FieldReadFunction<any>
   showName?: FieldPolicy<any> | FieldReadFunction<any>
-  showSTDTestDetails?: FieldPolicy<any> | FieldReadFunction<any>
+  showSTDTest?: FieldPolicy<any> | FieldReadFunction<any>
   showSex?: FieldPolicy<any> | FieldReadFunction<any>
-  showSexualCrimeDetails?: FieldPolicy<any> | FieldReadFunction<any>
+  showSexualCrime?: FieldPolicy<any> | FieldReadFunction<any>
   stdTestSince?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type CertsKeySpecifier = (

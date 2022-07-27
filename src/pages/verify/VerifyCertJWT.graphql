@@ -1,5 +1,6 @@
 mutation VerifyCertJWT($jwt: JWT!) {
   verifyCertJWT(jwt: $jwt) {
+    id
     birthdate
     name
     sex

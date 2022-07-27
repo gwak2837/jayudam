@@ -87,17 +87,17 @@ function Authentication({ children }: Props) {
   const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
 
   useAuthQuery({
-    onCompleted: ({ myNickname }) => {
-      if (myNickname?.nickname) {
-        setCurrentUser({ nickname: myNickname.nickname })
+    onCompleted: ({ auth: user }) => {
+      if (user?.nickname) {
+        setCurrentUser({ nickname: user.nickname })
         bootChanneltalk({
           pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
           // memberId: myNickname.id, // 채널톡-자유담 회원 정보 연동 필요
           profile: {
-            name: myNickname.nickname,
+            name: user.nickname,
           },
         })
-      } else if (myNickname) {
+      } else if (user) {
         setCurrentUser({ nickname: undefined })
         bootChanneltalk({
           pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,

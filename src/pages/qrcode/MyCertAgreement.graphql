@@ -3,11 +3,11 @@ query MyCertAgreement {
     showBirthdate
     showName
     showSex
-    showSTDTestDetails
+    showSTDTest
     stdTestSince
-    showImmunizationDetails
+    showImmunization
     immunizationSince
-    showSexualCrimeDetails
+    showSexualCrime
     sexualCrimeSince
   }
 }

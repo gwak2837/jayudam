@@ -138,6 +138,7 @@ export default function VerificationPage() {
 
   // 테스트용 QR code
   const [sampleCertJwtQuery, { loading: sampleCertJWTLoading }] = useSampleCertJwtLazyQuery({
+    fetchPolicy: 'no-cache',
     onCompleted: ({ sampleCertJWT }) => {
       if (sampleCertJWT) {
         toast.success('테스트용 QR code 인식 완료')
@@ -270,7 +271,7 @@ export default function VerificationPage() {
               {stdTestCerts ? (
                 stdTestCerts.length > 0 ? (
                   <Overflow>
-                    <CenterTable>
+                    <CursorTable>
                       <thead>
                         <tr>
                           <th>결과</th>
@@ -298,7 +299,7 @@ export default function VerificationPage() {
                           </RelativeTr>
                         ))}
                       </tbody>
-                    </CenterTable>
+                    </CursorTable>
                   </Overflow>
                 ) : (
                   <p>내역이 존재하지 않아요</p>
@@ -307,71 +308,83 @@ export default function VerificationPage() {
                 <p>상대방이 동의하지 않았어요</p>
               )}
 
-              <h3>성병예방접종</h3>
-              {immunizationCerts ? (
-                immunizationCerts.length > 0 ? (
-                  <Overflow>
-                    <div>최근 발급일: {formatISOLocalDate(immunizationCerts[0].issueDate)}</div>
-                    <CenterTable>
-                      <thead>
-                        <tr>
-                          <th>접종명</th>
-                          <th>접종차수</th>
-                          <th>접종일</th>
-                          <th>접종기관</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {immunizationCerts.map((cert) => (
-                          <RelativeTr key={cert.id}>
-                            <td>{cert.name}</td>
-                            <td>{JSON.parse(cert.content!).series}</td>
-                            <td>{formatISOLocalDate(cert.effectiveDate)}</td>
-                            <td>{cert.location}</td>
-                          </RelativeTr>
-                        ))}
-                      </tbody>
-                    </CenterTable>
-                  </Overflow>
+              <GridSmallGap>
+                <h3>성병예방접종</h3>
+                {immunizationCerts ? (
+                  immunizationCerts.length > 0 ? (
+                    <>
+                      <PrimaryText>
+                        최근 발급일: {formatISOLocalDate(immunizationCerts[0].issueDate)}
+                      </PrimaryText>
+                      <Overflow>
+                        <CenterTable>
+                          <thead>
+                            <tr>
+                              <th>접종명</th>
+                              <th>접종차수</th>
+                              <th>접종일</th>
+                              <th>접종기관</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {immunizationCerts.map((cert) => (
+                              <RelativeTr key={cert.id}>
+                                <td>{cert.name}</td>
+                                <td>{JSON.parse(cert.content!).series}</td>
+                                <td>{formatISOLocalDate(cert.effectiveDate)}</td>
+                                <td>{cert.location}</td>
+                              </RelativeTr>
+                            ))}
+                          </tbody>
+                        </CenterTable>
+                      </Overflow>
+                    </>
+                  ) : (
+                    <p>내역이 존재하지 않아요</p>
+                  )
                 ) : (
-                  <p>내역이 존재하지 않아요</p>
-                )
-              ) : (
-                <p>상대방이 동의하지 않았어요</p>
-              )}
+                  <p>상대방이 동의하지 않았어요</p>
+                )}
+              </GridSmallGap>
 
-              <h3>성범죄</h3>
-              {sexualCrimeCerts ? (
-                sexualCrimeCerts.length > 0 ? (
-                  <Overflow>
-                    <div>최근 발급일: {formatISOLocalDate(sexualCrimeCerts[0].issueDate)}</div>
-                    <CenterTable>
-                      <thead>
-                        <tr>
-                          <th>처분결과</th>
-                          <th>죄명</th>
-                          <th>처분일자</th>
-                          <th>처분관서</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sexualCrimeCerts.map((cert) => (
-                          <RelativeTr key={cert.id}>
-                            <td>{JSON.parse(cert.content ?? '{}').result}</td>
-                            <td>{cert.name}</td>
-                            <td>{formatISOLocalDate(cert.effectiveDate)}</td>
-                            <td>{cert.location}</td>
-                          </RelativeTr>
-                        ))}
-                      </tbody>
-                    </CenterTable>
-                  </Overflow>
+              <GridSmallGap>
+                <h3>성범죄</h3>
+                {sexualCrimeCerts ? (
+                  sexualCrimeCerts.length > 0 ? (
+                    <>
+                      <PrimaryText>
+                        최근 발급일: {formatISOLocalDate(sexualCrimeCerts[0].issueDate)}
+                      </PrimaryText>
+                      <Overflow>
+                        <CenterTable>
+                          <thead>
+                            <tr>
+                              <th>처분결과</th>
+                              <th>죄명</th>
+                              <th>처분일자</th>
+                              <th>처분관서</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sexualCrimeCerts.map((cert) => (
+                              <RelativeTr key={cert.id}>
+                                <td>{JSON.parse(cert.content ?? '{}').result}</td>
+                                <td>{cert.name}</td>
+                                <td>{formatISOLocalDate(cert.effectiveDate)}</td>
+                                <td>{cert.location}</td>
+                              </RelativeTr>
+                            ))}
+                          </tbody>
+                        </CenterTable>
+                      </Overflow>
+                    </>
+                  ) : (
+                    <p>내역이 존재하지 않아요</p>
+                  )
                 ) : (
-                  <p>내역이 존재하지 않아요</p>
-                )
-              ) : (
-                <p>상대방이 동의하지 않았어요</p>
-              )}
+                  <p>상대방이 동의하지 않았어요</p>
+                )}
+              </GridSmallGap>
             </GridGap>
 
             {loading}
@@ -455,6 +468,11 @@ const GridGap = styled.div`
   padding: 1rem;
 `
 
+const GridSmallGap = styled.div`
+  display: grid;
+  gap: 1rem;
+`
+
 const FlexBetween = styled.div`
   display: flex;
   justify-content: space-between;
@@ -467,7 +485,7 @@ const FlexBetween = styled.div`
 `
 
 const Overflow = styled.div`
-  box-shadow: 0 0 0 1px ${(p) => p.theme.primaryAchromatic};
+  /* box-shadow: 0 0 0 1px ${(p) => p.theme.primaryAchromatic}; */
   max-height: 50vh;
   overflow: auto;
   position: relative;
@@ -492,16 +510,18 @@ const CenterTable = styled.table`
     z-index: 1;
   }
 
+  svg {
+    width: 1.3rem;
+    vertical-align: middle;
+  }
+`
+
+const CursorTable = styled(CenterTable)`
   td {
     cursor: pointer;
     :hover {
       background: ${(p) => p.theme.background};
     }
-  }
-
-  svg {
-    width: 1.3rem;
-    vertical-align: middle;
   }
 `
 
@@ -517,6 +537,10 @@ const AnimatedDiv = styled.div<{ open: boolean }>`
 
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), height 300ms cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1), border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1);
+`
+
+const PrimaryText = styled.div`
+  color: ${(p) => p.theme.primaryText};
 `
 
 const DangerText = styled.h4`

@@ -33,11 +33,11 @@ export default function QRCodePage() {
       showBirthdate: false,
       showName: false,
       showSex: false,
-      showSTDTestDetails: false,
+      showSTDTest: false,
       stdTestSince: null, // WIP: 미래는 선택 불가
-      showImmunizationDetails: false,
+      showImmunization: false,
       immunizationSince: null, // WIP: 미래는 선택 불가
-      showSexualCrimeDetails: false,
+      showSexualCrime: false,
       sexualCrimeSince: null, // WIP: 미래는 선택 불가
     },
   })
@@ -50,9 +50,9 @@ export default function QRCodePage() {
   const [selectedImmunizationSince, setSelectedImmunizationSince] = useState(0)
   const [selectedSexualCrimeSince, setSelectedSexualCrimeSince] = useState(0)
 
-  const watchShowSTDTestDetails = watch('showSTDTestDetails')
-  const watchShowImmunizationDetails = watch('showImmunizationDetails')
-  const watchShowSexualCrimeDetails = watch('showSexualCrimeDetails')
+  const watchshowSTDTest = watch('showSTDTest')
+  const watchshowImmunization = watch('showImmunization')
+  const watchshowSexualCrime = watch('showSexualCrime')
 
   // 인증용 JWT 불러오기
   const [updateCertAgreementMutation, { loading: updateCertAgreementLoading }] =
@@ -69,11 +69,11 @@ export default function QRCodePage() {
       showBirthdate,
       showName,
       showSex,
-      showSTDTestDetails,
+      showSTDTest,
       stdTestSince,
-      showImmunizationDetails,
+      showImmunization,
       immunizationSince,
-      showSexualCrimeDetails,
+      showSexualCrime,
       sexualCrimeSince,
     } = input
 
@@ -83,13 +83,13 @@ export default function QRCodePage() {
           ...(showBirthdate && { showBirthdate }),
           ...(showName && { showName }),
           ...(showSex && { showSex }),
-          ...(showSTDTestDetails && { showSTDTestDetails }),
-          ...(showSTDTestDetails && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
-          ...(showImmunizationDetails && { showImmunizationDetails }),
-          ...(showImmunizationDetails &&
+          ...(showSTDTest && { showSTDTest }),
+          ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
+          ...(showImmunization && { showImmunization }),
+          ...(showImmunization &&
             immunizationSince && { immunizationSince: new Date(immunizationSince) }),
-          ...(showSexualCrimeDetails && { showSexualCrimeDetails }),
-          ...(showSexualCrimeDetails &&
+          ...(showSexualCrime && { showSexualCrime }),
+          ...(showSexualCrime &&
             sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince) }),
         },
       },
@@ -104,11 +104,11 @@ export default function QRCodePage() {
           showBirthdate,
           showName,
           showSex,
-          showSTDTestDetails,
+          showSTDTest,
           stdTestSince,
-          showImmunizationDetails,
+          showImmunization,
           immunizationSince,
-          showSexualCrimeDetails,
+          showSexualCrime,
           sexualCrimeSince,
         } = myCertAgreement
 
@@ -122,11 +122,11 @@ export default function QRCodePage() {
         setValue('showBirthdate', showBirthdate)
         setValue('showName', showName)
         setValue('showSex', showSex)
-        setValue('showSTDTestDetails', showSTDTestDetails)
+        setValue('showSTDTest', showSTDTest)
         setValue('stdTestSince', stdTestSinceTime)
-        setValue('showImmunizationDetails', showImmunizationDetails)
+        setValue('showImmunization', showImmunization)
         setValue('immunizationSince', immunizationSinceTime)
-        setValue('showSexualCrimeDetails', showSexualCrimeDetails)
+        setValue('showSexualCrime', showSexualCrime)
         setValue('sexualCrimeSince', sexualCrimeSinceTime)
 
         const index1 = selectionSince.indexOf(stdTestSinceTime)
@@ -147,12 +147,12 @@ export default function QRCodePage() {
               ...(showBirthdate && { showBirthdate }),
               ...(showName && { showName }),
               ...(showSex && { showSex }),
-              ...(showSTDTestDetails && { showSTDTestDetails }),
-              ...(showSTDTestDetails && stdTestSince && { stdTestSince }),
-              ...(showImmunizationDetails && { showImmunizationDetails }),
-              ...(showImmunizationDetails && immunizationSince && { immunizationSince }),
-              ...(showSexualCrimeDetails && { showSexualCrimeDetails }),
-              ...(showSexualCrimeDetails && sexualCrimeSince && { sexualCrimeSince }),
+              ...(showSTDTest && { showSTDTest }),
+              ...(showSTDTest && stdTestSince && { stdTestSince }),
+              ...(showImmunization && { showImmunization }),
+              ...(showImmunization && immunizationSince && { immunizationSince }),
+              ...(showSexualCrime && { showSexualCrime }),
+              ...(showSexualCrime && sexualCrimeSince && { sexualCrimeSince }),
             },
           },
         })
@@ -214,13 +214,13 @@ export default function QRCodePage() {
                   <FlexBetween>
                     <div>성병검사</div>
                     <AppleCheckbox
-                      checked={watchShowSTDTestDetails}
+                      checked={watchshowSTDTest}
                       disabled={disableInput}
-                      onChange={(e) => setValue('showSTDTestDetails', e.target.checked)}
+                      onChange={(e) => setValue('showSTDTest', e.target.checked)}
                     />
                   </FlexBetween>
                   <SSingleSelectionButtons
-                    disabled={!watchShowSTDTestDetails}
+                    disabled={!watchshowSTDTest}
                     onChange={(e, i) => {
                       setValue('stdTestSince', e)
                       setSTDTestSince('')
@@ -234,11 +234,11 @@ export default function QRCodePage() {
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
                   </SSingleSelectionButtons>
-                  <FlexBetweenGray disabled={!watchShowSTDTestDetails}>
+                  <FlexBetweenGray disabled={!watchshowSTDTest}>
                     <label>직접 선택</label>
                     <div>
                       <input
-                        disabled={!watchShowSTDTestDetails}
+                        disabled={!watchshowSTDTest}
                         onChange={(e) => {
                           setValue('stdTestSince', new Date(e.target.value).getTime())
                           setSTDTestSince(e.target.value)
@@ -257,13 +257,13 @@ export default function QRCodePage() {
                   <FlexBetween>
                     <div>성병예방접종</div>
                     <AppleCheckbox
-                      checked={watchShowImmunizationDetails}
+                      checked={watchshowImmunization}
                       disabled={disableInput}
-                      onChange={(e) => setValue('showImmunizationDetails', e.target.checked)}
+                      onChange={(e) => setValue('showImmunization', e.target.checked)}
                     />
                   </FlexBetween>
                   <SSingleSelectionButtons
-                    disabled={!watchShowImmunizationDetails}
+                    disabled={!watchshowImmunization}
                     onChange={(e, i) => {
                       setValue('immunizationSince', e)
                       setImmunizationSince('')
@@ -277,11 +277,11 @@ export default function QRCodePage() {
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
                   </SSingleSelectionButtons>
-                  <FlexBetweenGray disabled={!watchShowImmunizationDetails}>
+                  <FlexBetweenGray disabled={!watchshowImmunization}>
                     <label>직접 선택</label>
                     <div>
                       <input
-                        disabled={!watchShowImmunizationDetails}
+                        disabled={!watchshowImmunization}
                         onChange={(e) => {
                           setValue('immunizationSince', new Date(e.target.value).getTime())
                           setImmunizationSince(e.target.value)
@@ -300,13 +300,13 @@ export default function QRCodePage() {
                   <FlexBetween>
                     <div>성범죄</div>
                     <AppleCheckbox
-                      checked={watchShowSexualCrimeDetails}
+                      checked={watchshowSexualCrime}
                       disabled={disableInput}
-                      onChange={(e) => setValue('showSexualCrimeDetails', e.target.checked)}
+                      onChange={(e) => setValue('showSexualCrime', e.target.checked)}
                     />
                   </FlexBetween>
                   <SSingleSelectionButtons
-                    disabled={!watchShowSexualCrimeDetails}
+                    disabled={!watchshowSexualCrime}
                     onChange={(e, i) => {
                       setValue('sexualCrimeSince', e)
                       setSexualCrimeSince('')
@@ -320,11 +320,11 @@ export default function QRCodePage() {
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
                   </SSingleSelectionButtons>
-                  <FlexBetweenGray disabled={!watchShowSexualCrimeDetails}>
+                  <FlexBetweenGray disabled={!watchshowSexualCrime}>
                     <label>직접 선택</label>
                     <div>
                       <input
-                        disabled={!watchShowSexualCrimeDetails}
+                        disabled={!watchshowSexualCrime}
                         onChange={(e) => {
                           setValue('sexualCrimeSince', new Date(e.target.value).getTime())
                           setSexualCrimeSince(e.target.value)
@@ -394,11 +394,11 @@ type CertAgreementForm = {
   showBirthdate: boolean
   showName: boolean
   showSex: boolean
-  showSTDTestDetails: boolean
+  showSTDTest: boolean
   stdTestSince: number | null
-  showImmunizationDetails: boolean
+  showImmunization: boolean
   immunizationSince: number | null
-  showSexualCrimeDetails: boolean
+  showSexualCrime: boolean
   sexualCrimeSince: number | null
 }
 
