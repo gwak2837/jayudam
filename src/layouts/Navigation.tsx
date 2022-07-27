@@ -59,7 +59,7 @@ export default function Navigation({ children }: Props) {
         </BlockLink>
         <BlockLink href={`/@${nickname}`}>
           <MyIcon selected={isMySelected} />
-          <PrimaryText selected={isMySelected}>my자유담</PrimaryText>
+          <PrimaryText selected={isMySelected}>내 자유담</PrimaryText>
         </BlockLink>
       </StickyNav>
     </Flex>

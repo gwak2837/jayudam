@@ -54,7 +54,7 @@ export default function HomePage() {
                 <h5>개인정보처리방침</h5>
               </a>
               <a href="https://jayudam.notion.site" target="_blank" rel="noreferrer">
-                <h5>서비스 이용 지침</h5>
+                <h5>자유담 운영원칙</h5>
               </a>
             </FlexWrap>
 

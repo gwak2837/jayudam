@@ -19,14 +19,6 @@ export const PrimaryH3 = styled.h3`
   margin-top: 0.5rem;
 `
 
-const GridContainerPost = styled.ul`
-  display: grid;
-  gap: 0.9rem;
-  padding: 0.6rem;
-
-  background: #fff;
-`
-
 export const PrimaryButton = styled.button`
   display: flex;
   align-items: center;
