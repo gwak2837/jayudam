@@ -47,7 +47,7 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
       </Head>
 
       {/* Global site tag (gtag.js) https://nextjs.org/docs/messages/next-script-for-ga */}

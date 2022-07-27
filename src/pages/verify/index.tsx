@@ -13,6 +13,7 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
+import VerifyIcon from 'src/svgs/VerifyIcon'
 import { getViewportWidth } from 'src/utils'
 import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
 import { formatISOLocalDate } from 'src/utils/date'
@@ -21,7 +22,6 @@ import styled from 'styled-components'
 import FlipIcon from '../../svgs/flip.svg'
 import SettingIcon from '../../svgs/setting.svg'
 import TestTubeIcon from '../../svgs/test-tube.svg'
-import VerifyIcon from '../../svgs/verify.svg'
 import XIcon from '../../svgs/x-button.svg'
 
 export default function VerificationPage() {
@@ -574,7 +574,7 @@ function formatSTDTestResult(content?: string | null) {
 
   switch (positiveCount) {
     case 0:
-      return <VerifyIcon />
+      return <VerifyIcon selected />
     default:
       return <DangerText>{positiveCount}</DangerText>
   }

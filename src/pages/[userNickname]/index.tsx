@@ -77,6 +77,9 @@ export default function UserPage() {
                 로그아웃
               </button>
 
+              <button>팔로우</button>
+              <button>선물하기</button>
+
               <KakaoButton disabled={logoutLoading} onClick={goToKakaoLoginPage}>
                 <KakaoLogo />
                 카카오톡 연결하기
