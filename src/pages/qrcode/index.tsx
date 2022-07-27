@@ -1,6 +1,7 @@
 import { toCanvas } from 'qrcode'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
@@ -112,12 +113,12 @@ export default function QRCodePage() {
           sexualCrimeSince,
         } = myCertAgreement
 
-        const stdTestSinceDate = new Date(stdTestSince)
-        const stdTestSinceTime = stdTestSinceDate.getTime()
-        const immunizationSinceDate = new Date(immunizationSince)
-        const immunizationSinceTime = immunizationSinceDate.getTime()
-        const sexualCrimeSinceDate = new Date(sexualCrimeSince)
-        const sexualCrimeSinceTime = sexualCrimeSinceDate.getTime()
+        const stdTestSinceDate = stdTestSince ? new Date(stdTestSince) : null
+        const stdTestSinceTime = stdTestSinceDate ? stdTestSinceDate.getTime() : null
+        const immunizationSinceDate = immunizationSince ? new Date(immunizationSince) : null
+        const immunizationSinceTime = immunizationSinceDate ? immunizationSinceDate.getTime() : null
+        const sexualCrimeSinceDate = sexualCrimeSince ? new Date(sexualCrimeSince) : null
+        const sexualCrimeSinceTime = sexualCrimeSinceDate ? sexualCrimeSinceDate.getTime() : null
 
         setValue('showBirthdate', showBirthdate)
         setValue('showName', showName)
@@ -137,9 +138,11 @@ export default function QRCodePage() {
         setSelectedImmunizationSince(index2)
         setSelectedSexualCrimeSince(index3)
 
-        if (index1 === -1) setSTDTestSince(formatISOLocalDate(stdTestSinceDate))
-        if (index2 === -1) setImmunizationSince(formatISOLocalDate(immunizationSinceDate))
-        if (index3 === -1) setSexualCrimeSince(formatISOLocalDate(sexualCrimeSinceDate))
+        if (index1 === -1 && stdTestSinceDate) setSTDTestSince(formatISOLocalDate(stdTestSinceDate))
+        if (index2 === -1 && immunizationSinceDate)
+          setImmunizationSince(formatISOLocalDate(immunizationSinceDate))
+        if (index3 === -1 && sexualCrimeSinceDate)
+          setSexualCrimeSince(formatISOLocalDate(sexualCrimeSinceDate))
 
         updateCertAgreementMutation({
           variables: {
@@ -236,19 +239,24 @@ export default function QRCodePage() {
                   </SSingleSelectionButtons>
                   <FlexBetweenGray disabled={!watchshowSTDTest}>
                     <label>직접 선택</label>
-                    <div>
+                    <FlexCenter>
                       <input
                         disabled={!watchshowSTDTest}
                         onChange={(e) => {
-                          setValue('stdTestSince', new Date(e.target.value).getTime())
-                          setSTDTestSince(e.target.value)
-                          setSelectedSTDTestSince(-1)
+                          const selectedDate = new Date(e.target.value)
+                          if (selectedDate < new Date()) {
+                            setValue('stdTestSince', selectedDate.getTime())
+                            setSTDTestSince(e.target.value)
+                            setSelectedSTDTestSince(-1)
+                          } else {
+                            toast.warn('오늘 이후의 날짜는 선택할 수 없어요')
+                          }
                         }}
                         type="date"
                         value={stdTestSince}
                       />
                       <span> 부터</span>
-                    </div>
+                    </FlexCenter>
                   </FlexBetweenGray>
                 </GridSmallGap>
               </li>
@@ -279,19 +287,24 @@ export default function QRCodePage() {
                   </SSingleSelectionButtons>
                   <FlexBetweenGray disabled={!watchshowImmunization}>
                     <label>직접 선택</label>
-                    <div>
+                    <FlexCenter>
                       <input
                         disabled={!watchshowImmunization}
                         onChange={(e) => {
-                          setValue('immunizationSince', new Date(e.target.value).getTime())
-                          setImmunizationSince(e.target.value)
-                          setSelectedImmunizationSince(-1)
+                          const selectedDate = new Date(e.target.value)
+                          if (selectedDate < new Date()) {
+                            setValue('immunizationSince', selectedDate.getTime())
+                            setImmunizationSince(e.target.value)
+                            setSelectedImmunizationSince(-1)
+                          } else {
+                            toast.warn('오늘 이후의 날짜는 선택할 수 없어요')
+                          }
                         }}
                         type="date"
                         value={immunizationSince}
                       />
                       <span> 부터</span>
-                    </div>
+                    </FlexCenter>
                   </FlexBetweenGray>
                 </GridSmallGap>
               </li>
@@ -322,19 +335,24 @@ export default function QRCodePage() {
                   </SSingleSelectionButtons>
                   <FlexBetweenGray disabled={!watchshowSexualCrime}>
                     <label>직접 선택</label>
-                    <div>
+                    <FlexCenter>
                       <input
                         disabled={!watchshowSexualCrime}
                         onChange={(e) => {
-                          setValue('sexualCrimeSince', new Date(e.target.value).getTime())
-                          setSexualCrimeSince(e.target.value)
-                          setSelectedSexualCrimeSince(-1)
+                          const selectedDate = new Date(e.target.value)
+                          if (selectedDate < new Date()) {
+                            setValue('sexualCrimeSince', selectedDate.getTime())
+                            setSexualCrimeSince(e.target.value)
+                            setSelectedSexualCrimeSince(-1)
+                          } else {
+                            toast.warn('오늘 이후의 날짜는 선택할 수 없어요')
+                          }
                         }}
                         type="date"
                         value={sexualCrimeSince}
                       />
                       <span> 부터</span>
-                    </div>
+                    </FlexCenter>
                   </FlexBetweenGray>
                 </GridSmallGap>
               </li>
@@ -375,6 +393,12 @@ const FlexBetweenGray = styled(FlexBetween)<{ disabled: boolean }>`
 
 const SSingleSelectionButtons = styled(SingleSelectionButtons)`
   padding: 0.5rem;
+`
+
+const FlexCenter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `
 
 const GridSmallGap = styled.div`
