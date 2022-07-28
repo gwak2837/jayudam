@@ -76,7 +76,7 @@ const Flex = styled.div`
 `
 
 const MinHeight = styled.div<{ navHeight: number }>`
-  min-height: calc(100vh - ${(p) => p.navHeight + 1}px);
+  min-height: calc(100vh - ${(p) => p.navHeight + 1}px - env(safe-area-inset-bottom));
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
     min-height: 100vh;
