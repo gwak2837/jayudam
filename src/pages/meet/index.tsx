@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import PageHead from 'src/components/PageHead'
-import { NAVIGATION_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
+import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
 
 export const PrimaryH3 = styled.h3`
@@ -32,20 +32,6 @@ export const PrimaryButton = styled.button`
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
 `
 
-const FixedButton = styled(PrimaryButton)`
-  position: fixed;
-  bottom: ${NAVIGATION_HEIGHT};
-  right: 50%;
-  transform: translateX(50vw);
-
-  margin: 1.25rem;
-  padding: 0.7rem 1.2rem;
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    transform: translateX(230%);
-  }
-`
-
 const limit = 10
 const description = ''
 
@@ -58,7 +44,7 @@ export default function PostsPage() {
       router.push('/post/create')
     } else {
       toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', '/post/create')
+      sessionStorage.setItem('redirectToAfterLogin', '/post/create')
       router.push('/login')
     }
   }

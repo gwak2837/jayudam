@@ -110,7 +110,7 @@ export const FileInputLabel = styled.label<{ disabled?: boolean }>`
 `
 
 export const GreyH3 = styled.h3`
-  color: ${(p) => p.theme.lightText};
+  color: ${(p) => p.theme.primaryTextAchromatic};
   font-weight: 500;
   text-align: center;
 `

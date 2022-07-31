@@ -1,0 +1,32 @@
+mutation VerifyCertJWT($jwt: JWT!) {
+  verifyCertJWT(jwt: $jwt) {
+    id
+    birthdate
+    name
+    sex
+    stdTestCerts {
+      id
+      content
+      effectiveDate
+      issueDate
+      location
+      name
+    }
+    immunizationCerts {
+      id
+      content
+      effectiveDate
+      issueDate
+      location
+      name
+    }
+    sexualCrimeCerts {
+      id
+      content
+      effectiveDate
+      issueDate
+      location
+      name
+    }
+  }
+}

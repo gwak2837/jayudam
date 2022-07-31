@@ -11,6 +11,23 @@ export const parseFullDate = parseDate('y. M. d. (E) a h:mm')
 export const formatSimpleDate = formatDate('y. M. d. H:mm')
 export const parseSimpleDate = parseDate('y. M. d. H:mm')
 
-export const formatExpiryDate = (date: string) => {
-  return date.substr(2, 4) + '/' + date.substr(0, 2)
+export function getNMonthBefore(n: number) {
+  const before = new Date()
+  before.setMonth(before.getMonth() - n)
+  before.setHours(0, 0, 0, 0)
+  return before.getTime()
+}
+
+export function getNYearBefore(n: number) {
+  const before = new Date()
+  before.setFullYear(before.getFullYear() - n)
+  before.setHours(0, 0, 0, 0)
+  return before.getTime()
+}
+
+export function formatISOLocalDate(date2: Date | string) {
+  const date = typeof date2 === 'string' ? new Date(date2) : date2
+  const localMonth = `${date.getMonth() + 1}`.padStart(2, '0')
+  const localDate = `${date.getDate()}`.padStart(2, '0')
+  return `${date.getFullYear()}-${localMonth}-${localDate}`
 }

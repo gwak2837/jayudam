@@ -9,7 +9,7 @@ import {
 } from 'src/utils/constants'
 import { ServerStyleSheet } from 'styled-components'
 
-export default class AlpacaSalonDocument extends Document {
+export default class JayudamDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
     const sheet = new ServerStyleSheet()
     const originalRenderPage = ctx.renderPage
@@ -115,7 +115,7 @@ export default class AlpacaSalonDocument extends Document {
           <meta name="subject" content={SUBJECT} />
           <meta name="rating" content="general" />
           <meta name="robots" content="index,follow" />
-          <meta name="revisit-after" content="7 days" />
+          <meta name="revisit-after" content="3 days" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <script
             defer

@@ -22,5 +22,6 @@
   "sort-imports.default-sort-style": "module",
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
-  }
+  },
+  "svg.preview.background": "transparent"
 }

@@ -79,7 +79,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   a {
-    color: ${(p) => p.theme.primary};
+    color: ${(p) => p.theme.primaryText};
     font-weight: 500;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -126,24 +126,24 @@ export const GlobalStyle = createGlobalStyle`
 // https://material.io/design/color/the-color-system.html#color-theme-creation
 export const theme = {
   primary: '#26ade3', // = site.webmanifest theme_color
-  primaryAchromatic: '#aaaaaa',
-  secondary: '#2fccba',
-  secondaryAchromatic: '#2fccba',
-  background: '#eeeeee',
-  accent: '#',
-  danger: '#D70F0F',
+  primaryAchromatic: '#a1a1a1',
+  primaryText: '#007cad',
+  primaryTextAchromatic: '#747474',
+  primaryBackground: '#93d6f1',
+  primaryBackgroundAchromatic: '#ccc',
+  background: '#f6f6f6',
+  warn: '#800000',
   error: '#D70F0F',
-  lightText: '#888888',
 }
 
 export const darkTheme: Theme = {
-  primary: '#',
-  primaryAchromatic: '#',
-  secondary: '#',
-  secondaryAchromatic: '#',
-  background: '#',
-  accent: '#',
-  danger: '#',
+  primary: '#26ade3',
+  primaryAchromatic: '#aaaaaa',
+  primaryText: '#',
+  primaryTextAchromatic: '#',
+  primaryBackground: '#',
+  primaryBackgroundAchromatic: '#',
+  background: '',
+  warn: '#',
   error: '#',
-  lightText: '#',
 }

@@ -1,19 +1,19 @@
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
 
-const Background = styled.div<{ displayBlock: boolean }>`
-  background: #000;
-  display: ${(p) => (p.displayBlock ? 'block' : 'none')};
+const FixedFullscreen = styled.div<{ open: boolean }>`
   position: fixed;
   inset: 0 0 0 0;
-  z-index: 2;
+  z-index: ${(p) => (p.open ? 10 : -1)};
 
-  > *:not(svg) {
-    width: 100%;
-    height: 100%;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: ${(p) => (p.open ? '#00000080' : 'none')};
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
   > svg {
     position: absolute;
@@ -29,48 +29,49 @@ const Background = styled.div<{ displayBlock: boolean }>`
 
 type Props = {
   children: ReactNode
+  lazy?: boolean
   open: boolean
-  setOpen: (b: boolean) => void
+  onClose: (open: boolean) => void
 }
 
-function Modal({ children, open, setOpen }: Props) {
-  function closeModal() {
-    setOpen(false)
+function Modal({ children, lazy, open, onClose }: Props) {
+  function closeModal(e: any) {
+    e.stopPropagation()
+    onClose(false)
   }
 
   useEffect(() => {
     function closeOnEscapeKey(e: KeyboardEvent) {
       if (e.code === 'Escape') {
-        setOpen(false)
+        onClose(false)
       }
     }
 
     if (open) {
       const bodyStyle = document.body.style
-      const scrollY = window.scrollY
 
       document.addEventListener('keydown', closeOnEscapeKey, false)
       bodyStyle.overflow = 'hidden'
-      bodyStyle.position = 'fixed' // For Safari 15
-      bodyStyle.top = `-${scrollY}px` // For Safari 15
 
       return () => {
         document.removeEventListener('keydown', closeOnEscapeKey, false)
         bodyStyle.overflow = ''
-        bodyStyle.position = '' // For Safari 15
-        bodyStyle.top = '' // For Safari 15
-        window.scrollTo(0, scrollY) // For Safari 15
       }
     }
-  }, [open, setOpen])
+  }, [open, onClose])
 
-  return createPortal(
-    <Background displayBlock={open} onClick={closeModal}>
+  const modal = (
+    <FixedFullscreen open={open} onClick={closeModal}>
       <XIcon onClick={closeModal} />
       {children}
-    </Background>,
-    document.body
+    </FixedFullscreen>
   )
+
+  return lazy
+    ? open
+      ? createPortal(modal, document.body)
+      : null
+    : createPortal(modal, document.body)
 }
 
 export default Modal

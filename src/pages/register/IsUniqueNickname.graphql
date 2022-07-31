@@ -1,0 +1,3 @@
+query IsUniqueNickname($nickname: NonEmptyString!) {
+  isUniqueNickname(nickname: $nickname)
+}

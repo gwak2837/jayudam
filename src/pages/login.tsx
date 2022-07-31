@@ -1,55 +1,77 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 import PageHead from 'src/components/PageHead'
 import {
+  MOBILE_MIN_HEIGHT,
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_BBATON_CLIENT_ID,
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
 } from 'src/utils/constants'
+import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import CheckBoxIcon from '../svgs/CheckBoxIcon'
 import GoogleLogo from '../svgs/google-logo.svg'
 import KakaoLogo from '../svgs/kakao-logo.svg'
+import NaverLogo from '../svgs/naver-logo.svg'
 
 export default function LoginPage() {
+  const { nickname } = useRecoilValue(currentUser)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (nickname) {
+      toast.warn(
+        <div>
+          이미 로그인했어요 <Link href="/">홈으로 가기</Link>
+        </div>
+      )
+    }
+  }, [nickname, router])
+
   return (
     <PageHead title="로그인 - 자유담" description="자유담에 로그인하세요">
-      <FlexCenterCenter>
-        <Link href="/">
-          <MarginImage src="/images/logo.webp" alt="jayudam logo" />
-        </Link>
-      </FlexCenterCenter>
+      <FlexCenter>
+        <GridPadding>
+          <Link href="/">
+            <MarginImage src="/images/logo.webp" alt="jayudam logo" />
+          </Link>
 
-      <FlexGrowPadding>
-        <Text>
-          자유담은 <br />
-          <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
-        </Text>
+          <Text>
+            자유담은 <br />
+            <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
+          </Text>
 
-        <AutoLoginCheckbox />
+          <AutoLoginCheckbox />
 
-        <H5>비바톤 계정으로 익명 성인인증을 해주세요</H5>
+          <H5>비바톤 계정으로 익명 성인인증을 해주세요</H5>
 
-        <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
+          <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
 
-        <H5>이미 SNS 계정을 연동했다면</H5>
+          <H5>이미 SNS 계정을 연동했다면</H5>
 
-        <KakaoButton onClick={goToKakaoLoginPage}>
-          <KakaoLogo />
-          카카오톡 로그인
-        </KakaoButton>
+          <KakaoButton onClick={goToKakaoLoginPage}>
+            <KakaoLogo />
+            카카오톡 로그인
+          </KakaoButton>
 
-        <NaverButton onClick={goToNaverLoginPage}>네이버 로그인</NaverButton>
+          <NaverButton onClick={goToNaverLoginPage}>
+            <NaverLogo />
+            네이버 로그인
+          </NaverButton>
 
-        <GoogleButton onClick={goToGoogleLoginPage}>
-          <GoogleLogo />
-          Google 로그인
-        </GoogleButton>
-      </FlexGrowPadding>
+          <GoogleButton onClick={goToGoogleLoginPage}>
+            <GoogleLogo />
+            Google 로그인
+          </GoogleButton>
+        </GridPadding>
+      </FlexCenter>
     </PageHead>
   )
 }
@@ -76,15 +98,17 @@ function AutoLoginCheckbox() {
   )
 }
 
-const MarginImage = styled(Image)`
-  margin: 2rem 1rem;
+const FlexCenter = styled.div`
+  @media (min-width: ${MOBILE_MIN_HEIGHT}) {
+    display: flex;
+    justify-content: center;
+  }
 `
 
-const FlexCenterCenter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+const MarginImage = styled(Image)`
+  padding: 2rem 1rem;
+  min-width: 200px;
+  height: 7rem;
 `
 
 const H5 = styled.h5`
@@ -105,110 +129,90 @@ const LoginCheckBox = styled.input`
   display: none;
 `
 
-// https://developers.kakao.com/docs/latest/ko/reference/design-guide
-const KakaoButton = styled.div`
+const LoginButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  cursor: pointer;
+  gap: 0.5rem;
 
-  background: #fee500;
-  padding: 1rem;
-  transition: background 0.3s ease-in;
   border-radius: 10px;
-
-  :hover {
-    background: #fee500c0;
-  }
-`
-
-// https://developers.google.com/identity/branding-guidelines
-const GoogleButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-
-  background: #fff;
-  border: 1px solid #ccc;
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   padding: 1rem;
   transition: background 0.2s ease-in;
-  border-radius: 10px;
-
-  :hover {
-    background: #ffffffc0;
-  }
 `
 
-const BBathonButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-
+const BBathonButton = styled(LoginButton)`
   background: #0071bc;
   color: #fff;
-  padding: 1rem;
-  transition: background 0.2s ease-in;
-  border-radius: 10px;
 
   :hover {
-    background: #0071bcc0;
+    background: #005f9f;
   }
 
-  svg {
-    position: absolute;
-    top: 50%;
-    left: 1rem;
-    transform: translateY(-50%);
+  > svg {
+    width: 1.5rem;
+  }
+`
+
+// https://developers.kakao.com/docs/latest/ko/reference/design-guide
+export const KakaoButton = styled(LoginButton)`
+  background: #fee500;
+  color: #000000ee;
+
+  :hover {
+    background: #ecd400;
+  }
+
+  > svg {
+    width: 1.5rem;
   }
 `
 
 // https://developers.naver.com/docs/login/bi/bi.md
-const NaverButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-
+export const NaverButton = styled(LoginButton)`
   background: #03c75a;
   color: #fff;
-  padding: 1rem;
-  transition: background 0.2s ease-in;
-  border-radius: 10px;
 
   :hover {
-    background: #03c75ac0;
+    background: #03b152;
   }
 
-  svg {
-    position: absolute;
-    top: 50%;
-    left: 1rem;
-    transform: translateY(-50%);
+  > svg {
+    width: 1.5rem;
   }
 `
 
-export const FlexContainerGrow = styled.div`
-  display: flex;
-  flex-flow: column;
+// https://developers.google.com/identity/branding-guidelines
+export const GoogleButton = styled(LoginButton)`
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #000;
 
-  > :last-child {
-    flex-grow: 1;
+  :hover {
+    background: #eee;
+  }
+
+  > svg {
+    width: 1.8rem;
   }
 `
 
-const FlexGrowPadding = styled(FlexContainerGrow)`
+const GridPadding = styled.div`
+  display: grid;
   padding: 2rem 1rem;
   gap: 1rem;
+
+  @media (min-width: ${MOBILE_MIN_HEIGHT}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
+  }
+
+  > a {
+    text-align: center;
+  }
 `
 
 const PrimaryColorText = styled.span`
-  color: ${(p) => p.theme.primary};
+  color: ${(p) => p.theme.primaryText};
   font-size: 1.3rem;
   font-weight: 500;
 `

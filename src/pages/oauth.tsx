@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
+import { client } from 'src/apollo/client'
 import PageHead from 'src/components/PageHead'
 import Navigation from 'src/layouts/Navigation'
 
@@ -10,49 +11,80 @@ export default function OAuthPage() {
   const queryString = useRef<URLSearchParams>()
   const url = useRef('')
   const [loading, setLoading] = useState(true)
+  const [doRedirect, setDoRedirect] = useState(false)
 
   useEffect(() => {
     queryString.current = new URLSearchParams(location.search)
     const jwt = queryString.current.get('jwt')
 
-    if (jwt) {
-      if (sessionStorage.getItem('autoLogin')) {
-        localStorage.setItem('jwt', jwt)
-        sessionStorage.removeItem('autoLogin')
-      } else {
-        sessionStorage.setItem('jwt', jwt)
+    if (!jwt) {
+      const doesJWTExpired = queryString.current.get('doesJWTExpired')
+
+      if (doesJWTExpired) {
+        url.current = '/login'
+        toast.warn('로그인이 만료됐어요. 다시 로그인해주세요')
+        return
       }
 
-      const redirectionUrlAfterLogin = sessionStorage.getItem('redirectionUrlAfterLogin') ?? '/'
-      sessionStorage.removeItem('redirectionUrlAfterLogin')
+      setLoading(false)
+      return
+    }
 
-      if (redirectionUrlAfterLogin === '/@') {
-        const nickname = queryString.current.get('nickname')
+    if (sessionStorage.getItem('autoLogin')) {
+      localStorage.setItem('jwt', jwt)
+      sessionStorage.removeItem('autoLogin')
+    } else {
+      sessionStorage.setItem('jwt', jwt)
+    }
+
+    const nickname = queryString.current.get('nickname')
+
+    if (!nickname) {
+      url.current = '/register'
+    } else {
+      const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
+
+      if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
         url.current = `/@${nickname}`
       } else {
-        url.current = redirectionUrlAfterLogin
+        url.current = redirectToAfterLogin
       }
-
-      toast.success('소셜 로그인에 성공했어요')
-      return
     }
 
-    const doesJWTExpired = queryString.current.get('doesJWTExpired')
-
-    if (doesJWTExpired) {
-      url.current = '/login'
-      toast.warn('JWT 유효기간이 지났어요. 다시 로그인해주세요')
-      return
-    }
-
-    setLoading(false)
+    client
+      .refetchQueries({
+        include: ['Me'],
+      })
+      .then(() => {
+        setDoRedirect(true)
+        toast.success('소셜 로그인 성공')
+      })
+      .catch((error) => console.error(error))
   }, [])
 
+  // 해당 페이지로 이동하기
   const router = useRouter()
 
   useEffect(() => {
-    if (url.current) router.replace(url.current)
-  }, [router])
+    if (url.current && doRedirect) {
+      sessionStorage.removeItem('redirectToAfterLogin')
+      router.replace(url.current)
+    }
+  }, [doRedirect, router])
+
+  if (router.locale === 'en') {
+    return (
+      <PageHead title="Social login - Jayudam" description={description}>
+        <Navigation>
+          {loading ? (
+            <div>User authentication is in progress. Please wait a momentarily..</div>
+          ) : (
+            queryString.current && <div>{getErrorMessage(queryString.current)}</div>
+          )}
+        </Navigation>
+      </PageHead>
+    )
+  }
 
   return (
     <PageHead title="소셜 로그인 - 자유담" description={description}>
@@ -115,5 +147,9 @@ function getErrorMessage(errorMessage: URLSearchParams) {
       default:
         return '서버 응답이 잘못됐어요'
     }
+  }
+
+  if (errorMessage.get('isAdult') === 'false') {
+    return '자유담은 성인만 가입할 수 있어요'
   }
 }

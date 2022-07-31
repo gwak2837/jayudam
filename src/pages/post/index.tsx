@@ -1,21 +1,22 @@
 import React from 'react'
 import PageHead from 'src/components/PageHead'
-import { NAVIGATION_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
+import Navigation from 'src/layouts/Navigation'
+import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
+
+export default function PostsPage() {
+  return (
+    <PageHead title="이야기 - 자유담" description="">
+      <Navigation>asd</Navigation>
+    </PageHead>
+  )
+}
 
 export const PrimaryH3 = styled.h3`
   color: ${(p) => p.theme.primary};
   font-size: 1.25rem;
   font-weight: 600;
   margin-top: 0.5rem;
-`
-
-const GridContainerPost = styled.ul`
-  display: grid;
-  gap: 0.9rem;
-  padding: 0.6rem;
-
-  background: #fff;
 `
 
 export const PrimaryButton = styled.button`
@@ -30,27 +31,4 @@ export const PrimaryButton = styled.button`
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
 `
 
-const FixedButton = styled(PrimaryButton)`
-  position: fixed;
-  bottom: ${NAVIGATION_HEIGHT};
-  right: 50%;
-  transform: translateX(50vw);
-
-  margin: 1.25rem;
-  padding: 0.7rem 1.2rem;
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    transform: translateX(230%);
-  }
-`
-
 const limit = 10
-const description = ''
-
-export default function PostsPage() {
-  return (
-    <PageHead title="이야기 - 자유담" description={description}>
-      ㅁㄴㅇ
-    </PageHead>
-  )
-}

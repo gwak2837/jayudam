@@ -1,5 +1,5 @@
-query Me {
-  me {
+query Auth {
+  auth {
     id
     nickname
   }
