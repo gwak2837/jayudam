@@ -7,7 +7,7 @@ import PageHead from 'src/components/PageHead'
 import { useLogoutMutation, useUserQuery } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { getUserNickname } from 'src/utils'
+import { getUsername } from 'src/utils'
 import {
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
@@ -25,23 +25,25 @@ import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
 export default function UserPage() {
   const router = useRouter()
-  const userNickname = getUserNickname(router)
-  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
+  const username = getUsername(router)
+  const [{ name: currentUsername }, setCurrentUser] = useRecoilState(currentUser)
 
-  useNeedToLogin(nickname === null)
+  useNeedToLogin(currentUsername === null)
 
   useEffect(() => {
-    if (nickname === undefined) {
+    if (currentUsername === undefined) {
       router.replace('/register')
       sessionStorage.setItem('redirectToAfterLogin', router.asPath)
       toast.warn('닉네임 설정이 필요합니다')
     }
-  }, [nickname, router])
+  }, [currentUsername, router])
 
   const { data, loading: userLoading } = useUserQuery({
     onError: toastApolloError,
-    skip: userNickname === 'null' || userNickname === 'undefined',
-    variables: { nickname: userNickname === nickname ? null : userNickname },
+    skip: username === 'null' || username === 'undefined',
+    variables: {
+      name: username === currentUsername ? null : username,
+    },
   })
 
   const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
@@ -49,7 +51,7 @@ export default function UserPage() {
       if (logout) {
         globalThis.sessionStorage?.removeItem('jwt')
         globalThis.localStorage?.removeItem('jwt')
-        setCurrentUser({ nickname: null })
+        setCurrentUser({ name: null })
         toast.success(
           <div>
             로그아웃 성공 <br />
@@ -66,13 +68,13 @@ export default function UserPage() {
   }
 
   return (
-    <PageHead title={`@${userNickname} - 자유담`} description="">
+    <PageHead title={`@${username} - 자유담`} description="">
       <Navigation>
         <MinWidth>
           <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
-          {nickname && (
+          {currentUsername && (
             <>
-              {nickname}
+              {currentUsername}
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
               </button>

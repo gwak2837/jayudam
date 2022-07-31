@@ -1,6 +1,6 @@
 query Auth {
   auth {
     id
-    nickname
+    name
   }
 }

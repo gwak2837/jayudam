@@ -1,5 +1,5 @@
-query User($nickname: NonEmptyString) {
-  user(nickname: $nickname) {
+query User($name: NonEmptyString) {
+  user(name: $name) {
     id
     bio
     blockingStartTime
@@ -8,6 +8,7 @@ query User($nickname: NonEmptyString) {
     grade
     imageUrls
     isVerifiedSex
+    name
     nickname
     sex
     towns {

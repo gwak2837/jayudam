@@ -22,18 +22,18 @@ import KakaoLogo from '../svgs/kakao-logo.svg'
 import NaverLogo from '../svgs/naver-logo.svg'
 
 export default function LoginPage() {
-  const { nickname } = useRecoilValue(currentUser)
+  const { name } = useRecoilValue(currentUser)
   const router = useRouter()
 
   useEffect(() => {
-    if (nickname) {
+    if (name) {
       toast.warn(
         <div>
           이미 로그인했어요 <Link href="/">홈으로 가기</Link>
         </div>
       )
     }
-  }, [nickname, router])
+  }, [name, router])
 
   return (
     <PageHead title="로그인 - 자유담" description="자유담에 로그인하세요">

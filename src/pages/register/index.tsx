@@ -10,15 +10,15 @@ import Checkbox from 'src/components/atoms/Checkbox'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
-  useIsUniqueNicknameLazyQuery,
   useUpdateUserMutation,
+  useIsUniqueUsernameLazyQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 export default function RegisterPage() {
-  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
+  const [{ name }, setCurrentUser] = useRecoilState(currentUser)
 
   // Form 상태 관리
   const {
@@ -30,6 +30,7 @@ export default function RegisterPage() {
     watch,
   } = useForm<RegisterFormValues>({
     defaultValues: {
+      name: '',
       nickname: '',
       personalDataStoringYear: 1,
       termsAgreement: false,
@@ -47,33 +48,33 @@ export default function RegisterPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (nickname && !getValues('nickname')) {
+    if (name && !getValues('name')) {
       router.replace('/')
       toast.warn('이미 회원가입을 완료했어요')
     }
-  }, [getValues, nickname, router])
+  }, [getValues, name, router])
 
-  // Nickname 중복 검사
-  const [isUniqueNickname, { loading: isUniqueNicknameLoading }] = useIsUniqueNicknameLazyQuery({
+  // Username 중복 검사
+  const [isUniqueUsername, { loading: isUniqueUsernameLoading }] = useIsUniqueUsernameLazyQuery({
     onError: toastApolloError,
   })
 
-  const isUniqueNicknameTimeout = useRef<any>(null)
+  const isUniqueUsernameTimeout = useRef<any>(null)
 
-  function checkUniqueNicknameWithDebounce() {
+  function checkUniqueUsernameDebouncly() {
     return new Promise<boolean | string>((resolve, reject) => {
-      clearTimeout(isUniqueNicknameTimeout.current)
-      isUniqueNicknameTimeout.current = setTimeout(() => {
-        isUniqueNickname({
+      clearTimeout(isUniqueUsernameTimeout.current)
+      isUniqueUsernameTimeout.current = setTimeout(() => {
+        isUniqueUsername({
           variables: {
-            nickname: getValues('nickname'),
+            username: getValues('name'),
           },
         })
           .then(({ data, variables }) => {
-            if (data?.isUniqueNickname) {
+            if (data?.isUniqueUsername) {
               return resolve(true)
             } else {
-              return resolve(`이미 사용 중인 이름이에요. ${variables?.nickname}`)
+              return resolve(`이미 사용 중이에요. ${variables?.username}`)
             }
           })
           .catch((error) => reject(error))
@@ -84,14 +85,14 @@ export default function RegisterPage() {
   // 사용자 정보 업데이트
   const [updateUserMutation, { loading: updateUserLoading }] = useUpdateUserMutation({
     onCompleted: ({ updateUser }) => {
-      if (updateUser?.nickname) {
-        setCurrentUser({ nickname: updateUser.nickname })
+      if (updateUser?.name) {
+        setCurrentUser({ name: updateUser.name })
 
         const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
         sessionStorage.removeItem('redirectToAfterLogin')
 
         if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
-          router.replace(`/@${updateUser.nickname}`)
+          router.replace(`/@${updateUser.name}`)
         } else {
           router.replace(redirectToAfterLogin)
         }
@@ -104,6 +105,7 @@ export default function RegisterPage() {
 
   function updateUser(input: RegisterFormValues) {
     const {
+      name,
       nickname,
       personalDataStoringYear,
       termsAgreement,
@@ -115,6 +117,7 @@ export default function RegisterPage() {
     updateUserMutation({
       variables: {
         input: {
+          name,
           nickname,
           serviceAgreement: {
             personalDataStoringYear,
@@ -142,36 +145,71 @@ export default function RegisterPage() {
           </GridSmallGap>
 
           <GridSmallGap>
+            <label htmlFor="name">
+              <H3>검색용 이름</H3>
+            </label>
+            <div>
+              <Relative>
+                <Input
+                  disabled={updateUserLoading}
+                  placeholder="다른 사람이 검색할 때 사용될 이름을 적어주세요"
+                  {...register('name', {
+                    required: '필수로 입력해주세요',
+                    minLength: {
+                      value: 2,
+                      message: '2자 이상 입력해주세요',
+                    },
+                    maxLength: {
+                      value: 30,
+                      message: '30자 이내로 입력해주세요',
+                    },
+                    pattern: {
+                      value: /^[\w!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?\uAC00-\uD79D]+$/u,
+                      message: '대문자,소문자,숫자,특수문자,한글만 가능합니다.',
+                    },
+                    validate: checkUniqueUsernameDebouncly,
+                  })}
+                />
+                <span>@</span>
+              </Relative>
+              {isUniqueUsernameLoading ? (
+                <H5>유효성 확인 중...</H5>
+              ) : errors.name ? (
+                <WarningH5>{errors.name.message}</WarningH5>
+              ) : (
+                <H5>{watch('name').length} / 30</H5>
+              )}
+            </div>
+          </GridSmallGap>
+
+          <GridSmallGap>
             <label htmlFor="nickname">
               <H3>이름</H3>
             </label>
             <div>
               <Input
                 disabled={updateUserLoading}
-                placeholder="다른 사람에게 보여질 나만의 이름을 설정해주세요"
+                placeholder="다른 사람에게 보여질 이름을 적어주세요"
                 {...register('nickname', {
-                  required: '이름을 입력해주세요',
+                  required: '필수로 입력해주세요',
                   minLength: {
                     value: 2,
                     message: '2자 이상 입력해주세요',
                   },
                   maxLength: {
-                    value: 20,
-                    message: '20자 이내로 입력해주세요',
+                    value: 30,
+                    message: '30자 이내로 입력해주세요',
                   },
                   pattern: {
                     value: /^[\w!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?\uAC00-\uD79D]+$/u,
                     message: '대문자,소문자,숫자,특수문자,한글만 가능합니다.',
                   },
-                  validate: checkUniqueNicknameWithDebounce,
                 })}
               />
-              {isUniqueNicknameLoading ? (
-                <H5>이름 유효성 확인 중...</H5>
-              ) : errors.nickname ? (
+              {errors.nickname ? (
                 <WarningH5>{errors.nickname.message}</WarningH5>
               ) : (
-                <H5>{watch('nickname').length} / 20</H5>
+                <H5>{watch('nickname').length} / 30</H5>
               )}
             </div>
           </GridSmallGap>
@@ -270,6 +308,7 @@ export default function RegisterPage() {
 }
 
 type RegisterFormValues = {
+  name: string
   nickname: string
   personalDataStoringYear: number
   termsAgreement: boolean
@@ -338,7 +377,8 @@ const PaddingImage = styled(Image)`
 `
 
 const Input = styled.input`
-  border: 1px solid #888;
+  border: 1px solid
+    ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primaryTextAchromatic)};
   border-radius: 4px;
   padding: 0.7rem;
   width: 100%;
@@ -346,6 +386,23 @@ const Input = styled.input`
   :focus {
     outline: none;
     border-color: ${(p) => p.theme.primaryText};
+  }
+`
+
+const Relative = styled.div`
+  position: relative;
+
+  > input {
+    padding-left: 1.7rem;
+  }
+
+  > span {
+    position: absolute;
+    top: 45%;
+    left: 0.5rem;
+    transform: translateY(-50%);
+
+    color: ${(p) => p.theme.primaryTextAchromatic};
   }
 `
 

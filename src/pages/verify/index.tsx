@@ -256,7 +256,7 @@ export default function VerificationPage() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{allCerts.name ?? '미동의'}</td>
+                        <td>{allCerts.legalName ?? '미동의'}</td>
                         <td>
                           {allCerts.birthdate ? formatISOLocalDate(allCerts.birthdate) : '미동의'}
                         </td>

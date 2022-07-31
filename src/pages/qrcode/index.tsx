@@ -24,7 +24,7 @@ import { SubmitButton } from '../register'
 export default function QRCodePage() {
   useNeedToLogin()
 
-  const { nickname } = useRecoilValue(currentUser)
+  const { name } = useRecoilValue(currentUser)
 
   const qrCodeImageRef = useRef<HTMLCanvasElement>(null)
 
@@ -32,7 +32,7 @@ export default function QRCodePage() {
   const { handleSubmit, setValue, watch } = useForm<CertAgreementForm>({
     defaultValues: {
       showBirthdate: false,
-      showName: false,
+      showLegalName: false,
       showSex: false,
       showSTDTest: false,
       stdTestSince: null, // WIP: 미래는 선택 불가
@@ -68,7 +68,7 @@ export default function QRCodePage() {
   function updateCertAgreement(input: CertAgreementForm) {
     const {
       showBirthdate,
-      showName,
+      showLegalName,
       showSex,
       showSTDTest,
       stdTestSince,
@@ -82,7 +82,7 @@ export default function QRCodePage() {
       variables: {
         input: {
           ...(showBirthdate && { showBirthdate }),
-          ...(showName && { showName }),
+          ...(showLegalName && { showLegalName }),
           ...(showSex && { showSex }),
           ...(showSTDTest && { showSTDTest }),
           ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
@@ -103,7 +103,7 @@ export default function QRCodePage() {
       if (myCertAgreement) {
         const {
           showBirthdate,
-          showName,
+          showLegalName,
           showSex,
           showSTDTest,
           stdTestSince,
@@ -121,7 +121,7 @@ export default function QRCodePage() {
         const sexualCrimeSinceTime = sexualCrimeSinceDate ? sexualCrimeSinceDate.getTime() : null
 
         setValue('showBirthdate', showBirthdate)
-        setValue('showName', showName)
+        setValue('showLegalName', showLegalName)
         setValue('showSex', showSex)
         setValue('showSTDTest', showSTDTest)
         setValue('stdTestSince', stdTestSinceTime)
@@ -148,7 +148,7 @@ export default function QRCodePage() {
           variables: {
             input: {
               ...(showBirthdate && { showBirthdate }),
-              ...(showName && { showName }),
+              ...(showLegalName && { showLegalName }),
               ...(showSex && { showSex }),
               ...(showSTDTest && { showSTDTest }),
               ...(showSTDTest && stdTestSince && { stdTestSince }),
@@ -162,7 +162,7 @@ export default function QRCodePage() {
       }
     },
     onError: toastApolloError,
-    skip: !nickname,
+    skip: !name,
   })
 
   const disableInput = certAgreementLoading || updateCertAgreementLoading
@@ -196,9 +196,9 @@ export default function QRCodePage() {
                 <FlexBetween>
                   <div>이름</div>
                   <AppleCheckbox
-                    checked={watch('showName')}
+                    checked={watch('showLegalName')}
                     disabled={disableInput}
-                    onChange={(e) => setValue('showName', e.target.checked)}
+                    onChange={(e) => setValue('showLegalName', e.target.checked)}
                   />
                 </FlexBetween>
               </li>
@@ -416,7 +416,7 @@ const Sticky = styled.div`
 
 type CertAgreementForm = {
   showBirthdate: boolean
-  showName: boolean
+  showLegalName: boolean
   showSex: boolean
   showSTDTest: boolean
   stdTestSince: number | null

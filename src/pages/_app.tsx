@@ -84,21 +84,21 @@ type Props = {
 }
 
 function Authentication({ children }: Props) {
-  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
+  const [{ name }, setCurrentUser] = useRecoilState(currentUser)
 
   useAuthQuery({
     onCompleted: ({ auth: user }) => {
-      if (user?.nickname) {
-        setCurrentUser({ nickname: user.nickname })
+      if (user?.name) {
+        setCurrentUser({ name: user.name })
         bootChanneltalk({
           pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
           // memberId: myNickname.id, // 채널톡-자유담 회원 정보 연동 필요
           profile: {
-            name: user.nickname,
+            name: user.name,
           },
         })
       } else if (user) {
-        setCurrentUser({ nickname: undefined })
+        setCurrentUser({ name: undefined })
         bootChanneltalk({
           pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
           // memberId: myNickname.id, // 채널톡-자유담 회원 정보 연동 필요
@@ -109,12 +109,12 @@ function Authentication({ children }: Props) {
       toastApolloError(error)
       globalThis.sessionStorage?.removeItem('jwt')
       globalThis.localStorage?.removeItem('jwt')
-      setCurrentUser({ nickname: null })
+      setCurrentUser({ name: null })
       bootChanneltalk({ pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY })
     },
     // Storage에 jwt가 존재하는데 nickname이 없을 때만
     skip: Boolean(
-      nickname ||
+      name ||
         (!globalThis.sessionStorage?.getItem('jwt') && !globalThis.localStorage?.getItem('jwt'))
     ),
   })

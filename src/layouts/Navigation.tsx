@@ -16,7 +16,7 @@ type Props = {
 }
 
 export default function Navigation({ children }: Props) {
-  const { nickname } = useRecoilValue(currentUser)
+  const { name } = useRecoilValue(currentUser)
 
   // nav height 계산하기
   const [navHeight, setNavHeight] = useState(0)
@@ -57,7 +57,7 @@ export default function Navigation({ children }: Props) {
           <CommunityIcon selected={isPostSelected} />
           <PrimaryText selected={isPostSelected}>이야기</PrimaryText>
         </BlockLink>
-        <BlockLink href={`/@${nickname}`}>
+        <BlockLink href={`/@${name}`}>
           <MyIcon selected={isMySelected} />
           <PrimaryText selected={isMySelected}>내 자유담</PrimaryText>
         </BlockLink>

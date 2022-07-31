@@ -43,8 +43,8 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export function getUserNickname(router: NextRouter) {
-  return ((router.query.userNickname ?? '') as string).slice(1)
+export function getUsername(router: NextRouter) {
+  return ((router.query.username ?? '') as string).slice(1)
 }
 
 const urlPattern = new RegExp(
