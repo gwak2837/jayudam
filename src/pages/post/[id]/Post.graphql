@@ -1,0 +1,11 @@
+query Post($id: ID!) {
+  post(id: $id) {
+    ...postCard
+    comments {
+      ...postCard
+      comments {
+        ...postCard
+      }
+    }
+  }
+}

@@ -173,14 +173,17 @@ export type Pagination = {
 export type Post = {
   __typename?: 'Post'
   author?: Maybe<User>
+  commentCount?: Maybe<Scalars['NonNegativeInt']>
+  comments?: Maybe<Array<Post>>
   content?: Maybe<Scalars['NonEmptyString']>
   creationTime?: Maybe<Scalars['DateTime']>
   deletionTime?: Maybe<Scalars['DateTime']>
   id: Scalars['ID']
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
   likeCount?: Maybe<Scalars['NonNegativeInt']>
-  modificationTime?: Maybe<Scalars['DateTime']>
+  sharedCount?: Maybe<Scalars['NonNegativeInt']>
   sharingPost?: Maybe<Post>
+  updateTime?: Maybe<Scalars['DateTime']>
 }
 
 export type PostCreationInput = {
@@ -201,7 +204,6 @@ export type Query = {
   certs?: Maybe<Certs>
   isUniqueUsername: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
-  myVerificationHistories?: Maybe<Array<VerificationHistory>>
   pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
@@ -268,6 +270,7 @@ export type User = {
   email?: Maybe<Scalars['EmailAddress']>
   grade?: Maybe<Grade>
   id: Scalars['UUID']
+  imageUrl?: Maybe<Scalars['URL']>
   imageUrls?: Maybe<Array<Scalars['URL']>>
   isVerifiedBirthday: Scalars['Boolean']
   isVerifiedBirthyear: Scalars['Boolean']
@@ -297,11 +300,24 @@ export type UserUpdate = {
   town2Name?: InputMaybe<Scalars['NonEmptyString']>
 }
 
-export type VerificationHistory = {
-  __typename?: 'VerificationHistory'
-  content: Scalars['NonEmptyString']
-  creationTime: Scalars['DateTime']
-  id: Scalars['Int']
+export type PostCardFragment = {
+  __typename?: 'Post'
+  id: string
+  creationTime?: any | null
+  updateTime?: any | null
+  deletionTime?: any | null
+  content?: any | null
+  imageUrls?: Array<any | null> | null
+  likeCount?: any | null
+  commentCount?: any | null
+  sharedCount?: any | null
+  author?: {
+    __typename?: 'User'
+    id: any
+    name?: any | null
+    nickname?: string | null
+    imageUrl?: any | null
+  } | null
 }
 
 export type AuthQueryVariables = Exact<{ [key: string]: never }>
@@ -338,6 +354,71 @@ export type UserQuery = {
     nickname?: string | null
     sex?: Sex | null
     towns?: Array<{ __typename?: 'Town'; count: any; name?: string | null }> | null
+  } | null
+}
+
+export type PostQueryVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type PostQuery = {
+  __typename?: 'Query'
+  post?: {
+    __typename?: 'Post'
+    id: string
+    creationTime?: any | null
+    updateTime?: any | null
+    deletionTime?: any | null
+    content?: any | null
+    imageUrls?: Array<any | null> | null
+    likeCount?: any | null
+    commentCount?: any | null
+    sharedCount?: any | null
+    comments?: Array<{
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: any | null
+      imageUrls?: Array<any | null> | null
+      likeCount?: any | null
+      commentCount?: any | null
+      sharedCount?: any | null
+      comments?: Array<{
+        __typename?: 'Post'
+        id: string
+        creationTime?: any | null
+        updateTime?: any | null
+        deletionTime?: any | null
+        content?: any | null
+        imageUrls?: Array<any | null> | null
+        likeCount?: any | null
+        commentCount?: any | null
+        sharedCount?: any | null
+        author?: {
+          __typename?: 'User'
+          id: any
+          name?: any | null
+          nickname?: string | null
+          imageUrl?: any | null
+        } | null
+      }> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: any | null
+        nickname?: string | null
+        imageUrl?: any | null
+      } | null
+    }> | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: any | null
+      nickname?: string | null
+      imageUrl?: any | null
+    } | null
   } | null
 }
 
@@ -426,6 +507,25 @@ export type VerifyCertJwtMutation = {
   } | null
 }
 
+export const PostCardFragmentDoc = gql`
+  fragment postCard on Post {
+    id
+    creationTime
+    updateTime
+    deletionTime
+    content
+    imageUrls
+    likeCount
+    commentCount
+    sharedCount
+    author {
+      id
+      name
+      nickname
+      imageUrl
+    }
+  }
+`
 export const AuthDocument = gql`
   query Auth {
     auth {
@@ -551,6 +651,50 @@ export function useUserLazyQuery(
 export type UserQueryHookResult = ReturnType<typeof useUserQuery>
 export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
 export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
+export const PostDocument = gql`
+  query Post($id: ID!) {
+    post(id: $id) {
+      ...postCard
+      comments {
+        ...postCard
+        comments {
+          ...postCard
+        }
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+
+/**
+ * __usePostQuery__
+ *
+ * To run a query within a React component, call `usePostQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePostQuery(baseOptions: Apollo.QueryHookOptions<PostQuery, PostQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<PostQuery, PostQueryVariables>(PostDocument, options)
+}
+export function usePostLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<PostQuery, PostQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<PostQuery, PostQueryVariables>(PostDocument, options)
+}
+export type PostQueryHookResult = ReturnType<typeof usePostQuery>
+export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>
+export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>
 export const MyCertAgreementDocument = gql`
   query MyCertAgreement {
     myCertAgreement {
@@ -962,33 +1106,38 @@ export type MutationFieldPolicy = {
 }
 export type PostKeySpecifier = (
   | 'author'
+  | 'commentCount'
+  | 'comments'
   | 'content'
   | 'creationTime'
   | 'deletionTime'
   | 'id'
   | 'imageUrls'
   | 'likeCount'
-  | 'modificationTime'
+  | 'sharedCount'
   | 'sharingPost'
+  | 'updateTime'
   | PostKeySpecifier
 )[]
 export type PostFieldPolicy = {
   author?: FieldPolicy<any> | FieldReadFunction<any>
+  commentCount?: FieldPolicy<any> | FieldReadFunction<any>
+  comments?: FieldPolicy<any> | FieldReadFunction<any>
   content?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   deletionTime?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   likeCount?: FieldPolicy<any> | FieldReadFunction<any>
-  modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  sharedCount?: FieldPolicy<any> | FieldReadFunction<any>
   sharingPost?: FieldPolicy<any> | FieldReadFunction<any>
+  updateTime?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
   | 'auth'
   | 'certs'
   | 'isUniqueUsername'
   | 'myCertAgreement'
-  | 'myVerificationHistories'
   | 'pendingCerts'
   | 'post'
   | 'posts'
@@ -1002,7 +1151,6 @@ export type QueryFieldPolicy = {
   certs?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueUsername?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
-  myVerificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
   pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1049,6 +1197,7 @@ export type UserKeySpecifier = (
   | 'email'
   | 'grade'
   | 'id'
+  | 'imageUrl'
   | 'imageUrls'
   | 'isVerifiedBirthday'
   | 'isVerifiedBirthyear'
@@ -1077,6 +1226,7 @@ export type UserFieldPolicy = {
   email?: FieldPolicy<any> | FieldReadFunction<any>
   grade?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
+  imageUrl?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedBirthday?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedBirthyear?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1092,17 +1242,6 @@ export type UserFieldPolicy = {
   serviceAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
   towns?: FieldPolicy<any> | FieldReadFunction<any>
-}
-export type VerificationHistoryKeySpecifier = (
-  | 'content'
-  | 'creationTime'
-  | 'id'
-  | VerificationHistoryKeySpecifier
-)[]
-export type VerificationHistoryFieldPolicy = {
-  content?: FieldPolicy<any> | FieldReadFunction<any>
-  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
-  id?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type StrictTypedTypePolicies = {
   Cert?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
@@ -1143,13 +1282,6 @@ export type StrictTypedTypePolicies = {
   User?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | UserKeySpecifier | (() => undefined | UserKeySpecifier)
     fields?: UserFieldPolicy
-  }
-  VerificationHistory?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
-    keyFields?:
-      | false
-      | VerificationHistoryKeySpecifier
-      | (() => undefined | VerificationHistoryKeySpecifier)
-    fields?: VerificationHistoryFieldPolicy
   }
 }
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies
