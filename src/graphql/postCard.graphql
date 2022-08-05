@@ -5,6 +5,7 @@ fragment postCard on Post {
   deletionTime
   content
   imageUrls
+  isLiked
   likeCount
   commentCount
   sharedCount

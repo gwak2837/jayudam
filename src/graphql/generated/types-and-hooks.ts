@@ -180,6 +180,7 @@ export type Post = {
   deletionTime?: Maybe<Scalars['DateTime']>
   id: Scalars['ID']
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
+  isLiked: Scalars['Boolean']
   likeCount?: Maybe<Scalars['NonNegativeInt']>
   sharedCount?: Maybe<Scalars['NonNegativeInt']>
   sharingPost?: Maybe<Post>
@@ -308,6 +309,7 @@ export type PostCardFragment = {
   deletionTime?: any | null
   content?: any | null
   imageUrls?: Array<any | null> | null
+  isLiked: boolean
   likeCount?: any | null
   commentCount?: any | null
   sharedCount?: any | null
@@ -371,6 +373,7 @@ export type PostQuery = {
     deletionTime?: any | null
     content?: any | null
     imageUrls?: Array<any | null> | null
+    isLiked: boolean
     likeCount?: any | null
     commentCount?: any | null
     sharedCount?: any | null
@@ -382,6 +385,7 @@ export type PostQuery = {
       deletionTime?: any | null
       content?: any | null
       imageUrls?: Array<any | null> | null
+      isLiked: boolean
       likeCount?: any | null
       commentCount?: any | null
       sharedCount?: any | null
@@ -393,6 +397,7 @@ export type PostQuery = {
         deletionTime?: any | null
         content?: any | null
         imageUrls?: Array<any | null> | null
+        isLiked: boolean
         likeCount?: any | null
         commentCount?: any | null
         sharedCount?: any | null
@@ -515,6 +520,7 @@ export const PostCardFragmentDoc = gql`
     deletionTime
     content
     imageUrls
+    isLiked
     likeCount
     commentCount
     sharedCount
@@ -1113,6 +1119,7 @@ export type PostKeySpecifier = (
   | 'deletionTime'
   | 'id'
   | 'imageUrls'
+  | 'isLiked'
   | 'likeCount'
   | 'sharedCount'
   | 'sharingPost'
@@ -1128,6 +1135,7 @@ export type PostFieldPolicy = {
   deletionTime?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
+  isLiked?: FieldPolicy<any> | FieldReadFunction<any>
   likeCount?: FieldPolicy<any> | FieldReadFunction<any>
   sharedCount?: FieldPolicy<any> | FieldReadFunction<any>
   sharingPost?: FieldPolicy<any> | FieldReadFunction<any>
