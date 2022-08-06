@@ -359,6 +359,48 @@ export type UserQuery = {
   } | null
 }
 
+export type PostsQueryVariables = Exact<{ [key: string]: never }>
+
+export type PostsQuery = {
+  __typename?: 'Query'
+  posts?: Array<{
+    __typename?: 'Post'
+    id: string
+    creationTime?: any | null
+    updateTime?: any | null
+    deletionTime?: any | null
+    content?: any | null
+    imageUrls?: Array<any | null> | null
+    isLiked: boolean
+    likeCount?: any | null
+    commentCount?: any | null
+    sharedCount?: any | null
+    sharingPost?: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: any | null
+      imageUrls?: Array<any | null> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: any | null
+        nickname?: string | null
+        imageUrl?: any | null
+      } | null
+    } | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: any | null
+      nickname?: string | null
+      imageUrl?: any | null
+    } | null
+  }> | null
+}
+
 export type PostQueryVariables = Exact<{
   id: Scalars['ID']
 }>
@@ -377,6 +419,22 @@ export type PostQuery = {
     likeCount?: any | null
     commentCount?: any | null
     sharedCount?: any | null
+    sharingPost?: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: any | null
+      imageUrls?: Array<any | null> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: any | null
+        nickname?: string | null
+        imageUrl?: any | null
+      } | null
+    } | null
     comments?: Array<{
       __typename?: 'Post'
       id: string
@@ -657,10 +715,77 @@ export function useUserLazyQuery(
 export type UserQueryHookResult = ReturnType<typeof useUserQuery>
 export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
 export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
+export const PostsDocument = gql`
+  query Posts {
+    posts {
+      ...postCard
+      sharingPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        author {
+          id
+          name
+          nickname
+          imageUrl
+        }
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+
+/**
+ * __usePostsQuery__
+ *
+ * To run a query within a React component, call `usePostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePostsQuery(
+  baseOptions?: Apollo.QueryHookOptions<PostsQuery, PostsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options)
+}
+export function usePostsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<PostsQuery, PostsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options)
+}
+export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
+export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
+export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
 export const PostDocument = gql`
   query Post($id: ID!) {
     post(id: $id) {
       ...postCard
+      sharingPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        author {
+          id
+          name
+          nickname
+          imageUrl
+        }
+      }
       comments {
         ...postCard
         comments {

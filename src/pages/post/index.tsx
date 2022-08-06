@@ -1,13 +1,31 @@
+import Link from 'next/link'
 import React from 'react'
+import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
+import { usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
 
 export default function PostsPage() {
+  const { data, loading } = usePostsQuery({ onError: toastApolloError })
+
+  const posts = data?.posts
+
   return (
     <PageHead title="이야기 - 자유담" description="">
-      <Navigation>asd</Navigation>
+      <Navigation>
+        {loading ? (
+          <div>이야기 불러오는 중</div>
+        ) : posts ? (
+          posts.map((post) => (
+            <Link key={post.id} href={`/post/${post.id}`}>
+              <pre style={{ overflow: 'auto', margin: 0 }}>{JSON.stringify(post, null, 2)}</pre>
+            </Link>
+          ))
+        ) : (
+          <div>posts not found</div>
+        )}
+      </Navigation>
     </PageHead>
   )
 }

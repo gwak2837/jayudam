@@ -1,5 +1,5 @@
-query Post($id: ID!) {
-  post(id: $id) {
+query Posts {
+  posts {
     ...postCard
     sharingPost {
       id
@@ -13,12 +13,6 @@ query Post($id: ID!) {
         name
         nickname
         imageUrl
-      }
-    }
-    comments {
-      ...postCard
-      comments {
-        ...postCard
       }
     }
   }

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import React, { ReactNode } from 'react'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { Post, PostCardFragment, usePostQuery } from 'src/graphql/generated/types-and-hooks'
+import { Post, usePostQuery } from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import HeartIcon from 'src/svgs/HeartIcon'
@@ -28,6 +28,7 @@ export default function PostPage() {
   })
 
   const parentPost = data?.post
+  const sharingPost = data?.post?.sharingPost
   const author = parentPost?.author
   const comments = parentPost?.comments
 
@@ -53,7 +54,7 @@ export default function PostPage() {
                   alt="profile"
                   width="40"
                   height="40"
-                  style={{ borderRadius: '50%' }}
+                  style={BorderRadius}
                 />
                 <FlexBetween>
                   <div>
@@ -68,6 +69,36 @@ export default function PostPage() {
                   ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
                   : parentPost.content}
               </p>
+              {sharingPost && (
+                <Border>
+                  <GridSmallGap>
+                    <Flex>
+                      <Image
+                        src={sharingPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
+                        alt="profile"
+                        width="20"
+                        height="20"
+                        style={BorderRadius}
+                      />
+                      <div>{sharingPost.author?.nickname ?? '탈퇴한 사용자'}</div>
+                      <GreyH5>@{sharingPost.author?.name}</GreyH5>
+                      {' · '}
+                      <div>
+                        {new Date(parentPost.creationTime).toLocaleDateString()}{' '}
+                        <span>{parentPost.updateTime && '(수정됨)'}</span>
+                      </div>
+                    </Flex>
+                    <p>
+                      {sharingPost.deletionTime
+                        ? `${new Date(
+                            sharingPost.deletionTime
+                          ).toLocaleString()} 에 삭제된 글이에요`
+                        : sharingPost.content}
+                    </p>
+                  </GridSmallGap>
+                </Border>
+              )}
+
               <div>
                 {new Date(parentPost.creationTime).toLocaleString()}{' '}
                 <span>{parentPost.updateTime && '(수정됨)'}</span>
@@ -131,7 +162,7 @@ function CommentContent({ children, comment }: Props) {
           alt="profile"
           width="40"
           height="40"
-          style={{ borderRadius: '50%' }}
+          style={BorderRadius}
         />
         {children?.[0]}
       </FlexColumn>
@@ -164,6 +195,14 @@ function CommentContent({ children, comment }: Props) {
     </>
   )
 }
+
+const BorderRadius = { borderRadius: '50%' }
+
+const Border = styled.div`
+  border: 1px solid ${(p) => p.theme.primaryAchromatic};
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+`
 
 const Card = styled.li`
   display: grid;
@@ -203,7 +242,19 @@ const GridSmallGap = styled.div`
 const FlexBetween = styled.div`
   display: flex;
   justify-content: space-between;
-  flex-grow: 1;
+  flex: 1;
+  min-width: 0;
+
+  > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   > svg {
     width: 1.5rem;
