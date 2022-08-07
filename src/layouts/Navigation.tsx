@@ -60,17 +60,21 @@ const Flex = styled.div`
   display: flex;
   flex-flow: column;
 
-  min-height: 100vh;
-
   @media (min-width: ${TABLET_MIN_WIDTH}) {
     flex-flow: row-reverse nowrap;
     justify-content: center;
     gap: 1rem;
   }
+
+  min-height: 100vh;
+
+  @media (hover: none) and (pointer: coarse) {
+    min-height: fill-available;
+  }
 `
 
 const MinHeight = styled.div`
-  flex: 1;
+  flex: 1 1 auto;
   display: grid;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
@@ -88,6 +92,7 @@ const StickyNav = styled.nav`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
+  flex: 0 1 auto;
 
   background: #fff;
   border-top: 1px solid #26ade3;
