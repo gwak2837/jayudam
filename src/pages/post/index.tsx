@@ -1,21 +1,47 @@
+import Image from 'next/future/image'
 import Link from 'next/link'
 import React from 'react'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { Post, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import { Post, useMyProfileQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
+import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import { CommentCard } from './[id]'
 
 export default function PostsPage() {
+  const { name } = useRecoilValue(currentUser)
+
+  // 이야기 불러오기
   const { data, loading } = usePostsQuery({ onError: toastApolloError })
 
   const posts = data?.posts
 
+  // 프로필 사진 불러오기
+  const { data: data2, loading: profileLoading } = useMyProfileQuery({
+    onError: toastApolloError,
+    skip: !name,
+  })
+
   return (
     <PageHead title="이야기 - 자유담" description="">
       <Navigation>
+        <Sticky>
+          {profileLoading ? (
+            <div>프로필 불러오는 중</div>
+          ) : (
+            <Image
+              src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
+              alt="profile"
+              width="32"
+              height="32"
+              style={borderRadiusCircle}
+            />
+          )}
+          <div>이야기</div>
+        </Sticky>
         {loading ? (
           <div>이야기 불러오는 중</div>
         ) : posts ? (
@@ -32,26 +58,21 @@ export default function PostsPage() {
   )
 }
 
-export const PrimaryH3 = styled.h3`
-  color: ${(p) => p.theme.primary};
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-`
+const Sticky = styled.header`
+  position: sticky;
+  top: 0;
 
-export const PrimaryButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 
-  background: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primary)};
-  box-shadow: 0px 4px 20px rgba(16, 16, 16, 0.25);
-  border-radius: 99px;
-  color: #fff;
-  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
+  background: #fff;
+  padding: 0.5rem 1rem;
 `
 
 const BlackLink = styled(Link)`
-  color: #000000;
+  color: #000;
   font-weight: 400;
 `
+
+export const borderRadiusCircle = { borderRadius: '50%' }

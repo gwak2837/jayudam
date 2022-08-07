@@ -15,6 +15,8 @@ import HeartIcon from 'src/svgs/HeartIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import styled from 'styled-components'
 
+import { borderRadiusCircle } from '..'
+
 const description = ''
 
 export default function PostPage() {
@@ -73,7 +75,7 @@ export default function PostPage() {
                   alt="profile"
                   width="40"
                   height="40"
-                  style={BorderRadius}
+                  style={borderRadiusCircle}
                 />
                 <FlexBetween>
                   <div>
@@ -102,7 +104,7 @@ export default function PostPage() {
                         alt="profile"
                         width="20"
                         height="20"
-                        style={BorderRadius}
+                        style={borderRadiusCircle}
                       />
                       <div>{sharingPost.author?.nickname ?? '탈퇴한 사용자'}</div>
                       <GreyH5>@{sharingPost.author?.name}</GreyH5>
@@ -201,7 +203,7 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
           alt="profile"
           width="40"
           height="40"
-          style={BorderRadius}
+          style={borderRadiusCircle}
         />
         {children?.[0]}
       </FlexColumn>
@@ -252,8 +254,6 @@ const Button = styled.button`
     width: 1rem;
   }
 `
-
-const BorderRadius = { borderRadius: '50%' }
 
 const Border = styled.div`
   border: 1px solid ${(p) => p.theme.primaryAchromatic};
