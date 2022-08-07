@@ -176,7 +176,7 @@ export default function VerificationPage() {
   return (
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
-        <MaxWidth>
+        <GridMain>
           <AbsoluteFullFlex show={showStartButton}>
             <h3>카메라 스캔을 시작해주세요</h3>
             <button onClick={startScanningQRCode}>시작하기</button>
@@ -391,7 +391,7 @@ export default function VerificationPage() {
           </AbsoluteFull>
 
           <div id="reader" />
-        </MaxWidth>
+        </GridMain>
       </Navigation>
     </PageHead>
   )
@@ -405,18 +405,12 @@ const scannerConfig = {
   },
 }
 
-const MaxWidth = styled.main`
-  max-width: ${TABLET_MIN_WIDTH};
-  min-height: inherit;
-  position: relative;
-
+const GridMain = styled.main`
   display: grid;
   grid-template-rows: 1fr;
   align-items: center;
 
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
+  position: relative;
 `
 
 const FlexReverseRow = styled.div`

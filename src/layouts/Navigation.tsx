@@ -7,7 +7,7 @@ import MyIcon from 'src/svgs/MyIcon'
 import PaperPlaneIcon from 'src/svgs/PaperPlaneIcon'
 import QRCodeIcon from 'src/svgs/QRCodeIcon'
 import VerifyIcon from 'src/svgs/VerifyIcon'
-import { TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -17,16 +17,6 @@ type Props = {
 
 export default function Navigation({ children }: Props) {
   const { name } = useRecoilValue(currentUser)
-
-  // nav height 계산하기
-  const [navHeight, setNavHeight] = useState(0)
-  const ref = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    if (ref.current) {
-      setNavHeight(ref.current.clientHeight)
-    }
-  }, [])
 
   // Color
   const { asPath } = useRouter()
@@ -39,8 +29,8 @@ export default function Navigation({ children }: Props) {
 
   return (
     <Flex>
-      <MinHeight navHeight={navHeight}>{children}</MinHeight>
-      <StickyNav ref={ref}>
+      <MinHeight>{children}</MinHeight>
+      <StickyNav>
         <BlockLink href="/verify">
           <VerifyIcon selected={isVerifySelected} />
           <PrimaryText selected={isVerifySelected}>인증</PrimaryText>
@@ -67,19 +57,26 @@ export default function Navigation({ children }: Props) {
 }
 
 const Flex = styled.div`
+  display: flex;
+  flex-flow: column;
+
+  min-height: 100vh;
+
   @media (min-width: ${TABLET_MIN_WIDTH}) {
-    display: flex;
     flex-flow: row-reverse nowrap;
     justify-content: center;
     gap: 1rem;
   }
 `
 
-const MinHeight = styled.div<{ navHeight: number }>`
-  min-height: calc(100vh - ${(p) => p.navHeight + 1}px - env(safe-area-inset-bottom));
+const MinHeight = styled.div`
+  flex: 1;
+  display: grid;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
     min-height: 100vh;
+    flex: 0;
   }
 `
 

@@ -14,7 +14,7 @@ import {
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { getViewportWidth } from 'src/utils'
-import { MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
+import { MOBILE_MIN_HEIGHT, MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { formatISOLocalDate, getNMonthBefore, getNYearBefore } from 'src/utils/date'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
@@ -170,7 +170,7 @@ export default function QRCodePage() {
   return (
     <PageHead title="QR Code - 자유담" description="">
       <Navigation>
-        <MaxWidth>
+        <FlexMain>
           <canvas ref={qrCodeImageRef} width={300} height={qrcodeWidth} />
 
           <form onSubmit={handleSubmit(updateCertAgreement)}>
@@ -358,19 +358,18 @@ export default function QRCodePage() {
               </li>
             </Ul>
           </form>
-        </MaxWidth>
+        </FlexMain>
       </Navigation>
     </PageHead>
   )
 }
 
-const MaxWidth = styled.main`
-  max-width: ${TABLET_MIN_WIDTH};
-  padding: 2rem 0;
-
+const FlexMain = styled.main`
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
+
+  padding: 2rem 0;
 `
 
 const Ul = styled.ul`
