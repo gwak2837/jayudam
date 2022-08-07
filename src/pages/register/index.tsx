@@ -10,8 +10,8 @@ import Checkbox from 'src/components/atoms/Checkbox'
 import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
-  useUpdateUserMutation,
   useIsUniqueUsernameLazyQuery,
+  useUpdateUserMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
@@ -137,7 +137,7 @@ export default function RegisterPage() {
         <GridMinWidth onSubmit={handleSubmit(updateUser)}>
           <GridSmallGap>
             <Link href="/">
-              <PaddingImage src="/images/logo.webp" alt="jayudam logo" />
+              <ResponsiveImage src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
             </Link>
             <P>
               회원가입에 필요한 정보를 기입해주세요 <br />
@@ -369,11 +369,12 @@ const LightSmallBold = styled.span`
   font-weight: 500;
 `
 
-const PaddingImage = styled(Image)`
+const ResponsiveImage = styled(Image)`
+  min-width: 140px;
+  max-width: 280px;
+  width: 75%;
+  height: auto;
   padding: 2rem 1rem;
-  min-width: 200px;
-  width: 50%;
-  margin: auto;
 `
 
 const Input = styled.input`

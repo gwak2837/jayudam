@@ -106,6 +106,7 @@ export type Mutation = {
   logout?: Maybe<User>
   submitCert?: Maybe<Cert>
   takeAttendance?: Maybe<User>
+  toggleLikingPost?: Maybe<Post>
   unregister?: Maybe<User>
   updateCertAgreement: Scalars['JWT']
   updateMyCertAgreement?: Maybe<CertAgreement>
@@ -126,6 +127,10 @@ export type MutationDeletePostArgs = {
 
 export type MutationSubmitCertArgs = {
   input: CertCreation
+}
+
+export type MutationToggleLikingPostArgs = {
+  id: Scalars['ID']
 }
 
 export type MutationUpdateCertAgreementArgs = {
@@ -182,6 +187,7 @@ export type Post = {
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
   isLiked: Scalars['Boolean']
   likeCount?: Maybe<Scalars['NonNegativeInt']>
+  parentAuthor?: Maybe<User>
   sharedCount?: Maybe<Scalars['NonNegativeInt']>
   sharingPost?: Maybe<Post>
   updateTime?: Maybe<Scalars['DateTime']>
@@ -219,6 +225,10 @@ export type QueryIsUniqueUsernameArgs = {
 
 export type QueryPostArgs = {
   id: Scalars['ID']
+}
+
+export type QueryPostsArgs = {
+  lastId?: InputMaybe<Scalars['ID']>
 }
 
 export type QueryUserArgs = {
@@ -320,6 +330,7 @@ export type PostCardFragment = {
     nickname?: string | null
     imageUrl?: any | null
   } | null
+  parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
 }
 
 export type AuthQueryVariables = Exact<{ [key: string]: never }>
@@ -398,6 +409,7 @@ export type PostsQuery = {
       nickname?: string | null
       imageUrl?: any | null
     } | null
+    parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
   }> | null
 }
 
@@ -466,6 +478,7 @@ export type PostQuery = {
           nickname?: string | null
           imageUrl?: any | null
         } | null
+        parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
       }> | null
       author?: {
         __typename?: 'User'
@@ -474,6 +487,7 @@ export type PostQuery = {
         nickname?: string | null
         imageUrl?: any | null
       } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
     }> | null
     author?: {
       __typename?: 'User'
@@ -482,6 +496,21 @@ export type PostQuery = {
       nickname?: string | null
       imageUrl?: any | null
     } | null
+    parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+  } | null
+}
+
+export type ToggleLikingPostMutationVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type ToggleLikingPostMutation = {
+  __typename?: 'Mutation'
+  toggleLikingPost?: {
+    __typename?: 'Post'
+    id: string
+    isLiked: boolean
+    likeCount?: any | null
   } | null
 }
 
@@ -587,6 +616,10 @@ export const PostCardFragmentDoc = gql`
       name
       nickname
       imageUrl
+    }
+    parentAuthor {
+      id
+      name
     }
   }
 `
@@ -826,6 +859,55 @@ export function usePostLazyQuery(
 export type PostQueryHookResult = ReturnType<typeof usePostQuery>
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>
 export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>
+export const ToggleLikingPostDocument = gql`
+  mutation ToggleLikingPost($id: ID!) {
+    toggleLikingPost(id: $id) {
+      id
+      isLiked
+      likeCount
+    }
+  }
+`
+export type ToggleLikingPostMutationFn = Apollo.MutationFunction<
+  ToggleLikingPostMutation,
+  ToggleLikingPostMutationVariables
+>
+
+/**
+ * __useToggleLikingPostMutation__
+ *
+ * To run a mutation, you first call `useToggleLikingPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleLikingPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleLikingPostMutation, { data, loading, error }] = useToggleLikingPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useToggleLikingPostMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleLikingPostMutation,
+    ToggleLikingPostMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<ToggleLikingPostMutation, ToggleLikingPostMutationVariables>(
+    ToggleLikingPostDocument,
+    options
+  )
+}
+export type ToggleLikingPostMutationHookResult = ReturnType<typeof useToggleLikingPostMutation>
+export type ToggleLikingPostMutationResult = Apollo.MutationResult<ToggleLikingPostMutation>
+export type ToggleLikingPostMutationOptions = Apollo.BaseMutationOptions<
+  ToggleLikingPostMutation,
+  ToggleLikingPostMutationVariables
+>
 export const MyCertAgreementDocument = gql`
   query MyCertAgreement {
     myCertAgreement {
@@ -1207,6 +1289,7 @@ export type MutationKeySpecifier = (
   | 'logout'
   | 'submitCert'
   | 'takeAttendance'
+  | 'toggleLikingPost'
   | 'unregister'
   | 'updateCertAgreement'
   | 'updateMyCertAgreement'
@@ -1226,6 +1309,7 @@ export type MutationFieldPolicy = {
   logout?: FieldPolicy<any> | FieldReadFunction<any>
   submitCert?: FieldPolicy<any> | FieldReadFunction<any>
   takeAttendance?: FieldPolicy<any> | FieldReadFunction<any>
+  toggleLikingPost?: FieldPolicy<any> | FieldReadFunction<any>
   unregister?: FieldPolicy<any> | FieldReadFunction<any>
   updateCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   updateMyCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1246,6 +1330,7 @@ export type PostKeySpecifier = (
   | 'imageUrls'
   | 'isLiked'
   | 'likeCount'
+  | 'parentAuthor'
   | 'sharedCount'
   | 'sharingPost'
   | 'updateTime'
@@ -1262,6 +1347,7 @@ export type PostFieldPolicy = {
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isLiked?: FieldPolicy<any> | FieldReadFunction<any>
   likeCount?: FieldPolicy<any> | FieldReadFunction<any>
+  parentAuthor?: FieldPolicy<any> | FieldReadFunction<any>
   sharedCount?: FieldPolicy<any> | FieldReadFunction<any>
   sharingPost?: FieldPolicy<any> | FieldReadFunction<any>
   updateTime?: FieldPolicy<any> | FieldReadFunction<any>

@@ -2,9 +2,11 @@ import Link from 'next/link'
 import React from 'react'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import { Post, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
 import styled from 'styled-components'
+
+import { CommentCard } from './[id]'
 
 export default function PostsPage() {
   const { data, loading } = usePostsQuery({ onError: toastApolloError })
@@ -18,9 +20,9 @@ export default function PostsPage() {
           <div>이야기 불러오는 중</div>
         ) : posts ? (
           posts.map((post) => (
-            <Link key={post.id} href={`/post/${post.id}`}>
-              <pre style={{ overflow: 'auto', margin: 0 }}>{JSON.stringify(post, null, 2)}</pre>
-            </Link>
+            <BlackLink key={post.id} href={`/post/${post.id}`}>
+              <CommentCard key={post.id} comment={post as Post} />
+            </BlackLink>
           ))
         ) : (
           <div>posts not found</div>
@@ -49,4 +51,7 @@ export const PrimaryButton = styled.button`
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
 `
 
-const limit = 10
+const BlackLink = styled(Link)`
+  color: #000000;
+  font-weight: 400;
+`

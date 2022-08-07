@@ -37,15 +37,15 @@ export default function OAuthPage() {
       sessionStorage.setItem('jwt', jwt)
     }
 
-    const nickname = queryString.current.get('nickname')
+    const username = queryString.current.get('username')
 
-    if (!nickname) {
+    if (!username) {
       url.current = '/register'
     } else {
       const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
 
       if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
-        url.current = `/@${nickname}`
+        url.current = `/@${username}`
       } else {
         url.current = redirectToAfterLogin
       }

@@ -40,7 +40,7 @@ export default function LoginPage() {
       <FlexCenter>
         <GridPadding>
           <Link href="/">
-            <MarginImage src="/images/logo.webp" alt="jayudam logo" />
+            <ResponsiveImage src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
           </Link>
 
           <Text>
@@ -105,10 +105,12 @@ const FlexCenter = styled.div`
   }
 `
 
-const MarginImage = styled(Image)`
+const ResponsiveImage = styled(Image)`
+  min-width: 140px;
+  max-width: 280px;
+  width: 75%;
+  height: auto;
   padding: 2rem 1rem;
-  min-width: 200px;
-  height: 7rem;
 `
 
 const H5 = styled.h5`

@@ -1,9 +1,14 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { ReactNode } from 'react'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { Post, usePostQuery } from 'src/graphql/generated/types-and-hooks'
+import {
+  Post,
+  usePostQuery,
+  useToggleLikingPostMutation,
+} from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import HeartIcon from 'src/svgs/HeartIcon'
@@ -22,6 +27,7 @@ export default function PostPage() {
 
   // Post 불러오기
   const { data, loading } = usePostQuery({
+    fetchPolicy: 'cache-and-network',
     onError: toastApolloError,
     skip: !postId,
     variables: { id: postId },
@@ -30,11 +36,24 @@ export default function PostPage() {
   const parentPost = data?.post
   const sharingPost = data?.post?.sharingPost
   const author = parentPost?.author
+  const parentAuthor = parentPost?.parentAuthor
   const comments = parentPost?.comments
 
   const title = `${author?.nickname ?? '사용자'}: ${
     parentPost?.content?.substring(0, 20) ?? '내용'
   } - 자유담`
+
+  // 좋아요
+  const [toggleLikingPostMutation, { loading: likeLoading }] = useToggleLikingPostMutation({
+    onError: toastApolloError,
+    variables: { id: postId },
+  })
+
+  function toggleLikingPost(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleLikingPostMutation()
+  }
 
   return (
     <PageHead title={title} description={description}>
@@ -64,6 +83,11 @@ export default function PostPage() {
                   <ThreeDotsIcon />
                 </FlexBetween>
               </Flex>
+              {parentAuthor && author && parentAuthor.name !== author.name && (
+                <GreyInlineH5>
+                  Replying to <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
+                </GreyInlineH5>
+              )}
               <p>
                 {parentPost.deletionTime
                   ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
@@ -105,7 +129,9 @@ export default function PostPage() {
               </div>
               <GridColumn4Center>
                 <div>
-                  <HeartIcon selected={parentPost.isLiked} /> <span>{parentPost.likeCount}</span>
+                  <Button onClick={toggleLikingPost}>
+                    <HeartIcon selected={parentPost.isLiked} /> <span>{parentPost.likeCount}</span>
+                  </Button>
                 </div>
                 <div>댓글 {parentPost.commentCount}</div>
                 <div>공유 {parentPost.sharedCount}</div>
@@ -132,14 +158,15 @@ export default function PostPage() {
 type Props = {
   children?: ReactNode[]
   comment: Post
+  showParentAuthor?: boolean
 }
 
-function CommentCard({ comment }: Props) {
+export function CommentCard({ comment }: Props) {
   const comments = comment.comments
 
   return (
     <Card>
-      <CommentContent comment={comment}>
+      <CommentContent comment={comment} showParentAuthor>
         {comments && <VerticalLine />}
         {comments?.map((comment, i) => (
           <CommentContent key={comment.id} comment={comment}>
@@ -151,8 +178,20 @@ function CommentCard({ comment }: Props) {
   )
 }
 
-function CommentContent({ children, comment }: Props) {
+function CommentContent({ children, comment, showParentAuthor }: Props) {
   const author = comment.author
+  const parentAuthor = comment.parentAuthor
+
+  const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
+    onError: toastApolloError,
+    variables: { id: comment.id },
+  })
+
+  function toggleLikingPost(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleLikingPostMutation()
+  }
 
   return (
     <>
@@ -177,6 +216,11 @@ function CommentContent({ children, comment }: Props) {
           </div>
           <ThreeDotsIcon />
         </FlexBetweenSmall>
+        {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
+          <GreyInlineH5>
+            Replying to <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
+          </GreyInlineH5>
+        )}
         <p>
           {comment.deletionTime
             ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
@@ -184,7 +228,9 @@ function CommentContent({ children, comment }: Props) {
         </p>
         <GridColumn4>
           <div>
-            <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
+            <Button onClick={toggleLikingPost}>
+              <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
+            </Button>
           </div>
           <div>댓글 {comment.commentCount}</div>
           <div>공유 {comment.sharedCount}</div>
@@ -195,6 +241,17 @@ function CommentContent({ children, comment }: Props) {
     </>
   )
 }
+
+const Button = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+
+  > svg {
+    width: 1rem;
+  }
+`
 
 const BorderRadius = { borderRadius: '50%' }
 
@@ -290,10 +347,6 @@ const GridColumn4 = styled.div`
     display: flex;
     gap: 0.5rem;
     align-items: center;
-  }
-
-  > div > svg {
-    width: 1rem;
   }
 `
 
