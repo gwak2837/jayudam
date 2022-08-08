@@ -514,7 +514,7 @@ const CursorTable = styled(CenterTable)`
   td {
     cursor: pointer;
     :hover {
-      background: ${(p) => p.theme.background};
+      background: ${(p) => p.theme.shadow};
     }
   }
 `

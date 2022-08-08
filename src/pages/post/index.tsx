@@ -28,31 +28,34 @@ export default function PostsPage() {
   return (
     <PageHead title="이야기 - 자유담" description="">
       <Navigation>
-        <Sticky>
-          {profileLoading ? (
-            <div>프로필 불러오는 중</div>
+        <main>
+          <Sticky>
+            {profileLoading ? (
+              <div>프로필 불러오는 중</div>
+            ) : (
+              <Image
+                src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
+                alt="profile"
+                width="32"
+                height="32"
+                style={borderRadiusCircle}
+              />
+            )}
+            <div>이야기</div>
+          </Sticky>
+          <textarea />
+          {loading ? (
+            <div>이야기 불러오는 중</div>
+          ) : posts ? (
+            posts.map((post) => (
+              <BlackLink key={post.id} href={`/post/${post.id}`}>
+                <CommentCard key={post.id} comment={post as Post} />
+              </BlackLink>
+            ))
           ) : (
-            <Image
-              src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
-              alt="profile"
-              width="32"
-              height="32"
-              style={borderRadiusCircle}
-            />
+            <div>posts not found</div>
           )}
-          <div>이야기</div>
-        </Sticky>
-        {loading ? (
-          <div>이야기 불러오는 중</div>
-        ) : posts ? (
-          posts.map((post) => (
-            <BlackLink key={post.id} href={`/post/${post.id}`}>
-              <CommentCard key={post.id} comment={post as Post} />
-            </BlackLink>
-          ))
-        ) : (
-          <div>posts not found</div>
-        )}
+        </main>
       </Navigation>
     </PageHead>
   )
@@ -66,11 +69,12 @@ const Sticky = styled.header`
   align-items: center;
   gap: 1rem;
 
-  background: #fff;
+  background: #ffffffdd;
+  backdrop-filter: blur(10px);
   padding: 0.5rem 1rem;
 `
 
-const BlackLink = styled(Link)`
+export const BlackLink = styled(Link)`
   color: #000;
   font-weight: 400;
 `

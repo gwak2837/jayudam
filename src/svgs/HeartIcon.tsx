@@ -1,5 +1,4 @@
 import { theme } from 'src/styles/global'
-import styled from 'styled-components'
 
 type Props = {
   selected?: boolean
@@ -7,7 +6,7 @@ type Props = {
 
 export default function HeartIcon({ selected }: Props) {
   return (
-    <Svg viewBox="0 0 485.3 485.3">
+    <svg viewBox="0 0 485.3 485.3">
       <path
         d="M349.6,28.95c-36.3,0-70.5,14.2-96.2,39.9l-10.6,10.6L232,68.65c-25.7-25.7-59.9-39.9-96.2-39.9
           c-36.2,0-70.3,14.1-96,39.8S0,128.35,0,164.65s14.2,70.4,39.9,96.1l190.5,190.5l0.4,0.4c3.3,3.3,7.7,4.9,12,4.9
@@ -17,14 +16,6 @@ export default function HeartIcon({ selected }: Props) {
           c19.2-19.2,44.8-29.8,71.9-29.8s52.6,10.6,71.8,29.8c19.2,19.2,29.8,44.7,29.7,71.9C451.1,192.05,440.5,217.55,421.2,236.75z"
         fill={selected ? theme.error : theme.primaryTextAchromatic}
       />
-    </Svg>
+    </svg>
   )
 }
-
-const Svg = styled.svg`
-  :hover {
-    path {
-      fill: ${(p) => p.theme.error};
-    }
-  }
-`

@@ -103,6 +103,6 @@ const Footer = styled.footer`
   display: grid;
   gap: 1rem;
 
-  background: ${(p) => p.theme.background};
+  background: ${(p) => p.theme.shadow};
   padding: 1rem;
 `

@@ -131,7 +131,7 @@ const BlockLink = styled(Link)`
   }
 
   :hover {
-    background: ${(p) => p.theme.background};
+    background: ${(p) => p.theme.shadow};
   }
 `
 

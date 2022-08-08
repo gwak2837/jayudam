@@ -220,7 +220,7 @@ const PrimaryColorText = styled.span`
 `
 
 const Text = styled.div`
-  background: ${(p) => p.theme.background};
+  background: ${(p) => p.theme.shadow};
   border-radius: 10px;
   line-height: 2rem;
   padding: 1.5rem;

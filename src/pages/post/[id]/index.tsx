@@ -10,12 +10,15 @@ import {
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
+import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
+import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
+import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import styled from 'styled-components'
 
-import { borderRadiusCircle } from '..'
+import { BlackLink, borderRadiusCircle } from '..'
 
 const description = ''
 
@@ -57,101 +60,130 @@ export default function PostPage() {
     toggleLikingPostMutation()
   }
 
+  // 댓글 달기
+  function showPostCreationModal(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  // 공유하기
+  function sharePost(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
   return (
     <PageHead title={title} description={description}>
       <Navigation>
-        <Sticky>
-          <BackArrowIcon onClick={goBack} />
-          이야기
-        </Sticky>
-        <Grid>
-          {loading ? (
-            <div>post loading</div>
-          ) : parentPost ? (
-            <>
-              <Flex>
-                <Image
-                  src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
-                  alt="profile"
-                  width="40"
-                  height="40"
-                  style={borderRadiusCircle}
-                />
-                <FlexBetween>
-                  <div>
-                    <div>{author?.nickname ?? '탈퇴한 사용자'}</div>
-                    <GreyH5>@{author?.name}</GreyH5>
-                  </div>
-                  <ThreeDotsIcon />
-                </FlexBetween>
-              </Flex>
-              {parentAuthor && author && parentAuthor.name !== author.name && (
-                <GreyInlineH5>
-                  Replying to <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
-                </GreyInlineH5>
-              )}
-              <p>
-                {parentPost.deletionTime
-                  ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-                  : parentPost.content}
-              </p>
-              {sharingPost && (
-                <Border>
-                  <GridSmallGap>
-                    <Flex>
-                      <Image
-                        src={sharingPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
-                        alt="profile"
-                        width="20"
-                        height="20"
-                        style={borderRadiusCircle}
-                      />
-                      <div>{sharingPost.author?.nickname ?? '탈퇴한 사용자'}</div>
-                      <GreyH5>@{sharingPost.author?.name}</GreyH5>
-                      {' · '}
-                      <div>
-                        {new Date(parentPost.creationTime).toLocaleDateString()}{' '}
-                        <span>{parentPost.updateTime && '(수정됨)'}</span>
-                      </div>
-                    </Flex>
-                    <p>
-                      {sharingPost.deletionTime
-                        ? `${new Date(
-                            sharingPost.deletionTime
-                          ).toLocaleString()} 에 삭제된 글이에요`
-                        : sharingPost.content}
-                    </p>
-                  </GridSmallGap>
-                </Border>
-              )}
+        <main>
+          <Sticky>
+            <BackArrowIcon onClick={goBack} />
+            이야기
+          </Sticky>
+          <Grid>
+            {loading ? (
+              <div>post loading</div>
+            ) : parentPost ? (
+              <>
+                <Flex>
+                  <Image
+                    src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
+                    alt="profile"
+                    width="40"
+                    height="40"
+                    style={borderRadiusCircle}
+                  />
+                  <FlexBetween>
+                    <div>
+                      <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>
+                      {author && (
+                        <LineLink href={`@${author.name}`}>
+                          <GreyH5>@{author.name}</GreyH5>
+                        </LineLink>
+                      )}
+                    </div>
+                    <ThreeDotsIcon />
+                  </FlexBetween>
+                </Flex>
+                {parentAuthor && author && parentAuthor.name !== author.name && (
+                  <GreyInlineH5>
+                    Replying to{' '}
+                    <LineLink href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</LineLink>
+                  </GreyInlineH5>
+                )}
+                <p>
+                  {parentPost.deletionTime
+                    ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+                    : parentPost.content}
+                </p>
+                {sharingPost && (
+                  <Border>
+                    <GridSmallGap>
+                      <Flex>
+                        <Image
+                          src={sharingPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
+                          alt="profile"
+                          width="20"
+                          height="20"
+                          style={borderRadiusCircle}
+                        />
+                        <div>{sharingPost.author?.nickname ?? '탈퇴한 사용자'}</div>
+                        <GreyH5>@{sharingPost.author?.name}</GreyH5>
+                        {' · '}
+                        <div>
+                          {new Date(parentPost.creationTime).toLocaleDateString()}{' '}
+                          <span>{parentPost.updateTime && '(수정됨)'}</span>
+                        </div>
+                      </Flex>
+                      <p>
+                        {sharingPost.deletionTime
+                          ? `${new Date(
+                              sharingPost.deletionTime
+                            ).toLocaleString()} 에 삭제된 글이에요`
+                          : sharingPost.content}
+                      </p>
+                    </GridSmallGap>
+                  </Border>
+                )}
 
-              <div>
-                {new Date(parentPost.creationTime).toLocaleString()}{' '}
-                <span>{parentPost.updateTime && '(수정됨)'}</span>
-              </div>
-              <GridColumn4Center>
                 <div>
-                  <Button onClick={toggleLikingPost}>
-                    <HeartIcon selected={parentPost.isLiked} /> <span>{parentPost.likeCount}</span>
-                  </Button>
+                  {new Date(parentPost.creationTime).toLocaleString()}{' '}
+                  <span>{parentPost.updateTime && '(수정됨)'}</span>
                 </div>
-                <div>댓글 {parentPost.commentCount}</div>
-                <div>공유 {parentPost.sharedCount}</div>
-                <div>기타</div>
-              </GridColumn4Center>
-            </>
-          ) : (
-            <div>post not found</div>
-          )}
-        </Grid>
+                <GridColumn4Center>
+                  <div>
+                    <Button color={theme.error} onClick={toggleLikingPost}>
+                      <HeartIcon selected={parentPost.isLiked} />{' '}
+                      <span>{parentPost.likeCount}</span>
+                    </Button>
+                  </div>
+                  <div>
+                    <Button color={theme.primaryText} onClick={showPostCreationModal}>
+                      <CommentIcon selected={parentPost.isLiked} />{' '}
+                      <span>{parentPost.commentCount}</span>
+                    </Button>
+                  </div>
+                  <div>
+                    <Button color={theme.secondary} onClick={sharePost}>
+                      <ShareIcon /> <span>{parentPost.sharedCount}</span>
+                    </Button>
+                  </div>
+                  <div>기타</div>
+                </GridColumn4Center>
+              </>
+            ) : (
+              <div>post not found</div>
+            )}
+          </Grid>
 
-        {loading ? (
-          <div>comments loading</div>
-        ) : comments ? (
-          comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
-        ) : (
-          <div>comments not found</div>
-        )}
+          {loading ? (
+            <div>comments loading</div>
+          ) : comments ? (
+            comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
+          ) : (
+            <div>comments not found</div>
+          )}
+        </main>
       </Navigation>
     </PageHead>
   )
@@ -184,6 +216,7 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
   const author = comment.author
   const parentAuthor = comment.parentAuthor
 
+  // 좋아요
   const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
     onError: toastApolloError,
     variables: { id: comment.id },
@@ -193,6 +226,18 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
     e.preventDefault()
     e.stopPropagation()
     toggleLikingPostMutation()
+  }
+
+  // 댓글 달기
+  function showPostCreationModal(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  // 공유하기
+  function sharePost(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
   }
 
   return (
@@ -207,44 +252,58 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
         />
         {children?.[0]}
       </FlexColumn>
-      <GridSmallGap>
-        <FlexBetweenSmall>
-          <div>
-            <span>{author?.nickname ?? '탈퇴한 사용자'}</span>{' '}
-            <GreyInlineH5>@{author?.name}</GreyInlineH5>
-            {' · '}
-            <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
-            <span>{comment.updateTime && '(수정됨)'}</span>
-          </div>
-          <ThreeDotsIcon />
-        </FlexBetweenSmall>
-        {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
-          <GreyInlineH5>
-            Replying to <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
-          </GreyInlineH5>
-        )}
-        <p>
-          {comment.deletionTime
-            ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-            : comment.content}
-        </p>
-        <GridColumn4>
-          <div>
-            <Button onClick={toggleLikingPost}>
-              <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
-            </Button>
-          </div>
-          <div>댓글 {comment.commentCount}</div>
-          <div>공유 {comment.sharedCount}</div>
-          <div>기타</div>
-        </GridColumn4>
-      </GridSmallGap>
+      <BlackLink href={`/post/${comment.id}`}>
+        <GridSmallGap>
+          <FlexBetweenSmall>
+            <div>
+              <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>{' '}
+              {author && (
+                <LineLink href={`/@${author.name}`}>
+                  <GreyInlineH5>@{author.name}</GreyInlineH5>
+                </LineLink>
+              )}
+              {' · '}
+              <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
+              <span>{comment.updateTime && '(수정됨)'}</span>
+            </div>
+            <ThreeDotsIcon />
+          </FlexBetweenSmall>
+          {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
+            <GreyInlineH5>
+              Replying to <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
+            </GreyInlineH5>
+          )}
+          <p>
+            {comment.deletionTime
+              ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+              : comment.content}
+          </p>
+          <GridColumn4>
+            <div>
+              <Button color={theme.error} onClick={toggleLikingPost}>
+                <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
+              </Button>
+            </div>
+            <div>
+              <Button color={theme.primaryText} onClick={showPostCreationModal}>
+                <CommentIcon /> <span>{comment.commentCount}</span>
+              </Button>
+            </div>
+            <div>
+              <Button color={theme.secondary} onClick={sharePost}>
+                <ShareIcon /> <span>{comment.sharedCount}</span>
+              </Button>
+            </div>
+            <div>기타</div>
+          </GridColumn4>
+        </GridSmallGap>
+      </BlackLink>
       {children?.[1]}
     </>
   )
 }
 
-const Button = styled.button`
+const Button = styled.button<{ color: string }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -252,6 +311,26 @@ const Button = styled.button`
 
   > svg {
     width: 1rem;
+    path {
+      transition: fill 0.3s ease;
+    }
+  }
+
+  > span {
+    color: ${(p) => p.theme.primaryTextAchromatic};
+    transition: color 0.3s ease;
+  }
+
+  :hover {
+    > svg {
+      path {
+        fill: ${(p) => p.color};
+      }
+    }
+
+    > span {
+      color: ${(p) => p.color};
+    }
   }
 `
 
@@ -266,7 +345,7 @@ const Card = styled.li`
   grid-template-columns: auto 1fr;
   gap: 0.5rem;
 
-  border: 1px solid ${(p) => p.theme.background};
+  border: 1px solid ${(p) => p.theme.shadow};
   padding: 0.8rem 1rem;
 `
 
@@ -366,4 +445,17 @@ const VerticalLine = styled.div`
   border-left: 1px solid #888;
   margin: auto;
   flex-grow: 1;
+`
+
+const Bold = styled.b<{ disabled: boolean }>`
+  color: ${(p) => (p.disabled ? p.theme.primaryAchromatic : '#000')};
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
+`
+
+const LineLink = styled(Link)`
+  :hover {
+    > * {
+      text-decoration: underline;
+    }
+  }
 `

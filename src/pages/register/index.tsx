@@ -344,7 +344,7 @@ const GridSmallGap = styled.div`
 `
 
 const P = styled.p`
-  background: ${(p) => p.theme.background};
+  background: ${(p) => p.theme.shadow};
   border-radius: 10px;
   line-height: 2rem;
   padding: 1.5rem;
