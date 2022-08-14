@@ -1,24 +1,35 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import Modal from 'src/components/atoms/Modal'
 import PageHead from 'src/components/PageHead'
 import {
   Post,
   usePostQuery,
+  useSharePostMutation,
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import Navigation from 'src/layouts/Navigation'
+import { SubmitButton } from 'src/pages/register'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
 import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
+import XIcon from 'src/svgs/x.svg'
+import { stopPropagation } from 'src/utils'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
+import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
+import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
-import { BlackLink, borderRadiusCircle } from '..'
+import { borderRadiusCircle } from '..'
 
 const description = ''
 
@@ -29,6 +40,8 @@ export default function PostPage() {
   function goBack() {
     router.back()
   }
+
+  const { name } = useRecoilValue(currentUser)
 
   // Post 불러오기
   const { data, loading } = usePostQuery({
@@ -57,19 +70,24 @@ export default function PostPage() {
   function toggleLikingPost(e: any) {
     e.preventDefault()
     e.stopPropagation()
-    toggleLikingPostMutation()
+
+    if (name) {
+      toggleLikingPostMutation()
+    } else {
+      toast.warn('로그인 후 시도해주세요')
+    }
   }
 
   // 댓글 달기
   function showPostCreationModal(e: any) {
     e.preventDefault()
     e.stopPropagation()
-  }
 
-  // 공유하기
-  function sharePost(e: any) {
-    e.preventDefault()
-    e.stopPropagation()
+    if (name) {
+      toggleLikingPostMutation()
+    } else {
+      toast.warn('로그인 후 시도해주세요')
+    }
   }
 
   return (
@@ -85,7 +103,7 @@ export default function PostPage() {
               <div>post loading</div>
             ) : parentPost ? (
               <>
-                <Flex>
+                <FlexCenter>
                   <Image
                     src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
                     alt="profile"
@@ -97,14 +115,14 @@ export default function PostPage() {
                     <div>
                       <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>
                       {author && (
-                        <LineLink href={`@${author.name}`}>
+                        <LineLink href={`/@${author.name}`}>
                           <GreyH5>@{author.name}</GreyH5>
                         </LineLink>
                       )}
                     </div>
                     <ThreeDotsIcon />
                   </FlexBetween>
-                </Flex>
+                </FlexCenter>
                 {parentAuthor && author && parentAuthor.name !== author.name && (
                   <GreyInlineH5>
                     Replying to{' '}
@@ -119,7 +137,7 @@ export default function PostPage() {
                 {sharingPost && (
                   <Border>
                     <GridSmallGap>
-                      <Flex>
+                      <FlexCenter>
                         <Image
                           src={sharingPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
                           alt="profile"
@@ -134,7 +152,7 @@ export default function PostPage() {
                           {new Date(parentPost.creationTime).toLocaleDateString()}{' '}
                           <span>{parentPost.updateTime && '(수정됨)'}</span>
                         </div>
-                      </Flex>
+                      </FlexCenter>
                       <p>
                         {sharingPost.deletionTime
                           ? `${new Date(
@@ -159,15 +177,10 @@ export default function PostPage() {
                   </div>
                   <div>
                     <Button color={theme.primaryText} onClick={showPostCreationModal}>
-                      <CommentIcon selected={parentPost.isLiked} />{' '}
-                      <span>{parentPost.commentCount}</span>
+                      <CommentIcon /> <span>{parentPost.commentCount}</span>
                     </Button>
                   </div>
-                  <div>
-                    <Button color={theme.secondary} onClick={sharePost}>
-                      <ShareIcon /> <span>{parentPost.sharedCount}</span>
-                    </Button>
-                  </div>
+                  <SharingPostButton parentPost={parentPost} />
                   <div>기타</div>
                 </GridColumn4Center>
               </>
@@ -186,6 +199,110 @@ export default function PostPage() {
         </main>
       </Navigation>
     </PageHead>
+  )
+}
+
+type Props2 = {
+  parentPost: Record<string, any>
+}
+
+function SharingPostButton({ parentPost }: Props2) {
+  const author = parentPost.author
+  const router = useRouter()
+  const { name } = useRecoilValue(currentUser)
+
+  const [openSharingPostModal, setSharingPostModal] = useState(false)
+
+  const [sharePostMutation, { loading: shareLoading }] = useSharePostMutation({
+    onCompleted: () => {
+      toast.success('이야기 공유 완료')
+      setSharingPostModal(false)
+    },
+    onError: toastApolloError,
+  })
+
+  function openSharingModal() {
+    if (name) {
+      setSharingPostModal(true)
+    } else {
+      toast.warn(
+        <div>
+          로그인이 필요합니다.{' '}
+          <Link
+            href="/login"
+            onClick={() => sessionStorage.setItem('redirectToAfterLogin', router.asPath)}
+          >
+            로그인하기
+          </Link>
+        </div>
+      )
+    }
+  }
+
+  function closeSharingModal() {
+    setSharingPostModal(false)
+  }
+
+  function sharePost({ content }: any) {
+    sharePostMutation({
+      variables: {
+        input: {
+          content,
+          sharingPostId: parentPost.id,
+        },
+      },
+    })
+  }
+
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+  } = useForm({
+    defaultValues: {
+      content: '',
+    },
+  })
+
+  return (
+    <div>
+      <Button color={theme.secondary} onClick={openSharingModal}>
+        <ShareIcon selected={parentPost.doIShare} /> <span>{parentPost.sharedCount}</span>
+      </Button>
+      <Modal lazy open={openSharingPostModal} onClose={closeSharingModal} showCloseButton={false}>
+        <ModalOrFullscreen onClick={stopPropagation} onSubmit={handleSubmit(sharePost)}>
+          <FlexBetweenCenter>
+            <Button0>
+              <XIcon width="40px" onClick={closeSharingModal} />
+            </Button0>
+            <PrimaryButton disabled={errors && Object.keys(errors).length !== 0} type="submit">
+              글쓰기
+            </PrimaryButton>
+          </FlexBetweenCenter>
+          <Flex>
+            <Image
+              src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
+              alt="profile"
+              width="40"
+              height="40"
+              style={borderRadiusCircle}
+            />
+            <AutoTextarea
+              autoFocus
+              disabled={shareLoading}
+              onInput={resizeTextareaHeight}
+              onKeyDown={submitWhenCmdEnter}
+              placeholder="Add content"
+              {...register('content', {
+                required: true,
+                minLength: 1,
+                maxLength: 200,
+              })}
+            />
+          </Flex>
+        </ModalOrFullscreen>
+      </Modal>
+    </div>
   )
 }
 
@@ -215,6 +332,13 @@ export function CommentCard({ comment }: Props) {
 function CommentContent({ children, comment, showParentAuthor }: Props) {
   const author = comment.author
   const parentAuthor = comment.parentAuthor
+
+  // 해당 글로 이동하기
+  const router = useRouter()
+
+  function goToPostPage() {
+    router.push(`/post/${comment.id}`)
+  }
 
   // 좋아요
   const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
@@ -252,52 +376,54 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
         />
         {children?.[0]}
       </FlexColumn>
-      <BlackLink href={`/post/${comment.id}`}>
-        <GridSmallGap>
-          <FlexBetweenSmall>
-            <div>
-              <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>{' '}
-              {author && (
-                <LineLink href={`/@${author.name}`}>
-                  <GreyInlineH5>@{author.name}</GreyInlineH5>
-                </LineLink>
-              )}
-              {' · '}
-              <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
-              <span>{comment.updateTime && '(수정됨)'}</span>
-            </div>
-            <ThreeDotsIcon />
-          </FlexBetweenSmall>
-          {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
-            <GreyInlineH5>
-              Replying to <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
-            </GreyInlineH5>
-          )}
-          <p>
-            {comment.deletionTime
-              ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-              : comment.content}
-          </p>
-          <GridColumn4>
-            <div>
-              <Button color={theme.error} onClick={toggleLikingPost}>
-                <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
-              </Button>
-            </div>
-            <div>
-              <Button color={theme.primaryText} onClick={showPostCreationModal}>
-                <CommentIcon /> <span>{comment.commentCount}</span>
-              </Button>
-            </div>
-            <div>
-              <Button color={theme.secondary} onClick={sharePost}>
-                <ShareIcon /> <span>{comment.sharedCount}</span>
-              </Button>
-            </div>
-            <div>기타</div>
-          </GridColumn4>
-        </GridSmallGap>
-      </BlackLink>
+      <GridSmallGap onClick={goToPostPage}>
+        <FlexBetweenSmall>
+          <div>
+            <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>{' '}
+            {author && (
+              <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+                <GreyInlineH5>@{author.name}</GreyInlineH5>
+              </LineLink>
+            )}
+            {' · '}
+            <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
+            <span>{comment.updateTime && '(수정됨)'}</span>
+          </div>
+          <ThreeDotsIcon />
+        </FlexBetweenSmall>
+        {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
+          <GreyInlineH5>
+            Replying to{' '}
+            <Link href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+              @{parentAuthor.name}
+            </Link>
+          </GreyInlineH5>
+        )}
+        <p>
+          {comment.deletionTime
+            ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+            : comment.content}
+        </p>
+        <GridColumn4>
+          <div>
+            <Button color={theme.error} onClick={toggleLikingPost}>
+              <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
+            </Button>
+          </div>
+          <div>
+            <Button color={theme.primaryText} onClick={showPostCreationModal}>
+              <CommentIcon /> <span>{comment.commentCount}</span>
+            </Button>
+          </div>
+          <div>
+            <Button color={theme.secondary} onClick={sharePost}>
+              <ShareIcon /> <span>{comment.sharedCount}</span>
+            </Button>
+          </div>
+          <div>기타</div>
+        </GridColumn4>
+      </GridSmallGap>
+
       {children?.[1]}
     </>
   )
@@ -373,6 +499,7 @@ const Grid = styled.div`
 const GridSmallGap = styled.div`
   display: grid;
   gap: 0.5rem;
+  cursor: pointer;
 `
 
 const FlexBetween = styled.div`
@@ -403,7 +530,7 @@ const FlexBetweenSmall = styled(FlexBetween)`
   }
 `
 
-const Flex = styled.div`
+const FlexCenter = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -457,5 +584,61 @@ const LineLink = styled(Link)`
     > * {
       text-decoration: underline;
     }
+  }
+`
+
+const ModalOrFullscreen = styled.form`
+  background: ${(p) => p.theme.backgroud};
+  padding: 1rem;
+
+  display: grid;
+  gap: 1rem;
+
+  @media (max-width: ${TABLET_MIN_WIDTH_1}) {
+    width: 100%;
+    height: 100%;
+
+    grid-template-rows: auto 1fr;
+  }
+`
+
+const FlexBetweenCenter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const Button0 = styled.button`
+  padding: 0;
+  display: flex;
+  align-items: center;
+`
+
+const PrimaryButton = styled(SubmitButton)`
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  width: auto;
+`
+
+const Flex = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`
+
+const AutoTextarea = styled.textarea`
+  width: 100%;
+  min-height: 2.5rem;
+  max-height: 80vh;
+  padding: 0.5rem;
+  resize: vertical;
+
+  flex: 1;
+
+  :focus {
+    outline: none;
+  }
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
   }
 `

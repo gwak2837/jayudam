@@ -59,7 +59,7 @@ type Props = {
   setOpen: (e: boolean) => void
 }
 
-function Drawer({ children, open, setOpen }: Props) {
+export default function Drawer({ children, open, setOpen }: Props) {
   function closeDrawer() {
     setOpen(false)
   }
@@ -97,5 +97,3 @@ function Drawer({ children, open, setOpen }: Props) {
       )
     : null
 }
-
-export default Drawer

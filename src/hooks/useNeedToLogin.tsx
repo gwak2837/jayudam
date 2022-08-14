@@ -13,10 +13,15 @@ export default function useNeedToLogin(when = true) {
 
   useEffect(() => {
     if (!jwt && when) {
-      sessionStorage.setItem('redirectToAfterLogin', router.asPath)
       toast.warn(
         <div>
-          로그인이 필요합니다. <Link href="/login">로그인하기</Link>
+          로그인이 필요합니다.{' '}
+          <Link
+            href="/login"
+            onClick={() => sessionStorage.setItem('redirectToAfterLogin', router.asPath)}
+          >
+            로그인하기
+          </Link>
         </div>
       )
     }

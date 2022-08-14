@@ -1,6 +1,6 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
@@ -25,6 +25,23 @@ export default function PostsPage() {
     skip: !name,
   })
 
+  // 이야기 생성 Intersection Observer
+  const postCreationRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (postCreationRef.current) {
+      const postCreationIntersect = new IntersectionObserver((entries, observer) => {
+        console.log('👀 - entries, observer', entries, observer)
+      })
+
+      postCreationIntersect.observe(postCreationRef.current)
+
+      return () => {
+        postCreationIntersect.disconnect()
+      }
+    }
+  }, [])
+
   return (
     <PageHead title="이야기 - 자유담" description="">
       <Navigation>
@@ -43,15 +60,11 @@ export default function PostsPage() {
             )}
             <div>이야기</div>
           </Sticky>
-          <textarea />
+          <textarea ref={postCreationRef} />
           {loading ? (
             <div>이야기 불러오는 중</div>
           ) : posts ? (
-            posts.map((post) => (
-              <BlackLink key={post.id} href={`/post/${post.id}`}>
-                <CommentCard key={post.id} comment={post as Post} />
-              </BlackLink>
-            ))
+            posts.map((post) => <CommentCard key={post.id} comment={post as Post} />)
           ) : (
             <div>posts not found</div>
           )}
@@ -72,11 +85,6 @@ const Sticky = styled.header`
   background: #ffffffdd;
   backdrop-filter: blur(10px);
   padding: 0.5rem 1rem;
-`
-
-export const BlackLink = styled(Link)`
-  color: #000;
-  font-weight: 400;
 `
 
 export const borderRadiusCircle = { borderRadius: '50%' }

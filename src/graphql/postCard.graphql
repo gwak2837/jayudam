@@ -6,6 +6,8 @@ fragment postCard on Post {
   content
   imageUrls
   isLiked
+  doIComment
+  doIShare
   likeCount
   commentCount
   sharedCount

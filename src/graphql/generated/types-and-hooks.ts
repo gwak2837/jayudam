@@ -98,7 +98,7 @@ export enum Grade {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  createPost?: Maybe<Post>
+  createPost?: Maybe<PostCreationResult>
   deletePost?: Maybe<Post>
   disconnectFromGoogleOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromKakaoOAuth?: Maybe<Scalars['Boolean']>
@@ -183,6 +183,8 @@ export type Post = {
   content?: Maybe<Scalars['NonEmptyString']>
   creationTime?: Maybe<Scalars['DateTime']>
   deletionTime?: Maybe<Scalars['DateTime']>
+  doIComment: Scalars['Boolean']
+  doIShare: Scalars['Boolean']
   id: Scalars['ID']
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
   isLiked: Scalars['Boolean']
@@ -197,6 +199,14 @@ export type PostCreationInput = {
   content: Scalars['NonEmptyString']
   imageUrls?: InputMaybe<Array<Scalars['URL']>>
   parentPostId?: InputMaybe<Scalars['ID']>
+  sharingPostId?: InputMaybe<Scalars['ID']>
+}
+
+export type PostCreationResult = {
+  __typename?: 'PostCreationResult'
+  newPost: Post
+  parentPost?: Maybe<Post>
+  sharedPost?: Maybe<Post>
 }
 
 export type PostUpdateInput = {
@@ -320,6 +330,8 @@ export type PostCardFragment = {
   content?: any | null
   imageUrls?: Array<any | null> | null
   isLiked: boolean
+  doIComment: boolean
+  doIShare: boolean
   likeCount?: any | null
   commentCount?: any | null
   sharedCount?: any | null
@@ -390,6 +402,8 @@ export type PostsQuery = {
     content?: any | null
     imageUrls?: Array<any | null> | null
     isLiked: boolean
+    doIComment: boolean
+    doIShare: boolean
     likeCount?: any | null
     commentCount?: any | null
     sharedCount?: any | null
@@ -420,6 +434,41 @@ export type PostsQuery = {
   }> | null
 }
 
+export type CreateCommentMutationVariables = Exact<{
+  input: PostCreationInput
+}>
+
+export type CreateCommentMutation = {
+  __typename?: 'Mutation'
+  createPost?: {
+    __typename?: 'PostCreationResult'
+    newPost: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: any | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: any | null
+      commentCount?: any | null
+      sharedCount?: any | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: any | null
+        nickname?: string | null
+        imageUrl?: any | null
+      } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+    }
+    parentPost?: { __typename?: 'Post'; id: string; doIComment: boolean } | null
+  } | null
+}
+
 export type PostQueryVariables = Exact<{
   id: Scalars['ID']
 }>
@@ -435,6 +484,8 @@ export type PostQuery = {
     content?: any | null
     imageUrls?: Array<any | null> | null
     isLiked: boolean
+    doIComment: boolean
+    doIShare: boolean
     likeCount?: any | null
     commentCount?: any | null
     sharedCount?: any | null
@@ -463,6 +514,8 @@ export type PostQuery = {
       content?: any | null
       imageUrls?: Array<any | null> | null
       isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
       likeCount?: any | null
       commentCount?: any | null
       sharedCount?: any | null
@@ -475,6 +528,8 @@ export type PostQuery = {
         content?: any | null
         imageUrls?: Array<any | null> | null
         isLiked: boolean
+        doIComment: boolean
+        doIShare: boolean
         likeCount?: any | null
         commentCount?: any | null
         sharedCount?: any | null
@@ -504,6 +559,42 @@ export type PostQuery = {
       imageUrl?: any | null
     } | null
     parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+  } | null
+}
+
+export type SharePostMutationVariables = Exact<{
+  input: PostCreationInput
+}>
+
+export type SharePostMutation = {
+  __typename?: 'Mutation'
+  createPost?: {
+    __typename?: 'PostCreationResult'
+    newPost: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: any | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: any | null
+      commentCount?: any | null
+      sharedCount?: any | null
+      sharingPost?: { __typename?: 'Post'; id: string } | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: any | null
+        nickname?: string | null
+        imageUrl?: any | null
+      } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+    }
+    sharedPost?: { __typename?: 'Post'; id: string; doIShare: boolean } | null
   } | null
 }
 
@@ -615,6 +706,8 @@ export const PostCardFragmentDoc = gql`
     content
     imageUrls
     isLiked
+    doIComment
+    doIShare
     likeCount
     commentCount
     sharedCount
@@ -847,6 +940,57 @@ export function usePostsLazyQuery(
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
+export const CreateCommentDocument = gql`
+  mutation CreateComment($input: PostCreationInput!) {
+    createPost(input: $input) {
+      newPost {
+        ...postCard
+      }
+      parentPost {
+        id
+        doIComment
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+export type CreateCommentMutationFn = Apollo.MutationFunction<
+  CreateCommentMutation,
+  CreateCommentMutationVariables
+>
+
+/**
+ * __useCreateCommentMutation__
+ *
+ * To run a mutation, you first call `useCreateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommentMutation, { data, loading, error }] = useCreateCommentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateCommentMutation, CreateCommentMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+    CreateCommentDocument,
+    options
+  )
+}
+export type CreateCommentMutationHookResult = ReturnType<typeof useCreateCommentMutation>
+export type CreateCommentMutationResult = Apollo.MutationResult<CreateCommentMutation>
+export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<
+  CreateCommentMutation,
+  CreateCommentMutationVariables
+>
 export const PostDocument = gql`
   query Post($id: ID!) {
     post(id: $id) {
@@ -905,6 +1049,60 @@ export function usePostLazyQuery(
 export type PostQueryHookResult = ReturnType<typeof usePostQuery>
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>
 export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>
+export const SharePostDocument = gql`
+  mutation SharePost($input: PostCreationInput!) {
+    createPost(input: $input) {
+      newPost {
+        ...postCard
+        sharingPost {
+          id
+        }
+      }
+      sharedPost {
+        id
+        doIShare
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+export type SharePostMutationFn = Apollo.MutationFunction<
+  SharePostMutation,
+  SharePostMutationVariables
+>
+
+/**
+ * __useSharePostMutation__
+ *
+ * To run a mutation, you first call `useSharePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSharePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sharePostMutation, { data, loading, error }] = useSharePostMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSharePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<SharePostMutation, SharePostMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<SharePostMutation, SharePostMutationVariables>(
+    SharePostDocument,
+    options
+  )
+}
+export type SharePostMutationHookResult = ReturnType<typeof useSharePostMutation>
+export type SharePostMutationResult = Apollo.MutationResult<SharePostMutation>
+export type SharePostMutationOptions = Apollo.BaseMutationOptions<
+  SharePostMutation,
+  SharePostMutationVariables
+>
 export const ToggleLikingPostDocument = gql`
   mutation ToggleLikingPost($id: ID!) {
     toggleLikingPost(id: $id) {
@@ -1372,6 +1570,8 @@ export type PostKeySpecifier = (
   | 'content'
   | 'creationTime'
   | 'deletionTime'
+  | 'doIComment'
+  | 'doIShare'
   | 'id'
   | 'imageUrls'
   | 'isLiked'
@@ -1389,6 +1589,8 @@ export type PostFieldPolicy = {
   content?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   deletionTime?: FieldPolicy<any> | FieldReadFunction<any>
+  doIComment?: FieldPolicy<any> | FieldReadFunction<any>
+  doIShare?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isLiked?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1397,6 +1599,17 @@ export type PostFieldPolicy = {
   sharedCount?: FieldPolicy<any> | FieldReadFunction<any>
   sharingPost?: FieldPolicy<any> | FieldReadFunction<any>
   updateTime?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type PostCreationResultKeySpecifier = (
+  | 'newPost'
+  | 'parentPost'
+  | 'sharedPost'
+  | PostCreationResultKeySpecifier
+)[]
+export type PostCreationResultFieldPolicy = {
+  newPost?: FieldPolicy<any> | FieldReadFunction<any>
+  parentPost?: FieldPolicy<any> | FieldReadFunction<any>
+  sharedPost?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
   | 'auth'
@@ -1528,6 +1741,13 @@ export type StrictTypedTypePolicies = {
   Post?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | PostKeySpecifier | (() => undefined | PostKeySpecifier)
     fields?: PostFieldPolicy
+  }
+  PostCreationResult?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | PostCreationResultKeySpecifier
+      | (() => undefined | PostCreationResultKeySpecifier)
+    fields?: PostCreationResultFieldPolicy
   }
   Query?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | QueryKeySpecifier | (() => undefined | QueryKeySpecifier)

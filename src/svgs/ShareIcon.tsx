@@ -18,7 +18,7 @@ export default function ShareIcon({ selected }: Props) {
 		l-55.852,15.74c-27.908,7.865-44.156,36.865-36.291,64.772c6.522,23.147,27.584,38.273,50.504,38.272
 		c4.714,0,9.508-0.64,14.269-1.981l188.854-53.223c13.402-3.777,24.754-12.723,31.561-24.87s8.508-26.5,4.73-39.902L853.589,42.655
 		C845.724,14.747,816.723-1.502,788.816,6.364z"
-          fill={selected ? theme.primaryText : theme.primaryTextAchromatic}
+          fill={selected ? theme.secondary : theme.primaryTextAchromatic}
         />
         <path
           d="M885.68,329.368c-28.729,3.915-48.845,30.379-44.93,59.107c5.277,38.725,2.91,77.731-7.036,115.94
@@ -30,7 +30,7 @@ export default function ShareIcon({ selected }: Props) {
 		c60.562-16.553,116.549-46.976,163.768-89.278c12.971-11.62,25.113-23.998,36.38-37.056
 		c40.237-46.633,69.302-101.934,85.028-162.348c13.414-51.529,16.597-104.207,9.461-156.569
 		C940.873,345.567,914.413,325.453,885.68,329.368z"
-          fill={selected ? theme.primaryText : theme.primaryTextAchromatic}
+          fill={selected ? theme.secondary : theme.primaryTextAchromatic}
         />
         <path
           d="M132.149,398.233c-5.331,24.379-8.403,49.166-9.163,74.074c-0.438,14.344-0.113,28.727,0.978,43.093
@@ -41,7 +41,7 @@ export default function ShareIcon({ selected }: Props) {
 		c0.768-25.278,4.736-50.384,11.839-74.765l38.559,39.023c20.379,20.625,53.62,20.823,74.245,0.444s20.824-53.619,0.445-74.245
 		l-129.914-131.48c-20.379-20.625-53.62-20.824-74.245-0.445L15.6,365.783c-20.625,20.379-20.824,53.62-0.445,74.245
 		c10.271,10.394,23.805,15.6,37.347,15.6c13.33,0,26.667-5.046,36.898-15.155L132.149,398.233z"
-          fill={selected ? theme.primaryText : theme.primaryTextAchromatic}
+          fill={selected ? theme.secondary : theme.primaryTextAchromatic}
         />
       </g>
     </svg>

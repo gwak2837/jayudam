@@ -9,9 +9,7 @@ type Props = {
   width?: string
 }
 
-export default AppleCheckbox
-
-function AppleCheckbox({
+export default function AppleCheckbox({
   background = '#26ade3',
   checked,
   disabled = false,

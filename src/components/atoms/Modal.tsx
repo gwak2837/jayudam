@@ -3,38 +3,15 @@ import { createPortal } from 'react-dom'
 import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
 
-const FixedFullscreen = styled.div<{ open: boolean }>`
-  position: fixed;
-  inset: 0 0 0 0;
-  z-index: ${(p) => (p.open ? 10 : -1)};
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: ${(p) => (p.open ? '#00000080' : 'none')};
-  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  > svg {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 3;
-
-    width: 2.2rem;
-    padding: 0.6rem;
-    cursor: pointer;
-  }
-`
-
 type Props = {
   children: ReactNode
   lazy?: boolean
   open: boolean
   onClose: (open: boolean) => void
+  showCloseButton?: boolean
 }
 
-function Modal({ children, lazy, open, onClose }: Props) {
+export default function Modal({ children, lazy, open, onClose, showCloseButton = true }: Props) {
   function closeModal(e: any) {
     e.stopPropagation()
     onClose(false)
@@ -62,7 +39,7 @@ function Modal({ children, lazy, open, onClose }: Props) {
 
   const modal = (
     <FixedFullscreen open={open} onClick={closeModal}>
-      <XIcon onClick={closeModal} />
+      {showCloseButton && <XIcon onClick={closeModal} />}
       {children}
     </FixedFullscreen>
   )
@@ -74,4 +51,27 @@ function Modal({ children, lazy, open, onClose }: Props) {
     : createPortal(modal, document.body)
 }
 
-export default Modal
+const FixedFullscreen = styled.div<{ open: boolean }>`
+  position: fixed;
+  inset: 0 0 0 0;
+  z-index: ${(p) => (p.open ? 10 : -1)};
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: ${(p) => (p.open ? '#00000040' : 'none')};
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  visibility: ${(p) => (p.open ? 'visible' : 'hidden')};
+
+  > svg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+
+    width: 2.2rem;
+    padding: 0.6rem;
+    cursor: pointer;
+  }
+`

@@ -15,7 +15,7 @@ import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import VerifyIcon from 'src/svgs/VerifyIcon'
 import { getViewportWidth } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
+import { TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
 import { formatISOLocalDate } from 'src/utils/date'
 import styled from 'styled-components'
 

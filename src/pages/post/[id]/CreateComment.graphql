@@ -1,0 +1,11 @@
+mutation CreateComment($input: PostCreationInput!) {
+  createPost(input: $input) {
+    newPost {
+      ...postCard
+    }
+    parentPost {
+      id
+      doIComment
+    }
+  }
+}

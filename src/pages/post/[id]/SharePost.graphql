@@ -1,0 +1,14 @@
+mutation SharePost($input: PostCreationInput!) {
+  createPost(input: $input) {
+    newPost {
+      ...postCard
+      sharingPost {
+        id
+      }
+    }
+    sharedPost {
+      id
+      doIShare
+    }
+  }
+}

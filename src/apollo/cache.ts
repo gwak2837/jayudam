@@ -1,5 +1,5 @@
 import { InMemoryCache } from '@apollo/client'
-// import { TypedTypePolicies } from 'src/graphql/generated/types-and-hooks'
+import { TypedTypePolicies } from 'src/graphql/generated/types-and-hooks'
 
 function infiniteScroll(existing: unknown[], incoming: unknown[]) {
   if (!existing) {
@@ -9,7 +9,7 @@ function infiniteScroll(existing: unknown[], incoming: unknown[]) {
   }
 }
 
-const typePolicies = {
+const typePolicies: TypedTypePolicies = {
   Query: {
     fields: {
       posts: {
