@@ -6,6 +6,7 @@ mutation CreateComment($input: PostCreationInput!) {
     parentPost {
       id
       doIComment
+      commentCount
     }
   }
 }

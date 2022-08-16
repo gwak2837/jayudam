@@ -1,5 +1,5 @@
 import { toCanvas } from 'qrcode'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -13,6 +13,7 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
+import { theme } from 'src/styles/global'
 import { getViewportWidth } from 'src/utils'
 import { MOBILE_MIN_HEIGHT, MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { formatISOLocalDate, getNMonthBefore, getNYearBefore } from 'src/utils/date'
@@ -27,6 +28,13 @@ export default function QRCodePage() {
   const { name } = useRecoilValue(currentUser)
 
   const qrCodeImageRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    toCanvas(qrCodeImageRef.current, 'jayudam', {
+      color: { dark: theme.primaryAchromatic },
+      ...rendererOption,
+    })
+  }, [])
 
   // Form 상태 관리
   const { handleSubmit, setValue, watch } = useForm<CertAgreementForm>({

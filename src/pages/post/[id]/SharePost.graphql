@@ -9,6 +9,7 @@ mutation SharePost($input: PostCreationInput!) {
     sharedPost {
       id
       doIShare
+      sharedCount
     }
   }
 }

@@ -24,7 +24,7 @@ import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import XIcon from 'src/svgs/x.svg'
 import { stopPropagation } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
@@ -51,8 +51,8 @@ export default function PostPage() {
     variables: { id: postId },
   })
 
-  const parentPost = data?.post
-  const sharingPost = data?.post?.sharingPost
+  const parentPost = data?.post as Post
+  const sharingPost = data?.post?.sharingPost as Post
   const author = parentPost?.author
   const parentAuthor = parentPost?.parentAuthor
   const comments = parentPost?.comments
@@ -134,35 +134,8 @@ export default function PostPage() {
                     ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
                     : parentPost.content}
                 </p>
-                {sharingPost && (
-                  <Border>
-                    <GridSmallGap>
-                      <FlexCenter>
-                        <Image
-                          src={sharingPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
-                          alt="profile"
-                          width="20"
-                          height="20"
-                          style={borderRadiusCircle}
-                        />
-                        <div>{sharingPost.author?.nickname ?? '탈퇴한 사용자'}</div>
-                        <GreyH5>@{sharingPost.author?.name}</GreyH5>
-                        {' · '}
-                        <div>
-                          {new Date(parentPost.creationTime).toLocaleDateString()}{' '}
-                          <span>{parentPost.updateTime && '(수정됨)'}</span>
-                        </div>
-                      </FlexCenter>
-                      <p>
-                        {sharingPost.deletionTime
-                          ? `${new Date(
-                              sharingPost.deletionTime
-                            ).toLocaleString()} 에 삭제된 글이에요`
-                          : sharingPost.content}
-                      </p>
-                    </GridSmallGap>
-                  </Border>
-                )}
+
+                {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
 
                 <div>
                   {new Date(parentPost.creationTime).toLocaleString()}{' '}
@@ -170,17 +143,24 @@ export default function PostPage() {
                 </div>
                 <GridColumn4Center>
                   <div>
-                    <Button color={theme.error} onClick={toggleLikingPost}>
-                      <HeartIcon selected={parentPost.isLiked} />{' '}
-                      <span>{parentPost.likeCount}</span>
+                    <Button
+                      color={theme.error}
+                      onClick={toggleLikingPost}
+                      selected={parentPost.isLiked}
+                    >
+                      <HeartIcon /> <span>{parentPost.likeCount}</span>
                     </Button>
                   </div>
                   <div>
-                    <Button color={theme.primaryText} onClick={showPostCreationModal}>
+                    <Button
+                      color={theme.primaryText}
+                      onClick={showPostCreationModal}
+                      selected={parentPost.doIComment}
+                    >
                       <CommentIcon /> <span>{parentPost.commentCount}</span>
                     </Button>
                   </div>
-                  <SharingPostButton parentPost={parentPost} />
+                  <SharingPostButton parentPost={parentPost} sharedPost={parentPost} />
                   <div>기타</div>
                 </GridColumn4Center>
               </>
@@ -203,10 +183,11 @@ export default function PostPage() {
 }
 
 type Props2 = {
-  parentPost: Record<string, any>
+  parentPost: Post
+  sharedPost: Post
 }
 
-function SharingPostButton({ parentPost }: Props2) {
+function SharingPostButton({ parentPost, sharedPost }: Props2) {
   const author = parentPost.author
   const router = useRouter()
   const { name } = useRecoilValue(currentUser)
@@ -221,7 +202,9 @@ function SharingPostButton({ parentPost }: Props2) {
     onError: toastApolloError,
   })
 
-  function openSharingModal() {
+  function openSharingModal(e: any) {
+    e.stopPropagation()
+
     if (name) {
       setSharingPostModal(true)
     } else {
@@ -266,8 +249,8 @@ function SharingPostButton({ parentPost }: Props2) {
 
   return (
     <div>
-      <Button color={theme.secondary} onClick={openSharingModal}>
-        <ShareIcon selected={parentPost.doIShare} /> <span>{parentPost.sharedCount}</span>
+      <Button color={theme.secondary} onClick={openSharingModal} selected={parentPost.doIShare}>
+        <ShareIcon /> <span>{parentPost.sharedCount}</span>
       </Button>
       <Modal lazy open={openSharingPostModal} onClose={closeSharingModal} showCloseButton={false}>
         <ModalOrFullscreen onClick={stopPropagation} onSubmit={handleSubmit(sharePost)}>
@@ -300,9 +283,44 @@ function SharingPostButton({ parentPost }: Props2) {
               })}
             />
           </Flex>
+          <SharedPostCard sharedPost={sharedPost} />
         </ModalOrFullscreen>
       </Modal>
     </div>
+  )
+}
+
+type Props3 = {
+  sharedPost: Post
+}
+
+function SharedPostCard({ sharedPost }: Props3) {
+  return (
+    <Border>
+      <GridSmallGap>
+        <FlexCenter>
+          <Image
+            src={sharedPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
+            alt="profile"
+            width="20"
+            height="20"
+            style={borderRadiusCircle}
+          />
+          <div>{sharedPost.author?.nickname ?? '탈퇴한 사용자'}</div>
+          <GreyH5>@{sharedPost.author?.name}</GreyH5>
+          {' · '}
+          <div>
+            {new Date(sharedPost.creationTime).toLocaleDateString()}{' '}
+            <span>{sharedPost.updateTime && '(수정됨)'}</span>
+          </div>
+        </FlexCenter>
+        <p>
+          {sharedPost.deletionTime
+            ? `${new Date(sharedPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+            : sharedPost.content}
+        </p>
+      </GridSmallGap>
+    </Border>
   )
 }
 
@@ -358,12 +376,6 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
     e.stopPropagation()
   }
 
-  // 공유하기
-  function sharePost(e: any) {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
   return (
     <>
       <FlexColumn>
@@ -406,20 +418,20 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
         </p>
         <GridColumn4>
           <div>
-            <Button color={theme.error} onClick={toggleLikingPost}>
-              <HeartIcon selected={comment.isLiked} /> <span>{comment.likeCount}</span>
+            <Button color={theme.error} onClick={toggleLikingPost} selected={comment.isLiked}>
+              <HeartIcon /> <span>{comment.likeCount}</span>
             </Button>
           </div>
           <div>
-            <Button color={theme.primaryText} onClick={showPostCreationModal}>
+            <Button
+              color={theme.primaryText}
+              onClick={showPostCreationModal}
+              selected={comment.doIComment}
+            >
               <CommentIcon /> <span>{comment.commentCount}</span>
             </Button>
           </div>
-          <div>
-            <Button color={theme.secondary} onClick={sharePost}>
-              <ShareIcon /> <span>{comment.sharedCount}</span>
-            </Button>
-          </div>
+          <SharingPostButton parentPost={comment} sharedPost={comment} />
           <div>기타</div>
         </GridColumn4>
       </GridSmallGap>
@@ -428,37 +440,6 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
     </>
   )
 }
-
-const Button = styled.button<{ color: string }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0;
-
-  > svg {
-    width: 1rem;
-    path {
-      transition: fill 0.3s ease;
-    }
-  }
-
-  > span {
-    color: ${(p) => p.theme.primaryTextAchromatic};
-    transition: color 0.3s ease;
-  }
-
-  :hover {
-    > svg {
-      path {
-        fill: ${(p) => p.color};
-      }
-    }
-
-    > span {
-      color: ${(p) => p.color};
-    }
-  }
-`
 
 const Border = styled.div`
   border: 1px solid ${(p) => p.theme.primaryAchromatic};
@@ -590,15 +571,18 @@ const LineLink = styled(Link)`
 const ModalOrFullscreen = styled.form`
   background: ${(p) => p.theme.backgroud};
   padding: 1rem;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
 
-  display: grid;
+  display: flex;
+  flex-flow: column;
   gap: 1rem;
 
-  @media (max-width: ${TABLET_MIN_WIDTH_1}) {
-    width: 100%;
-    height: 100%;
-
-    grid-template-rows: auto 1fr;
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    width: auto;
+    height: auto;
+    max-height: 90vh;
   }
 `
 
@@ -627,6 +611,7 @@ const Flex = styled.div`
 
 const AutoTextarea = styled.textarea`
   width: 100%;
+  height: fit-content;
   min-height: 2.5rem;
   max-height: 80vh;
   padding: 0.5rem;
@@ -640,5 +625,37 @@ const AutoTextarea = styled.textarea`
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
     min-width: ${MOBILE_MIN_HEIGHT};
+  }
+`
+
+const Button = styled.button<{ color: string; selected: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+
+  > svg {
+    width: 1rem;
+    path {
+      fill: ${(p) => (p.selected ? p.color : p.theme.primaryTextAchromatic)};
+      transition: fill 0.3s ease;
+    }
+  }
+
+  > span {
+    color: ${(p) => (p.selected ? p.color : p.theme.primaryTextAchromatic)};
+    transition: color 0.3s ease;
+  }
+
+  :hover {
+    > svg {
+      path {
+        fill: ${(p) => p.color};
+      }
+    }
+
+    > span {
+      color: ${(p) => p.color};
+    }
   }
 `
