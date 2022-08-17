@@ -14,6 +14,7 @@ export default withPWA({
     },
     newNextLinkBehavior: true,
     runtime: 'experimental-edge',
+    scrollRestoration: true,
   },
   i18n: {
     locales: ['ko-KR', 'en'],

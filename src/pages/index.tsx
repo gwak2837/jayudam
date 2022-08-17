@@ -71,7 +71,7 @@ export default function HomePage() {
               <a href="http://naver.me/GVMFMiF6" target="_blank" rel="noreferrer">
                 06982 서울특별시 동작구 현충로12길 20
               </a>{' '}
-              | 이메일: <a href="mailto:gwak2837@kakao.com">gwak2837@kakao.com</a> | 고객센터:{' '}
+              | 이메일: <a href="mailto:jayudam2022@gmail.com">jayudam2022@gmail.com</a> | 고객센터:{' '}
               <a href="tel:010-0000-0000">010-0000-0000</a>
             </GreySmallText>
           </Footer>
