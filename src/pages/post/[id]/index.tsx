@@ -1,19 +1,25 @@
+import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useRef, useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import Modal from 'src/components/atoms/Modal'
 import PageHead from 'src/components/PageHead'
+import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
+import SharedPostCard from 'src/components/sharing-post/SharingPostCard'
 import {
   Post,
+  useMeQuery,
   usePostQuery,
+  User,
   useSharePostMutation,
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
+import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { SubmitButton } from 'src/pages/register'
 import { theme } from 'src/styles/global'
@@ -22,7 +28,6 @@ import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
 import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
-import XIcon from 'src/svgs/x.svg'
 import { stopPropagation } from 'src/utils'
 import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
@@ -74,7 +79,11 @@ export default function PostPage() {
     if (name) {
       toggleLikingPostMutation()
     } else {
-      toast.warn('로그인 후 시도해주세요')
+      toast.warn(
+        <div>
+          로그인이 필요합니다. <LoginLink />
+        </div>
+      )
     }
   }
 
@@ -86,7 +95,11 @@ export default function PostPage() {
     if (name) {
       toggleLikingPostMutation()
     } else {
-      toast.warn('로그인 후 시도해주세요')
+      toast.warn(
+        <div>
+          로그인이 필요합니다. <LoginLink />
+        </div>
+      )
     }
   }
 
@@ -160,7 +173,7 @@ export default function PostPage() {
                       <CommentIcon /> <span>{parentPost.commentCount}</span>
                     </Button>
                   </div>
-                  <SharingPostButton parentPost={parentPost} sharedPost={parentPost} />
+                  <SharingPostButton post={parentPost} sharedPost={parentPost} />
                   <div>기타</div>
                 </GridColumn4Center>
               </>
@@ -179,148 +192,6 @@ export default function PostPage() {
         </main>
       </Navigation>
     </PageHead>
-  )
-}
-
-type Props2 = {
-  parentPost: Post
-  sharedPost: Post
-}
-
-function SharingPostButton({ parentPost, sharedPost }: Props2) {
-  const author = parentPost.author
-  const router = useRouter()
-  const { name } = useRecoilValue(currentUser)
-
-  const [openSharingPostModal, setSharingPostModal] = useState(false)
-
-  const [sharePostMutation, { loading: shareLoading }] = useSharePostMutation({
-    onCompleted: () => {
-      toast.success('이야기 공유 완료')
-      setSharingPostModal(false)
-    },
-    onError: toastApolloError,
-  })
-
-  function openSharingModal(e: any) {
-    e.stopPropagation()
-
-    if (name) {
-      setSharingPostModal(true)
-    } else {
-      toast.warn(
-        <div>
-          로그인이 필요합니다.{' '}
-          <Link
-            href="/login"
-            onClick={() => sessionStorage.setItem('redirectToAfterLogin', router.asPath)}
-          >
-            로그인하기
-          </Link>
-        </div>
-      )
-    }
-  }
-
-  function closeSharingModal() {
-    setSharingPostModal(false)
-  }
-
-  function sharePost({ content }: any) {
-    sharePostMutation({
-      variables: {
-        input: {
-          content,
-          sharingPostId: parentPost.id,
-        },
-      },
-    })
-  }
-
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-  } = useForm({
-    defaultValues: {
-      content: '',
-    },
-  })
-
-  return (
-    <div>
-      <Button color={theme.secondary} onClick={openSharingModal} selected={parentPost.doIShare}>
-        <ShareIcon /> <span>{parentPost.sharedCount}</span>
-      </Button>
-      <Modal lazy open={openSharingPostModal} onClose={closeSharingModal} showCloseButton={false}>
-        <ModalOrFullscreen onClick={stopPropagation} onSubmit={handleSubmit(sharePost)}>
-          <FlexBetweenCenter>
-            <Button0>
-              <XIcon width="40px" onClick={closeSharingModal} />
-            </Button0>
-            <PrimaryButton disabled={errors && Object.keys(errors).length !== 0} type="submit">
-              글쓰기
-            </PrimaryButton>
-          </FlexBetweenCenter>
-          <Flex>
-            <Image
-              src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
-              alt="profile"
-              width="40"
-              height="40"
-              style={borderRadiusCircle}
-            />
-            <AutoTextarea
-              autoFocus
-              disabled={shareLoading}
-              onInput={resizeTextareaHeight}
-              onKeyDown={submitWhenCmdEnter}
-              placeholder="Add content"
-              {...register('content', {
-                required: true,
-                minLength: 1,
-                maxLength: 200,
-              })}
-            />
-          </Flex>
-          <SharedPostCard sharedPost={sharedPost} />
-        </ModalOrFullscreen>
-      </Modal>
-    </div>
-  )
-}
-
-type Props3 = {
-  sharedPost: Post
-}
-
-function SharedPostCard({ sharedPost }: Props3) {
-  return (
-    <Border>
-      <GridSmallGap>
-        <FlexCenter>
-          <Image
-            src={sharedPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
-            alt="profile"
-            width="20"
-            height="20"
-            style={borderRadiusCircle}
-          />
-          <div>{sharedPost.author?.nickname ?? '탈퇴한 사용자'}</div>
-          <GreyH5>@{sharedPost.author?.name}</GreyH5>
-          {' · '}
-          <div>
-            {new Date(sharedPost.creationTime).toLocaleDateString()}{' '}
-            <span>{sharedPost.updateTime && '(수정됨)'}</span>
-          </div>
-        </FlexCenter>
-        <p>
-          {sharedPost.deletionTime
-            ? `${new Date(sharedPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-            : sharedPost.content}
-        </p>
-      </GridSmallGap>
-    </Border>
   )
 }
 
@@ -431,7 +302,7 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
               <CommentIcon /> <span>{comment.commentCount}</span>
             </Button>
           </div>
-          <SharingPostButton parentPost={comment} sharedPost={comment} />
+          <SharingPostButton post={comment} sharedPost={comment} />
           <div>기타</div>
         </GridColumn4>
       </GridSmallGap>
@@ -440,12 +311,6 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
     </>
   )
 }
-
-const Border = styled.div`
-  border: 1px solid ${(p) => p.theme.primaryAchromatic};
-  border-radius: 0.5rem;
-  padding: 0.8rem;
-`
 
 const Card = styled.li`
   display: grid;
@@ -477,7 +342,7 @@ const Grid = styled.div`
   padding: 1rem;
 `
 
-const GridSmallGap = styled.div`
+export const GridSmallGap = styled.div`
   display: grid;
   gap: 0.5rem;
   cursor: pointer;
@@ -511,13 +376,13 @@ const FlexBetweenSmall = styled(FlexBetween)`
   }
 `
 
-const FlexCenter = styled.div`
+export const FlexCenter = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `
 
-const GreyH5 = styled.h5`
+export const GreyH5 = styled.h5`
   color: ${(p) => p.theme.primaryTextAchromatic};
   font-weight: 400;
 `
@@ -568,67 +433,7 @@ const LineLink = styled(Link)`
   }
 `
 
-const ModalOrFullscreen = styled.form`
-  background: ${(p) => p.theme.backgroud};
-  padding: 1rem;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-
-  display: flex;
-  flex-flow: column;
-  gap: 1rem;
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    width: auto;
-    height: auto;
-    max-height: 90vh;
-  }
-`
-
-const FlexBetweenCenter = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-const Button0 = styled.button`
-  padding: 0;
-  display: flex;
-  align-items: center;
-`
-
-const PrimaryButton = styled(SubmitButton)`
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
-  width: auto;
-`
-
-const Flex = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`
-
-const AutoTextarea = styled.textarea`
-  width: 100%;
-  height: fit-content;
-  min-height: 2.5rem;
-  max-height: 80vh;
-  padding: 0.5rem;
-  resize: vertical;
-
-  flex: 1;
-
-  :focus {
-    outline: none;
-  }
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
-`
-
-const Button = styled.button<{ color: string; selected: boolean }>`
+export const Button = styled.button<{ color: string; selected: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;

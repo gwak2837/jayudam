@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { client } from 'src/apollo/client'
 import PageHead from 'src/components/PageHead'
+import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 
 const description = ''
@@ -22,7 +23,11 @@ export default function OAuthPage() {
 
       if (doesJWTExpired) {
         url.current = '/login'
-        toast.warn('로그인이 만료됐어요. 다시 로그인해주세요')
+        toast.warn(
+          <div>
+            로그인이 만료됐어요. 다시 로그인해주세요 <LoginLink />
+          </div>
+        )
         return
       }
 

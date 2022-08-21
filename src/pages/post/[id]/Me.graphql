@@ -1,0 +1,6 @@
+query Me($name: NonEmptyString) {
+  user(name: $name) {
+    id
+    imageUrl
+  }
+}

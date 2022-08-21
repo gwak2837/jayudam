@@ -21,6 +21,7 @@ export default function PostsPage() {
 
   // 프로필 사진 불러오기
   const { data: data2, loading: profileLoading } = useMyProfileQuery({
+    fetchPolicy: 'cache-and-network',
     onError: toastApolloError,
     skip: !name,
   })
