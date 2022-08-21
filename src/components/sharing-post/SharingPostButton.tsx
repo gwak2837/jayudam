@@ -128,6 +128,10 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
     variables: { id: post.id },
   })
 
+  function deleteSharingPost() {
+    // deleteSharingPostMutation()
+  }
+
   function closeDeletingSharingPost() {
     setDeletingSharingPost(false)
   }
@@ -147,7 +151,9 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
           <h3>공유했던 글을 삭제할까요?</h3>
           <Grid1to1>
             <button onClick={closeDeletingSharingPost}>취소</button>
-            <button>삭제</button>
+            <button onClick={deleteSharingPost} type="button">
+              삭제
+            </button>
           </Grid1to1>
         </SmallModal>
       </Modal>
