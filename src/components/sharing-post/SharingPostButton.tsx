@@ -207,8 +207,10 @@ const SmallModal = styled.form`
 const ModalOrFullscreen = styled(SmallModal)`
   width: 100%;
   height: 100%;
+  border-radius: 0;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
+    border-radius: 0.5rem;
     width: auto;
     height: auto;
     max-height: 90vh;

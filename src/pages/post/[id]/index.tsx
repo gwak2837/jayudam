@@ -1,36 +1,26 @@
-import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { ReactNode } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import Modal from 'src/components/atoms/Modal'
 import PageHead from 'src/components/PageHead'
 import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
 import SharedPostCard from 'src/components/sharing-post/SharingPostCard'
 import {
   Post,
-  useMeQuery,
   usePostQuery,
-  User,
-  useSharePostMutation,
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { SubmitButton } from 'src/pages/register'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
-import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import { stopPropagation } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -195,18 +185,17 @@ export default function PostPage() {
   )
 }
 
-type Props = {
-  children?: ReactNode[]
+type Props2 = {
   comment: Post
-  showParentAuthor?: boolean
+  showSharedPost?: boolean
 }
 
-export function CommentCard({ comment }: Props) {
+export function CommentCard({ comment, showSharedPost }: Props2) {
   const comments = comment.comments
 
   return (
     <Card>
-      <CommentContent comment={comment} showParentAuthor>
+      <CommentContent comment={comment} showParentAuthor showSharedPost={showSharedPost}>
         {comments && <VerticalLine />}
         {comments?.map((comment, i) => (
           <CommentContent key={comment.id} comment={comment}>
@@ -218,9 +207,17 @@ export function CommentCard({ comment }: Props) {
   )
 }
 
-function CommentContent({ children, comment, showParentAuthor }: Props) {
+type Props = {
+  children?: ReactNode[]
+  comment: Post
+  showParentAuthor?: boolean
+  showSharedPost?: boolean
+}
+
+function CommentContent({ children, comment, showParentAuthor, showSharedPost }: Props) {
   const author = comment.author
   const parentAuthor = comment.parentAuthor
+  const sharedPost = comment.sharingPost
 
   // 해당 글로 이동하기
   const router = useRouter()
@@ -274,6 +271,7 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
           </div>
           <ThreeDotsIcon />
         </FlexBetweenSmall>
+
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
           <GreyInlineH5>
             Replying to{' '}
@@ -282,11 +280,15 @@ function CommentContent({ children, comment, showParentAuthor }: Props) {
             </Link>
           </GreyInlineH5>
         )}
+
         <p>
           {comment.deletionTime
             ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
             : comment.content}
         </p>
+
+        {showSharedPost && sharedPost && <SharedPostCard sharedPost={sharedPost as Post} />}
+
         <GridColumn4>
           <div>
             <Button color={theme.error} onClick={toggleLikingPost} selected={comment.isLiked}>

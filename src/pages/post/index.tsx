@@ -65,7 +65,7 @@ export default function PostsPage() {
           {loading ? (
             <div>이야기 불러오는 중</div>
           ) : posts ? (
-            posts.map((post) => <CommentCard key={post.id} comment={post as Post} />)
+            posts.map((post) => <CommentCard key={post.id} comment={post as Post} showSharedPost />)
           ) : (
             <div>posts not found</div>
           )}
