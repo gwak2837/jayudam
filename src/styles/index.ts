@@ -9,9 +9,14 @@ export const Slider = styled.ul<{ padding?: string }>`
   padding: ${(p) => p.padding ?? 0};
 `
 
-export const FlexContainerBetween = styled.div`
+export const FlexBetween_ = styled.div`
   display: flex;
   justify-content: space-between;
+`
+
+export const FlexCenter_ = styled.div`
+  display: flex;
+  align-items: center;
 `
 
 export const focusInExpandFwd = keyframes`
@@ -26,15 +31,6 @@ export const focusInExpandFwd = keyframes`
     filter: blur(0);
     opacity: 1;
   }
-`
-
-export const NoMarginH2 = styled.h2`
-  margin: 0;
-`
-
-export const SquareFrame = styled.div`
-  padding-top: 100%;
-  position: relative;
 `
 
 const skeletonLoading = keyframes`

@@ -1,12 +1,13 @@
 import Image from 'next/future/image'
-import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import CreatingPostButton from 'src/components/create-post/CreatingPostButton'
 import PageHead from 'src/components/PageHead'
 import { Post, useMyProfileQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
+import { Skeleton } from 'src/styles'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -51,10 +52,12 @@ export default function PostsPage() {
   // 이야기 생성 Intersection Observer
   const postCreationRef = useRef<HTMLTextAreaElement>(null)
 
+  const [showButton, setShowButton] = useState(false)
+
   useEffect(() => {
     if (postCreationRef.current) {
-      const postCreationIntersect = new IntersectionObserver((entries, observer) => {
-        console.log('👀 - entries, observer', entries, observer)
+      const postCreationIntersect = new IntersectionObserver((entries) => {
+        setShowButton(!entries[0].isIntersecting)
       })
 
       postCreationIntersect.observe(postCreationRef.current)
@@ -70,18 +73,21 @@ export default function PostsPage() {
       <Navigation>
         <main>
           <Sticky>
-            {profileLoading ? (
-              <div>프로필 불러오는 중</div>
-            ) : (
-              <Image
-                src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
-                alt="profile"
-                width="32"
-                height="32"
-                style={borderRadiusCircle}
-              />
-            )}
-            <div>이야기</div>
+            <Flex>
+              {profileLoading ? (
+                <Skeleton width="32px" height="32px" borderRadius="50%" />
+              ) : (
+                <Image
+                  src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
+                  alt="profile"
+                  width="32"
+                  height="32"
+                  style={borderRadiusCircle}
+                />
+              )}
+              <div>이야기</div>
+            </Flex>
+            <CreatingPostButton show={showButton} />
           </Sticky>
           <textarea ref={postCreationRef} />
 
@@ -108,12 +114,26 @@ const Sticky = styled.header`
   top: 0;
 
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
 
   background: #ffffffdd;
   backdrop-filter: blur(10px);
   padding: 0.5rem 1rem;
+
+  > svg {
+    path,
+    rect {
+      fill: ${(p) => p.theme.primary};
+    }
+  }
+`
+
+const Flex = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 `
 
 export const borderRadiusCircle = { borderRadius: '50%' }

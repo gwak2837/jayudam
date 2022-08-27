@@ -212,7 +212,7 @@ const SmallModal = styled.form`
   gap: 1rem;
 `
 
-const ModalOrFullscreen = styled(SmallModal)`
+export const ModalOrFullscreen = styled(SmallModal)`
   width: 100%;
   height: 100%;
   border-radius: 0;
@@ -225,18 +225,18 @@ const ModalOrFullscreen = styled(SmallModal)`
   }
 `
 
-const FlexBetweenCenter = styled.div`
+export const FlexBetweenCenter = styled.div`
   ${flexBetween}
   align-items: center;
 `
 
-const Button0 = styled.button`
+export const Button0 = styled.button`
   padding: 0;
   display: flex;
   align-items: center;
 `
 
-const PrimaryButton = styled(SubmitButton)`
+export const PrimaryButton = styled(SubmitButton)`
   border-radius: 999px;
   padding: 0.5rem 1rem;
   width: auto;
@@ -247,7 +247,7 @@ const Flex = styled.div`
   gap: 0.5rem;
 `
 
-const AutoTextarea = styled.textarea`
+export const AutoTextarea = styled.textarea`
   width: 100%;
   height: fit-content;
   min-height: 2.5rem;

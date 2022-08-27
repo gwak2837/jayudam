@@ -23,5 +23,5 @@
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
-  "svg.preview.background": "dark-transparent"
+  "svg.preview.background": "custom"
 }
