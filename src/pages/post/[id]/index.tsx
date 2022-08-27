@@ -15,6 +15,7 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
+import { flexBetween, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import CommentIcon from 'src/svgs/CommentIcon'
@@ -123,7 +124,7 @@ export default function PostPage() {
                         </LineLink>
                       )}
                     </div>
-                    <ThreeDotsIcon />
+                    <ThreeDotsIcon width="1.5rem" />
                   </FlexBetween>
                 </FlexCenter>
                 {parentAuthor && author && parentAuthor.name !== author.name && (
@@ -257,7 +258,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
         {children?.[0]}
       </FlexColumn>
       <GridSmallGap onClick={goToPostPage}>
-        <FlexBetweenSmall>
+        <FlexBetween>
           <div>
             <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>{' '}
             {author && (
@@ -269,8 +270,8 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
             <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
             <span>{comment.updateTime && '(수정됨)'}</span>
           </div>
-          <ThreeDotsIcon />
-        </FlexBetweenSmall>
+          <ThreeDotsIcon width="1rem" />
+        </FlexBetween>
 
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
           <GreyInlineH5>
@@ -351,8 +352,8 @@ export const GridSmallGap = styled.div`
 `
 
 const FlexBetween = styled.div`
-  display: flex;
-  justify-content: space-between;
+  ${flexBetween}
+  gap: 0.5rem;
   flex: 1;
   min-width: 0;
 
@@ -366,21 +367,10 @@ const FlexBetween = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  > svg {
-    width: 1.5rem;
-  }
-`
-
-const FlexBetweenSmall = styled(FlexBetween)`
-  > svg {
-    width: 1rem;
-  }
 `
 
 export const FlexCenter = styled.div`
-  display: flex;
-  align-items: center;
+  ${flexCenter}
   gap: 0.5rem;
 `
 
@@ -398,9 +388,8 @@ const GridColumn4 = styled.div`
   grid-template-columns: 1fr 1fr 1fr 1fr;
 
   > div {
-    display: flex;
+    ${flexCenter}
     gap: 0.5rem;
-    align-items: center;
   }
 `
 

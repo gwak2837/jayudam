@@ -100,6 +100,7 @@ export type Mutation = {
   __typename?: 'Mutation'
   createPost?: Maybe<PostCreationResult>
   deletePost?: Maybe<Post>
+  deleteSharingPost?: Maybe<PostDeletionResult>
   disconnectFromGoogleOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromKakaoOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromNaverOAuth?: Maybe<Scalars['Boolean']>
@@ -123,6 +124,10 @@ export type MutationCreatePostArgs = {
 
 export type MutationDeletePostArgs = {
   id: Scalars['ID']
+}
+
+export type MutationDeleteSharingPostArgs = {
+  sharedPostId: Scalars['ID']
 }
 
 export type MutationSubmitCertArgs = {
@@ -209,6 +214,12 @@ export type PostCreationResult = {
   sharedPost?: Maybe<Post>
 }
 
+export type PostDeletionResult = {
+  __typename?: 'PostDeletionResult'
+  deletedPost?: Maybe<Post>
+  sharedPost?: Maybe<Post>
+}
+
 export type PostUpdateInput = {
   content: Scalars['NonEmptyString']
   id: Scalars['ID']
@@ -239,6 +250,7 @@ export type QueryPostArgs = {
 
 export type QueryPostsArgs = {
   lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
 }
 
 export type QueryUserArgs = {
@@ -328,12 +340,29 @@ export type UserUpdate = {
 }
 
 export type DeleteSharingPostMutationVariables = Exact<{
-  id: Scalars['ID']
+  sharedPostId: Scalars['ID']
 }>
 
 export type DeleteSharingPostMutation = {
   __typename?: 'Mutation'
-  deletePost?: { __typename?: 'Post'; id: string } | null
+  deleteSharingPost?: {
+    __typename?: 'PostDeletionResult'
+    deletedPost?: {
+      __typename?: 'Post'
+      id: string
+      deletionTime?: any | null
+      content?: any | null
+      imageUrls?: Array<any | null> | null
+      sharingPost?: { __typename?: 'Post'; id: string } | null
+      parentAuthor?: { __typename?: 'User'; id: any } | null
+    } | null
+    sharedPost?: {
+      __typename?: 'Post'
+      id: string
+      sharedCount?: any | null
+      doIShare: boolean
+    } | null
+  } | null
 }
 
 export type SharePostMutationVariables = Exact<{
@@ -455,7 +484,10 @@ export type MyProfileQuery = {
   user?: { __typename?: 'User'; id: any; imageUrl?: any | null } | null
 }
 
-export type PostsQueryVariables = Exact<{ [key: string]: never }>
+export type PostsQueryVariables = Exact<{
+  lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
+}>
 
 export type PostsQuery = {
   __typename?: 'Query'
@@ -768,9 +800,25 @@ export const PostCardFragmentDoc = gql`
   }
 `
 export const DeleteSharingPostDocument = gql`
-  mutation DeleteSharingPost($id: ID!) {
-    deletePost(id: $id) {
-      id
+  mutation DeleteSharingPost($sharedPostId: ID!) {
+    deleteSharingPost(sharedPostId: $sharedPostId) {
+      deletedPost {
+        id
+        deletionTime
+        content
+        imageUrls
+        sharingPost {
+          id
+        }
+        parentAuthor {
+          id
+        }
+      }
+      sharedPost {
+        id
+        sharedCount
+        doIShare
+      }
     }
   }
 `
@@ -792,7 +840,7 @@ export type DeleteSharingPostMutationFn = Apollo.MutationFunction<
  * @example
  * const [deleteSharingPostMutation, { data, loading, error }] = useDeleteSharingPostMutation({
  *   variables: {
- *      id: // value for 'id'
+ *      sharedPostId: // value for 'sharedPostId'
  *   },
  * });
  */
@@ -1044,8 +1092,8 @@ export type MyProfileQueryHookResult = ReturnType<typeof useMyProfileQuery>
 export type MyProfileLazyQueryHookResult = ReturnType<typeof useMyProfileLazyQuery>
 export type MyProfileQueryResult = Apollo.QueryResult<MyProfileQuery, MyProfileQueryVariables>
 export const PostsDocument = gql`
-  query Posts {
-    posts {
+  query Posts($lastId: ID, $limit: PositiveInt) {
+    posts(lastId: $lastId, limit: $limit) {
       ...postCard
       sharingPost {
         id
@@ -1078,6 +1126,8 @@ export const PostsDocument = gql`
  * @example
  * const { data, loading, error } = usePostsQuery({
  *   variables: {
+ *      lastId: // value for 'lastId'
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -1668,6 +1718,7 @@ export type CertsFieldPolicy = {
 export type MutationKeySpecifier = (
   | 'createPost'
   | 'deletePost'
+  | 'deleteSharingPost'
   | 'disconnectFromGoogleOAuth'
   | 'disconnectFromKakaoOAuth'
   | 'disconnectFromNaverOAuth'
@@ -1688,6 +1739,7 @@ export type MutationKeySpecifier = (
 export type MutationFieldPolicy = {
   createPost?: FieldPolicy<any> | FieldReadFunction<any>
   deletePost?: FieldPolicy<any> | FieldReadFunction<any>
+  deleteSharingPost?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromGoogleOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromKakaoOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromNaverOAuth?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1750,6 +1802,15 @@ export type PostCreationResultKeySpecifier = (
 export type PostCreationResultFieldPolicy = {
   newPost?: FieldPolicy<any> | FieldReadFunction<any>
   parentPost?: FieldPolicy<any> | FieldReadFunction<any>
+  sharedPost?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type PostDeletionResultKeySpecifier = (
+  | 'deletedPost'
+  | 'sharedPost'
+  | PostDeletionResultKeySpecifier
+)[]
+export type PostDeletionResultFieldPolicy = {
+  deletedPost?: FieldPolicy<any> | FieldReadFunction<any>
   sharedPost?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
@@ -1901,6 +1962,13 @@ export type StrictTypedTypePolicies = {
       | PostCreationResultKeySpecifier
       | (() => undefined | PostCreationResultKeySpecifier)
     fields?: PostCreationResultFieldPolicy
+  }
+  PostDeletionResult?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | PostDeletionResultKeySpecifier
+      | (() => undefined | PostDeletionResultKeySpecifier)
+    fields?: PostDeletionResultFieldPolicy
   }
   Query?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | QueryKeySpecifier | (() => undefined | QueryKeySpecifier)

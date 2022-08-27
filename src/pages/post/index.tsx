@@ -1,10 +1,11 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
 import { Post, useMyProfileQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
@@ -15,9 +16,30 @@ export default function PostsPage() {
   const { name } = useRecoilValue(currentUser)
 
   // 이야기 불러오기
-  const { data, loading } = usePostsQuery({ onError: toastApolloError })
+  const {
+    data,
+    loading: postLoading,
+    fetchMore,
+  } = usePostsQuery({ onError: toastApolloError, variables: { limit } })
 
   const posts = data?.posts
+
+  const [hasMoreData, setHasMoreData] = useState(true)
+
+  const infiniteScrollRef = useInfiniteScroll({
+    hasMoreData,
+    onIntersecting: async () =>
+      posts &&
+      posts.length > 0 &&
+      fetchMore({
+        variables: {
+          lastId: posts[posts.length - 1].id,
+          limit,
+        },
+      })
+        .then((response) => response.data.posts?.length !== limit && setHasMoreData(false))
+        .catch(() => setHasMoreData(false)),
+  })
 
   // 프로필 사진 불러오기
   const { data: data2, loading: profileLoading } = useMyProfileQuery({
@@ -62,18 +84,24 @@ export default function PostsPage() {
             <div>이야기</div>
           </Sticky>
           <textarea ref={postCreationRef} />
-          {loading ? (
-            <div>이야기 불러오는 중</div>
-          ) : posts ? (
-            posts.map((post) => <CommentCard key={post.id} comment={post as Post} showSharedPost />)
-          ) : (
-            <div>posts not found</div>
-          )}
+
+          {posts
+            ? posts.map((post) => (
+                <CommentCard key={post.id} comment={post as Post} showSharedPost />
+              ))
+            : !postLoading && <div>posts not found</div>}
+
+          {postLoading && <div>이야기 불러오는 중</div>}
+
+          {!postLoading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
+          {!hasMoreData && <div>모든 게시글을 불러왔어요</div>}
         </main>
       </Navigation>
     </PageHead>
   )
 }
+
+const limit = 20
 
 const Sticky = styled.header`
   position: sticky;

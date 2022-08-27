@@ -16,6 +16,7 @@ import {
 import { borderRadiusCircle } from 'src/pages/post'
 import { Button } from 'src/pages/post/[id]'
 import { SubmitButton } from 'src/pages/register'
+import { flexBetween } from 'src/styles'
 import { theme } from 'src/styles/global'
 import ShareIcon from 'src/svgs/ShareIcon'
 import XIcon from 'src/svgs/x.svg'
@@ -125,11 +126,18 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
   const [openDeletingSharingPost, setDeletingSharingPost] = useState(false)
 
   const [deleteSharingPostMutation, { loading: deleteLoading }] = useDeleteSharingPostMutation({
-    variables: { id: post.id },
+    onCompleted: () => {
+      setDeletingSharingPost(false)
+    },
+    onError: toastApolloError,
+    update: (cache, { data }) =>
+      data?.deleteSharingPost?.deletedPost?.deletionTime === null &&
+      cache.evict({ id: `Post:${data.deleteSharingPost.deletedPost.id}` }),
+    variables: { sharedPostId: post.id },
   })
 
   function deleteSharingPost() {
-    // deleteSharingPostMutation()
+    deleteSharingPostMutation()
   }
 
   function closeDeletingSharingPost() {
@@ -218,8 +226,7 @@ const ModalOrFullscreen = styled(SmallModal)`
 `
 
 const FlexBetweenCenter = styled.div`
-  display: flex;
-  justify-content: space-between;
+  ${flexBetween}
   align-items: center;
 `
 

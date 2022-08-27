@@ -1,5 +1,21 @@
-mutation DeleteSharingPost($id: ID!) {
-  deletePost(id: $id) {
-    id
+mutation DeleteSharingPost($sharedPostId: ID!) {
+  deleteSharingPost(sharedPostId: $sharedPostId) {
+    deletedPost {
+      id
+      deletionTime
+      content
+      imageUrls
+      sharingPost {
+        id
+      }
+      parentAuthor {
+        id
+      }
+    }
+    sharedPost {
+      id
+      sharedCount
+      doIShare
+    }
   }
 }

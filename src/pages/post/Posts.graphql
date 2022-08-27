@@ -1,5 +1,5 @@
-query Posts {
-  posts {
+query Posts($lastId: ID, $limit: PositiveInt) {
+  posts(lastId: $lastId, limit: $limit) {
     ...postCard
     sharingPost {
       id

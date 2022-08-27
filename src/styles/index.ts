@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 export const Slider = styled.ul<{ padding?: string }>`
   overflow-x: scroll;
@@ -62,4 +62,14 @@ export const Skeleton = styled.div<{
   border-radius: ${(p) => p.borderRadius ?? '4px'};
   animation: ${skeletonLoading} 3s ease infinite;
   display: ${(p) => (p.inlineBlock ? 'inline-block' : 'block')};
+`
+
+export const flexBetween = css`
+  display: flex;
+  justify-content: space-between;
+`
+
+export const flexCenter = css`
+  display: flex;
+  align-items: center;
 `

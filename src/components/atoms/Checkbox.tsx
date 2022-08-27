@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react'
+import { flexCenter } from 'src/styles'
 import styled from 'styled-components'
 
 import CheckBoxIcon from '../../svgs/CheckBoxIcon'
@@ -37,8 +38,7 @@ export default function Checkbox({ children, id, initialValue, onChange }: Props
 }
 
 const AutoLogin = styled.label`
-  display: flex;
-  align-items: center;
+  ${flexCenter}
   gap: 0.4rem;
   cursor: pointer;
 `

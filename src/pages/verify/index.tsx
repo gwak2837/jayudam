@@ -438,7 +438,7 @@ const AbsoluteFullFlex = styled.div<{ show: boolean }>`
 const AbsoluteFull = styled.div<{ show: boolean }>`
   position: absolute;
   inset: 0 0 0 0;
-  z-index: 2;
+  z-index: 20;
 
   background: #fff;
   display: ${(p) => (p.show ? 'block' : 'none')};
