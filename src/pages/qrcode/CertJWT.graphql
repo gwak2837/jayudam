@@ -1,0 +1,3 @@
+mutation CertJWT($input: CertAgreementInput!) {
+  certJWT(input: $input)
+}

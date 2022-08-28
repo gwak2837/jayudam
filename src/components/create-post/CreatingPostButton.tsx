@@ -68,11 +68,14 @@ export default function CreatingPostButton({ show }: Props) {
     formState: { errors },
     handleSubmit,
     register,
+    watch,
   } = useForm({
     defaultValues: {
       content: '',
     },
   })
+
+  const contentLength = watch('content').length
 
   const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
     onCompleted: () => {
@@ -120,7 +123,10 @@ export default function CreatingPostButton({ show }: Props) {
             <Button0>
               <XIcon width="40px" onClick={closeSharingModal} />
             </Button0>
-            <PrimaryButton disabled={errors && Object.keys(errors).length !== 0} type="submit">
+            <PrimaryButton
+              disabled={contentLength === 0 || Object.keys(errors).length !== 0}
+              type="submit"
+            >
               글쓰기
             </PrimaryButton>
           </FlexBetweenCenter>

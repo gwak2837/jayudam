@@ -426,13 +426,13 @@ const WarningH5 = styled(H5)`
 `
 
 export const SubmitButton = styled.button`
-  padding: 1rem;
-  width: 100%;
-  border-radius: 8px;
   background: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primary)};
+  border-radius: 8px;
   color: #fff;
-  transition: background 0.2s ease-out;
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
+  padding: 1rem;
+  transition: background 0.2s ease-out;
+  width: 100%;
 
   :hover {
     background: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primaryText)};

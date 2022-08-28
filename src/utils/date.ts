@@ -25,9 +25,14 @@ export function getNYearBefore(n: number) {
   return before.getTime()
 }
 
-export function formatISOLocalDate(date2: Date | string) {
-  const date = typeof date2 === 'string' ? new Date(date2) : date2
+export function formatISOLocalDate(date2: Date | string | number | null | undefined) {
+  if (date2 == null) return ''
+  const date = typeof date2 === 'string' || typeof date2 === 'number' ? new Date(date2) : date2
   const localMonth = `${date.getMonth() + 1}`.padStart(2, '0')
   const localDate = `${date.getDate()}`.padStart(2, '0')
   return `${date.getFullYear()}-${localMonth}-${localDate}`
+}
+
+export function getTimeFromDateString(date: string | null) {
+  return date ? new Date(date).getTime() : null
 }

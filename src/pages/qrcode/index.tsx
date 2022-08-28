@@ -1,22 +1,31 @@
 import { toCanvas } from 'qrcode'
-import { useRef, useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTimer } from 'react-timer-hook'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
-import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
+import SingleSelectionButtons_ from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
+  CertAgreementInput,
+  useCertJwtMutation,
   useMyCertAgreementQuery,
-  useUpdateCertAgreementMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
+import { FlexCenter_ } from 'src/styles'
 import { theme } from 'src/styles/global'
+import TimerIcon from 'src/svgs/timer.svg'
 import { getViewportWidth } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, MOBILE_MIN_WIDTH, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { formatISOLocalDate, getNMonthBefore, getNYearBefore } from 'src/utils/date'
+import { MOBILE_MIN_WIDTH } from 'src/utils/constants'
+import {
+  formatISOLocalDate,
+  getNMonthBefore,
+  getNYearBefore,
+  getTimeFromDateString,
+} from 'src/utils/date'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -27,6 +36,7 @@ export default function QRCodePage() {
 
   const { name } = useRecoilValue(currentUser)
 
+  // QR Code 이미지
   const qrCodeImageRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -36,44 +46,50 @@ export default function QRCodePage() {
     })
   }, [])
 
-  // Form 상태 관리
-  const { handleSubmit, setValue, watch } = useForm<CertAgreementForm>({
+  // 인증서 동의 항목 상태 관리
+  const {
+    formState: { isDirty },
+    handleSubmit,
+    register,
+    reset,
+    setValue,
+    watch,
+  } = useForm<CertAgreementForm>({
     defaultValues: {
       showBirthdate: false,
       showLegalName: false,
       showSex: false,
       showSTDTest: false,
-      stdTestSince: null, // WIP: 미래는 선택 불가
+      stdTestSince: null,
       showImmunization: false,
-      immunizationSince: null, // WIP: 미래는 선택 불가
+      immunizationSince: null,
       showSexualCrime: false,
-      sexualCrimeSince: null, // WIP: 미래는 선택 불가
+      sexualCrimeSince: null,
     },
   })
-
-  const [stdTestSince, setSTDTestSince] = useState('')
-  const [immunizationSince, setImmunizationSince] = useState('')
-  const [sexualCrimeSince, setSexualCrimeSince] = useState('')
-
-  const [selectedSTDTestSince, setSelectedSTDTestSince] = useState(0)
-  const [selectedImmunizationSince, setSelectedImmunizationSince] = useState(0)
-  const [selectedSexualCrimeSince, setSelectedSexualCrimeSince] = useState(0)
 
   const watchshowSTDTest = watch('showSTDTest')
   const watchshowImmunization = watch('showImmunization')
   const watchshowSexualCrime = watch('showSexualCrime')
 
-  // 인증용 JWT 불러오기
-  const [updateCertAgreementMutation, { loading: updateCertAgreementLoading }] =
-    useUpdateCertAgreementMutation({
-      onCompleted: ({ updateCertAgreement: certJwt }) => {
-        toCanvas(qrCodeImageRef.current, certJwt, rendererOption)
-      },
-      onError: toastApolloError,
-      refetchQueries: ['MyCertAgreement'],
-    })
+  const [stdTestSince, setSTDTestSince] = useState<number | null>(null)
+  const [immunizationSince, setImmunizationSince] = useState<number | null>(null)
+  const [sexualCrimeSince, setSexualCrimeSince] = useState<number | null>(null)
 
-  function updateCertAgreement(input: CertAgreementForm) {
+  const [selectedSTDTestSince, setSelectedSTDTestSince] = useState(0)
+  const [selectedImmunizationSince, setSelectedImmunizationSince] = useState(0)
+  const [selectedSexualCrimeSince, setSelectedSexualCrimeSince] = useState(0)
+
+  // JWT 불러오기
+  const [certJWTMutation, { loading: certJWTLoading }] = useCertJwtMutation({
+    onCompleted: ({ certJWT }) => {
+      toCanvas(qrCodeImageRef.current, certJWT, rendererOption)
+      restart(new Date(Date.now() + 15_000))
+    },
+    onError: toastApolloError,
+  })
+
+  async function getCertJWT(form: CertAgreementForm) {
     const {
       showBirthdate,
       showLegalName,
@@ -84,28 +100,47 @@ export default function QRCodePage() {
       immunizationSince,
       showSexualCrime,
       sexualCrimeSince,
-    } = input
+    } = form
 
-    updateCertAgreementMutation({
-      variables: {
-        input: {
-          ...(showBirthdate && { showBirthdate }),
-          ...(showLegalName && { showLegalName }),
-          ...(showSex && { showSex }),
-          ...(showSTDTest && { showSTDTest }),
-          ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
-          ...(showImmunization && { showImmunization }),
-          ...(showImmunization &&
-            immunizationSince && { immunizationSince: new Date(immunizationSince) }),
-          ...(showSexualCrime && { showSexualCrime }),
-          ...(showSexualCrime &&
-            sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince) }),
-        },
-      },
-    })
+    const input = {
+      ...(showBirthdate && { showBirthdate }),
+      ...(showLegalName && { showLegalName }),
+      ...(showSex && { showSex }),
+      ...(showSTDTest && { showSTDTest }),
+      ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
+      ...(showImmunization && { showImmunization }),
+      ...(showImmunization &&
+        immunizationSince && { immunizationSince: new Date(immunizationSince) }),
+      ...(showSexualCrime && { showSexualCrime }),
+      ...(showSexualCrime && sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince) }),
+    }
+
+    setPreviousInput(input)
+    await certJWTMutation({ variables: { input } })
+
+    reset(form)
   }
 
-  // 인증서 동의 항목 불러오기
+  // QR Code 새로고침
+  const autoRefreshRef = useRef<HTMLInputElement>(null)
+  const [previousInput, setPreviousInput] = useState<CertAgreementInput>()
+
+  const { seconds, restart } = useTimer({
+    expiryTimestamp: new Date(Date.now() + 15_000),
+    onExpire: () => {
+      if (autoRefreshRef.current?.checked && previousInput) {
+        certJWTMutation({ variables: { input: previousInput } })
+      }
+    },
+  })
+
+  function refreshQRCode() {
+    if (autoRefreshRef.current?.checked && previousInput) {
+      certJWTMutation({ variables: { input: previousInput } })
+    }
+  }
+
+  // 이전 인증서 동의 항목 불러오기
   const { loading: certAgreementLoading } = useMyCertAgreementQuery({
     onCompleted: ({ myCertAgreement }) => {
       if (myCertAgreement) {
@@ -114,29 +149,16 @@ export default function QRCodePage() {
           showLegalName,
           showSex,
           showSTDTest,
-          stdTestSince,
+          stdTestSince, // string | null
           showImmunization,
-          immunizationSince,
+          immunizationSince, // string | null
           showSexualCrime,
-          sexualCrimeSince,
+          sexualCrimeSince, // string | null
         } = myCertAgreement
 
-        const stdTestSinceDate = stdTestSince ? new Date(stdTestSince) : null
-        const stdTestSinceTime = stdTestSinceDate ? stdTestSinceDate.getTime() : null
-        const immunizationSinceDate = immunizationSince ? new Date(immunizationSince) : null
-        const immunizationSinceTime = immunizationSinceDate ? immunizationSinceDate.getTime() : null
-        const sexualCrimeSinceDate = sexualCrimeSince ? new Date(sexualCrimeSince) : null
-        const sexualCrimeSinceTime = sexualCrimeSinceDate ? sexualCrimeSinceDate.getTime() : null
-
-        setValue('showBirthdate', showBirthdate)
-        setValue('showLegalName', showLegalName)
-        setValue('showSex', showSex)
-        setValue('showSTDTest', showSTDTest)
-        setValue('stdTestSince', stdTestSinceTime)
-        setValue('showImmunization', showImmunization)
-        setValue('immunizationSince', immunizationSinceTime)
-        setValue('showSexualCrime', showSexualCrime)
-        setValue('sexualCrimeSince', sexualCrimeSinceTime)
+        const stdTestSinceTime = getTimeFromDateString(stdTestSince)
+        const immunizationSinceTime = getTimeFromDateString(immunizationSince)
+        const sexualCrimeSinceTime = getTimeFromDateString(sexualCrimeSince)
 
         const index1 = selectionSince.indexOf(stdTestSinceTime)
         const index2 = selectionSince.indexOf(immunizationSinceTime)
@@ -146,95 +168,112 @@ export default function QRCodePage() {
         setSelectedImmunizationSince(index2)
         setSelectedSexualCrimeSince(index3)
 
-        if (index1 === -1 && stdTestSinceDate) setSTDTestSince(formatISOLocalDate(stdTestSinceDate))
-        if (index2 === -1 && immunizationSinceDate)
-          setImmunizationSince(formatISOLocalDate(immunizationSinceDate))
-        if (index3 === -1 && sexualCrimeSinceDate)
-          setSexualCrimeSince(formatISOLocalDate(sexualCrimeSinceDate))
+        if (index1 === -1) setSTDTestSince(stdTestSinceTime)
+        if (index2 === -1) setImmunizationSince(immunizationSinceTime)
+        if (index3 === -1) setSexualCrimeSince(sexualCrimeSinceTime)
 
-        updateCertAgreementMutation({
-          variables: {
-            input: {
-              ...(showBirthdate && { showBirthdate }),
-              ...(showLegalName && { showLegalName }),
-              ...(showSex && { showSex }),
-              ...(showSTDTest && { showSTDTest }),
-              ...(showSTDTest && stdTestSince && { stdTestSince }),
-              ...(showImmunization && { showImmunization }),
-              ...(showImmunization && immunizationSince && { immunizationSince }),
-              ...(showSexualCrime && { showSexualCrime }),
-              ...(showSexualCrime && sexualCrimeSince && { sexualCrimeSince }),
-            },
-          },
+        reset({
+          showBirthdate,
+          showLegalName,
+          showSex,
+          showSTDTest,
+          stdTestSince: stdTestSinceTime,
+          showImmunization,
+          immunizationSince: immunizationSinceTime,
+          showSexualCrime,
+          sexualCrimeSince: sexualCrimeSinceTime,
         })
+
+        const input = {
+          ...(showBirthdate && { showBirthdate }),
+          ...(showLegalName && { showLegalName }),
+          ...(showSex && { showSex }),
+          ...(showSTDTest && { showSTDTest }),
+          ...(showSTDTest && stdTestSince && { stdTestSince }),
+          ...(showImmunization && { showImmunization }),
+          ...(showImmunization && immunizationSince && { immunizationSince }),
+          ...(showSexualCrime && { showSexualCrime }),
+          ...(showSexualCrime && sexualCrimeSince && { sexualCrimeSince }),
+        }
+
+        setPreviousInput(input)
+        certJWTMutation({ variables: { input } })
       }
     },
     onError: toastApolloError,
     skip: !name,
   })
 
-  const disableInput = certAgreementLoading || updateCertAgreementLoading
+  const isLoading = certAgreementLoading || certJWTLoading
 
   return (
     <PageHead title="QR Code - 자유담" description="">
       <Navigation>
         <FlexMain>
-          <canvas ref={qrCodeImageRef} width={300} height={qrcodeWidth} />
+          <div>
+            <canvas ref={qrCodeImageRef} width={300} height={qrcodeWidth} />
 
-          <form onSubmit={handleSubmit(updateCertAgreement)}>
+            <Width>
+              <FlexCenterCenterGap>
+                <TimerIcon width="1.5rem" />
+                <h4>남은시간</h4>
+                <Red>{String(seconds).padStart(2, '0')}초</Red>
+              </FlexCenterCenterGap>
+
+              <FlexBetweenGap>
+                <div>자동 새로고침</div>
+                <AppleCheckbox
+                  defaultChecked={true}
+                  ref={autoRefreshRef}
+                  onChange={(e) => e.target.checked && refreshQRCode()}
+                />
+              </FlexBetweenGap>
+            </Width>
+          </div>
+
+          <form onSubmit={handleSubmit(getCertJWT)}>
             <Ul>
               <Sticky>
-                <SubmitButton disabled={disableInput} type="submit">
+                <SubmitButton disabled={isLoading || !name || !isDirty} type="submit">
                   QR Code 재생성하기
                 </SubmitButton>
               </Sticky>
 
               <h3>정보 제공 동의 항목</h3>
+
               <li>
                 <FlexBetween>
                   <div>생년월일</div>
-                  <AppleCheckbox
-                    checked={watch('showBirthdate')}
-                    disabled={disableInput}
-                    onChange={(e) => setValue('showBirthdate', e.target.checked)}
-                  />
+                  <AppleCheckbox disabled={isLoading} {...register('showBirthdate')} />
                 </FlexBetween>
               </li>
+
               <li>
                 <FlexBetween>
                   <div>이름</div>
-                  <AppleCheckbox
-                    checked={watch('showLegalName')}
-                    disabled={disableInput}
-                    onChange={(e) => setValue('showLegalName', e.target.checked)}
-                  />
+                  <AppleCheckbox {...register('showLegalName')} />
                 </FlexBetween>
               </li>
+
               <li>
                 <FlexBetween>
                   <div>성별</div>
-                  <AppleCheckbox
-                    checked={watch('showSex')}
-                    disabled={disableInput}
-                    onChange={(e) => setValue('showSex', e.target.checked)}
-                  />
+                  <AppleCheckbox {...register('showSex')} />
                 </FlexBetween>
               </li>
+
               <li>
                 <GridSmallGap>
                   <FlexBetween>
                     <div>성병검사</div>
-                    <AppleCheckbox
-                      checked={watchshowSTDTest}
-                      disabled={disableInput}
-                      onChange={(e) => setValue('showSTDTest', e.target.checked)}
-                    />
+                    <AppleCheckbox {...register('showSTDTest')} />
                   </FlexBetween>
-                  <SSingleSelectionButtons
+
+                  <SingleSelectionButtons
                     disabled={!watchshowSTDTest}
-                    onChange={(e, i) => {
-                      setValue('stdTestSince', e)
-                      setSTDTestSince('')
+                    onChange={(newValue, i) => {
+                      setValue('stdTestSince', newValue, { shouldDirty: true })
+                      setSTDTestSince(null)
                       setSelectedSTDTestSince(i)
                     }}
                     selectedIndex={selectedSTDTestSince}
@@ -244,45 +283,44 @@ export default function QRCodePage() {
                     <div>최근 1개월</div>
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
-                  </SSingleSelectionButtons>
+                  </SingleSelectionButtons>
+
                   <FlexBetweenGray disabled={!watchshowSTDTest}>
                     <label>직접 선택</label>
                     <FlexCenter>
                       <input
                         disabled={!watchshowSTDTest}
                         onChange={(e) => {
-                          const selectedDate = new Date(e.target.value)
-                          if (selectedDate < new Date()) {
-                            setValue('stdTestSince', selectedDate.getTime())
-                            setSTDTestSince(e.target.value)
+                          const selectedTime = new Date(e.target.value).getTime()
+                          if (selectedTime < Date.now()) {
+                            setValue('stdTestSince', selectedTime, { shouldDirty: true })
+                            setSTDTestSince(selectedTime)
                             setSelectedSTDTestSince(-1)
                           } else {
                             toast.warn('오늘 이후의 날짜는 선택할 수 없어요')
                           }
                         }}
                         type="date"
-                        value={stdTestSince}
+                        value={formatISOLocalDate(stdTestSince)}
                       />
                       <span> 부터</span>
                     </FlexCenter>
                   </FlexBetweenGray>
                 </GridSmallGap>
               </li>
+
               <li>
                 <GridSmallGap>
                   <FlexBetween>
                     <div>성병예방접종</div>
-                    <AppleCheckbox
-                      checked={watchshowImmunization}
-                      disabled={disableInput}
-                      onChange={(e) => setValue('showImmunization', e.target.checked)}
-                    />
+                    <AppleCheckbox {...register('showImmunization')} />
                   </FlexBetween>
-                  <SSingleSelectionButtons
+
+                  <SingleSelectionButtons
                     disabled={!watchshowImmunization}
-                    onChange={(e, i) => {
-                      setValue('immunizationSince', e)
-                      setImmunizationSince('')
+                    onChange={(newValue, i) => {
+                      setValue('immunizationSince', newValue, { shouldDirty: true })
+                      setImmunizationSince(null)
                       setSelectedImmunizationSince(i)
                     }}
                     selectedIndex={selectedImmunizationSince}
@@ -292,45 +330,44 @@ export default function QRCodePage() {
                     <div>최근 1개월</div>
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
-                  </SSingleSelectionButtons>
+                  </SingleSelectionButtons>
+
                   <FlexBetweenGray disabled={!watchshowImmunization}>
                     <label>직접 선택</label>
                     <FlexCenter>
                       <input
                         disabled={!watchshowImmunization}
                         onChange={(e) => {
-                          const selectedDate = new Date(e.target.value)
-                          if (selectedDate < new Date()) {
-                            setValue('immunizationSince', selectedDate.getTime())
-                            setImmunizationSince(e.target.value)
+                          const selectedTime = new Date(e.target.value).getTime()
+                          if (selectedTime < Date.now()) {
+                            setValue('immunizationSince', selectedTime, { shouldDirty: true })
+                            setImmunizationSince(selectedTime)
                             setSelectedImmunizationSince(-1)
                           } else {
                             toast.warn('오늘 이후의 날짜는 선택할 수 없어요')
                           }
                         }}
                         type="date"
-                        value={immunizationSince}
+                        value={formatISOLocalDate(immunizationSince)}
                       />
                       <span> 부터</span>
                     </FlexCenter>
                   </FlexBetweenGray>
                 </GridSmallGap>
               </li>
+
               <li>
                 <GridSmallGap>
                   <FlexBetween>
                     <div>성범죄</div>
-                    <AppleCheckbox
-                      checked={watchshowSexualCrime}
-                      disabled={disableInput}
-                      onChange={(e) => setValue('showSexualCrime', e.target.checked)}
-                    />
+                    <AppleCheckbox {...register('showSexualCrime')} />
                   </FlexBetween>
-                  <SSingleSelectionButtons
+
+                  <SingleSelectionButtons
                     disabled={!watchshowSexualCrime}
-                    onChange={(e, i) => {
-                      setValue('sexualCrimeSince', e)
-                      setSexualCrimeSince('')
+                    onChange={(newValue, i) => {
+                      setValue('sexualCrimeSince', newValue, { shouldDirty: true })
+                      setSexualCrimeSince(null)
                       setSelectedSexualCrimeSince(i)
                     }}
                     selectedIndex={selectedSexualCrimeSince}
@@ -340,24 +377,25 @@ export default function QRCodePage() {
                     <div>최근 1개월</div>
                     <div>최근 6개월</div>
                     <div>최근 1년</div>
-                  </SSingleSelectionButtons>
+                  </SingleSelectionButtons>
+
                   <FlexBetweenGray disabled={!watchshowSexualCrime}>
                     <label>직접 선택</label>
                     <FlexCenter>
                       <input
                         disabled={!watchshowSexualCrime}
                         onChange={(e) => {
-                          const selectedDate = new Date(e.target.value)
-                          if (selectedDate < new Date()) {
-                            setValue('sexualCrimeSince', selectedDate.getTime())
-                            setSexualCrimeSince(e.target.value)
+                          const selectedTime = new Date(e.target.value).getTime()
+                          if (selectedTime < Date.now()) {
+                            setValue('sexualCrimeSince', selectedTime, { shouldDirty: true })
+                            setSexualCrimeSince(selectedTime)
                             setSelectedSexualCrimeSince(-1)
                           } else {
                             toast.warn('오늘 이후의 날짜는 선택할 수 없어요')
                           }
                         }}
                         type="date"
-                        value={sexualCrimeSince}
+                        value={formatISOLocalDate(sexualCrimeSince)}
                       />
                       <span> 부터</span>
                     </FlexCenter>
@@ -398,7 +436,7 @@ const FlexBetweenGray = styled(FlexBetween)<{ disabled: boolean }>`
   color: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.primaryTextAchromatic)};
 `
 
-const SSingleSelectionButtons = styled(SingleSelectionButtons)`
+const SingleSelectionButtons = styled(SingleSelectionButtons_)`
   padding: 0.5rem;
 `
 
@@ -416,9 +454,31 @@ const GridSmallGap = styled.div`
 const Sticky = styled.div`
   position: sticky;
   top: 0;
-  background: #fff;
   z-index: 4;
-  padding: 1rem 0;
+
+  background: #fff;
+  box-shadow: 0 0 0 0.5rem #fff;
+  padding: 1rem 0 0.5rem;
+`
+
+const Width = styled.div`
+  display: grid;
+  gap: 1rem;
+  width: fit-content;
+  margin: 0 auto;
+`
+
+const FlexBetweenGap = styled(FlexBetween)`
+  gap: 1rem;
+`
+
+const FlexCenterCenterGap = styled(FlexCenter_)`
+  justify-content: center;
+  gap: 0.5rem;
+`
+
+const Red = styled.span`
+  color: ${(p) => p.theme.warn};
 `
 
 type CertAgreementForm = {
