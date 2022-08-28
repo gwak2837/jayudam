@@ -7,10 +7,7 @@ import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import CreatingPostButton from 'src/components/create-post/CreatingPostButton'
 import PageHead from 'src/components/PageHead'
-import {
-  AutoTextarea as AutoTextarea_,
-  PrimaryButton,
-} from 'src/components/sharing-post/SharingPostButton'
+import { PrimaryButton } from 'src/components/sharing-post/SharingPostButton'
 import {
   Post,
   useCreatePostMutation,
@@ -20,6 +17,7 @@ import {
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
 import { FlexBetween_, Skeleton } from 'src/styles'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
@@ -231,6 +229,25 @@ const Sticky = styled.header`
 const SmallNormalH1 = styled.h1`
   font-size: 1rem;
   font-weight: 400;
+`
+
+export const AutoTextarea_ = styled.textarea`
+  width: 100%;
+  height: fit-content;
+  min-height: 2.5rem;
+  max-height: 80vh;
+  padding: 0.5rem;
+  resize: vertical;
+
+  flex: 1;
+
+  :focus {
+    outline: none;
+  }
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
+  }
 `
 
 const AutoTextarea = styled(AutoTextarea_)`

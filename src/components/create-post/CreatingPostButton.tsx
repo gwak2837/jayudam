@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { useCreatePostMutation, useMeQuery } from 'src/graphql/generated/types-and-hooks'
-import { borderRadiusCircle } from 'src/pages/post'
+import { AutoTextarea_ as AutoTextarea, borderRadiusCircle } from 'src/pages/post'
 import QuillPenIcon from 'src/svgs/quill-pen.svg'
 import XIcon from 'src/svgs/x.svg'
 import { stopPropagation } from 'src/utils'
@@ -18,7 +18,6 @@ import styled from 'styled-components'
 
 import Modal from '../atoms/Modal'
 import {
-  AutoTextarea,
   Button0,
   FlexBetweenCenter,
   ModalOrFullscreen,

@@ -13,7 +13,7 @@ import {
   useMeQuery,
   useSharePostMutation,
 } from 'src/graphql/generated/types-and-hooks'
-import { borderRadiusCircle } from 'src/pages/post'
+import { AutoTextarea_ as AutoTextarea, borderRadiusCircle } from 'src/pages/post'
 import { Button } from 'src/pages/post/[id]'
 import { SubmitButton } from 'src/pages/register'
 import { flexBetween } from 'src/styles'
@@ -245,25 +245,6 @@ export const PrimaryButton = styled(SubmitButton)`
 const Flex = styled.div`
   display: flex;
   gap: 0.5rem;
-`
-
-export const AutoTextarea = styled.textarea`
-  width: 100%;
-  height: fit-content;
-  min-height: 2.5rem;
-  max-height: 80vh;
-  padding: 0.5rem;
-  resize: vertical;
-
-  flex: 1;
-
-  :focus {
-    outline: none;
-  }
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
 `
 
 const Grid1to1 = styled.div`

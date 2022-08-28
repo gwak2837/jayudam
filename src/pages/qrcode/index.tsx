@@ -16,7 +16,6 @@ import {
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { FlexCenter_ } from 'src/styles'
-import { theme } from 'src/styles/global'
 import TimerIcon from 'src/svgs/timer.svg'
 import { getViewportWidth, parseJWT } from 'src/utils'
 import { MOBILE_MIN_WIDTH } from 'src/utils/constants'
@@ -41,8 +40,8 @@ export default function QRCodePage() {
 
   useEffect(() => {
     toCanvas(qrCodeImageRef.current, 'jayudam', {
-      color: { dark: theme.primaryAchromatic },
-      ...rendererOption,
+      color: { dark: '#888888ff', light: '#ffffffff' },
+      width: qrcodeWidth,
     })
   }, [])
 
@@ -81,9 +80,9 @@ export default function QRCodePage() {
   const [selectedSexualCrimeSince, setSelectedSexualCrimeSince] = useState(0)
 
   // JWT 불러오기
-  const [certJWTMutation, { loading: certJWTLoading }] = useCertJwtMutation({
+  const [certJWTMutation, { data, loading: certJWTLoading }] = useCertJwtMutation({
     onCompleted: ({ certJWT }) => {
-      toCanvas(qrCodeImageRef.current, certJWT, rendererOption)
+      toCanvas(qrCodeImageRef.current, certJWT, { width: qrcodeWidth })
       restart(new Date(parseJWT(certJWT).exp * 1000))
     },
     onError: toastApolloError,
@@ -125,11 +124,16 @@ export default function QRCodePage() {
   const autoRefreshRef = useRef<HTMLInputElement>(null)
   const [previousInput, setPreviousInput] = useState<CertAgreementInput>()
 
-  const { seconds, restart } = useTimer({
+  const { restart, seconds } = useTimer({
     expiryTimestamp: new Date(Date.now() + 15_000),
     onExpire: () => {
       if (autoRefreshRef.current?.checked && previousInput) {
         certJWTMutation({ variables: { input: previousInput } })
+      } else {
+        toCanvas(qrCodeImageRef.current, data?.certJWT ?? 'jayudam', {
+          color: { dark: '#888888ff', light: '#ffffffff' },
+          width: qrcodeWidth,
+        })
       }
     },
   })
@@ -211,7 +215,7 @@ export default function QRCodePage() {
       <Navigation>
         <FlexMain>
           <div>
-            <canvas ref={qrCodeImageRef} width={300} height={qrcodeWidth} />
+            <canvas ref={qrCodeImageRef} width={300} height={300} />
 
             <Width>
               <FlexCenterCenterGap>
@@ -494,6 +498,4 @@ type CertAgreementForm = {
 }
 
 const qrcodeWidth = Math.max(300, Math.min(getViewportWidth(), 350))
-const rendererOption = { width: qrcodeWidth }
-
 const selectionSince = [null, getNMonthBefore(1), getNMonthBefore(6), getNYearBefore(1)]
