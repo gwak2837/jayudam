@@ -15,11 +15,12 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { flexBetween, flexCenter } from 'src/styles'
+import { Skeleton, flexBetween, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
+import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import { stopPropagation } from 'src/utils'
 import { currentUser } from 'src/utils/recoil'
@@ -208,6 +209,33 @@ export function CommentCard({ comment, showSharedPost }: Props2) {
   )
 }
 
+export function PostLoadingCard() {
+  return (
+    <Card>
+      <FlexColumn>
+        <Skeleton width="40px" height="40px" borderRadius="50%" />
+      </FlexColumn>
+      <GridSmallGap>
+        <Skeleton width="40%" />
+        <Skeleton />
+        <Skeleton width="80%" />
+        <GridColumn4>
+          <Width>
+            <HeartIcon /> <Skeleton width="1rem" />
+          </Width>
+          <Width>
+            <CommentIcon /> <Skeleton width="1rem" />
+          </Width>
+          <Width>
+            <ShareIcon /> <Skeleton width="1rem" />
+          </Width>
+          <div>기타</div>
+        </GridColumn4>
+      </GridSmallGap>
+    </Card>
+  )
+}
+
 type Props = {
   children?: ReactNode[]
   comment: Post
@@ -315,7 +343,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
   )
 }
 
-const Card = styled.li`
+export const Card = styled.li`
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.5rem;
@@ -386,6 +414,7 @@ const GreyInlineH5 = styled(GreyH5)`
 const GridColumn4 = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1rem;
 
   > div {
     ${flexCenter}
@@ -453,5 +482,11 @@ export const Button = styled.button<{ color: string; selected: boolean }>`
     > span {
       color: ${(p) => p.color};
     }
+  }
+`
+
+const Width = styled.div`
+  > svg {
+    width: 1rem;
   }
 `

@@ -1,17 +1,30 @@
+import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import React, { useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import CreatingPostButton from 'src/components/create-post/CreatingPostButton'
 import PageHead from 'src/components/PageHead'
-import { Post, useMyProfileQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import {
+  AutoTextarea as AutoTextarea_,
+  PrimaryButton,
+} from 'src/components/sharing-post/SharingPostButton'
+import {
+  Post,
+  useCreatePostMutation,
+  useMyProfileQuery,
+  usePostsQuery,
+} from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
-import { Skeleton } from 'src/styles'
+import { FlexBetween_, Skeleton } from 'src/styles'
+import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
-import { CommentCard } from './[id]'
+import { Card, CommentCard, PostLoadingCard } from './[id]'
 
 export default function PostsPage() {
   const { name } = useRecoilValue(currentUser)
@@ -21,7 +34,11 @@ export default function PostsPage() {
     data,
     loading: postLoading,
     fetchMore,
-  } = usePostsQuery({ onError: toastApolloError, variables: { limit } })
+  } = usePostsQuery({
+    notifyOnNetworkStatusChange: true,
+    onError: toastApolloError,
+    variables: { limit },
+  })
 
   const posts = data?.posts
 
@@ -50,7 +67,7 @@ export default function PostsPage() {
   })
 
   // 이야기 생성 Intersection Observer
-  const postCreationRef = useRef<HTMLTextAreaElement>(null)
+  const postCreationRef = useRef<HTMLFormElement>(null)
 
   const [showButton, setShowButton] = useState(false)
 
@@ -68,12 +85,65 @@ export default function PostsPage() {
     }
   }, [])
 
+  // 이야기 생성
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+    watch,
+  } = useForm({
+    defaultValues: {
+      content: '',
+    },
+  })
+
+  const contentLength = watch('content').length
+
+  const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
+    onCompleted: () => {
+      toast.success('이야기 생성 완료')
+    },
+    onError: toastApolloError,
+    update: (cache, { data }) =>
+      data &&
+      cache.modify({
+        fields: {
+          posts: (existingPosts = []) => {
+            return [
+              cache.readFragment({
+                id: `Post:${data.createPost?.newPost.id}`,
+                fragment: gql`
+                  fragment NewPost on Post {
+                    id
+                  }
+                `,
+              }),
+              ...existingPosts,
+            ]
+          },
+        },
+      }),
+  })
+
+  function createPost({ content }: any) {
+    createPostMutation({
+      variables: {
+        input: { content },
+      },
+    })
+  }
+
   return (
     <PageHead title="이야기 - 자유담" description="">
       <Navigation>
         <main>
           <Sticky>
-            <Flex>
+            <SmallNormalH1>이야기</SmallNormalH1>
+            <CreatingPostButton show={showButton} />
+          </Sticky>
+
+          <form onSubmit={handleSubmit(createPost)} ref={postCreationRef}>
+            <Card>
               {profileLoading ? (
                 <Skeleton width="32px" height="32px" borderRadius="50%" />
               ) : (
@@ -85,19 +155,47 @@ export default function PostsPage() {
                   style={borderRadiusCircle}
                 />
               )}
-              <div>이야기</div>
-            </Flex>
-            <CreatingPostButton show={showButton} />
-          </Sticky>
-          <textarea ref={postCreationRef} />
 
+              <GridSmallGap>
+                <AutoTextarea
+                  disabled={createLoading}
+                  onInput={resizeTextareaHeight}
+                  onKeyDown={submitWhenCmdEnter}
+                  placeholder="Add content"
+                  {...register('content')}
+                />
+                <FlexBetweenCenter>
+                  <Error error={contentLength > 200}>{contentLength}</Error>
+                  <PrimaryButton
+                    disabled={
+                      contentLength === 0 ||
+                      contentLength > 200 ||
+                      createLoading ||
+                      Object.keys(errors).length !== 0
+                    }
+                    type="submit"
+                  >
+                    글쓰기
+                  </PrimaryButton>
+                </FlexBetweenCenter>
+              </GridSmallGap>
+            </Card>
+          </form>
+
+          <PostLoadingCard />
           {posts
             ? posts.map((post) => (
                 <CommentCard key={post.id} comment={post as Post} showSharedPost />
               ))
             : !postLoading && <div>posts not found</div>}
 
-          {postLoading && <div>이야기 불러오는 중</div>}
+          {postLoading && (
+            <>
+              <PostLoadingCard />
+              <PostLoadingCard />
+              <PostLoadingCard />
+            </>
+          )}
 
           {!postLoading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
           {!hasMoreData && <div>모든 게시글을 불러왔어요</div>}
@@ -130,10 +228,26 @@ const Sticky = styled.header`
   }
 `
 
-const Flex = styled.div`
-  display: flex;
+const SmallNormalH1 = styled.h1`
+  font-size: 1rem;
+  font-weight: 400;
+`
+
+const AutoTextarea = styled(AutoTextarea_)`
+  max-height: 50vh;
+`
+
+const FlexBetweenCenter = styled(FlexBetween_)`
   align-items: center;
-  gap: 1rem;
+`
+
+const GridSmallGap = styled.div`
+  display: grid;
+  gap: 0.5rem;
+`
+
+const Error = styled.span<{ error: boolean }>`
+  color: ${(p) => (p.error ? p.theme.error : p.theme.primaryText)};
 `
 
 export const borderRadiusCircle = { borderRadius: '50%' }
