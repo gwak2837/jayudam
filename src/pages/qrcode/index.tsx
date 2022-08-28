@@ -18,7 +18,7 @@ import Navigation from 'src/layouts/Navigation'
 import { FlexCenter_ } from 'src/styles'
 import { theme } from 'src/styles/global'
 import TimerIcon from 'src/svgs/timer.svg'
-import { getViewportWidth } from 'src/utils'
+import { getViewportWidth, parseJWT } from 'src/utils'
 import { MOBILE_MIN_WIDTH } from 'src/utils/constants'
 import {
   formatISOLocalDate,
@@ -84,7 +84,7 @@ export default function QRCodePage() {
   const [certJWTMutation, { loading: certJWTLoading }] = useCertJwtMutation({
     onCompleted: ({ certJWT }) => {
       toCanvas(qrCodeImageRef.current, certJWT, rendererOption)
-      restart(new Date(Date.now() + 15_000))
+      restart(new Date(parseJWT(certJWT).exp * 1000))
     },
     onError: toastApolloError,
   })
