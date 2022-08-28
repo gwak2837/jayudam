@@ -179,7 +179,7 @@ export default function VerificationPage() {
         <GridMain>
           <AbsoluteFullFlex show={showStartButton}>
             <h3>카메라 스캔을 시작해주세요</h3>
-            <button onClick={startScanningQRCode}>시작하기</button>
+            <Button onClick={startScanningQRCode}>시작하기</Button>
           </AbsoluteFullFlex>
 
           <AbsoluteTop show={showSettingIcon}>
@@ -428,6 +428,7 @@ const AbsoluteFullFlex = styled.div<{ show: boolean }>`
   flex-flow: column;
   justify-content: center;
   align-items: center;
+  gap: 0.3rem;
 
   @media (max-width: ${TABLET_MIN_WIDTH_1}) {
     position: absolute;
@@ -539,6 +540,10 @@ const PrimaryText = styled.div`
 
 const DangerText = styled.h4`
   color: ${(p) => p.theme.error};
+`
+
+const Button = styled.button`
+  color: ${(p) => p.theme.primaryText};
 `
 
 function formatSex(sex?: Sex) {
