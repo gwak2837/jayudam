@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useMemo } from 'react'
 import { toast } from 'react-toastify'
+import LoginLink from 'src/components/atoms/LoginLink'
 
 export default function useNeedToLogin(when = true) {
   const router = useRouter()
@@ -20,17 +20,4 @@ export default function useNeedToLogin(when = true) {
       )
     }
   }, [jwt, router, when])
-}
-
-export function LoginLink() {
-  const router = useRouter()
-
-  return (
-    <Link
-      href="/login"
-      onClick={() => sessionStorage.setItem('redirectToAfterLogin', router.asPath)}
-    >
-      로그인하기
-    </Link>
-  )
 }

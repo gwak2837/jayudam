@@ -1,7 +1,8 @@
+import LoginLink from 'src/components/atoms/LoginLink'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ReactNode } from 'react'
+import { MouseEvent, ReactNode } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
@@ -13,7 +14,6 @@ import {
   usePostQuery,
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
-import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import { Skeleton, flexBetween, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
@@ -255,6 +255,14 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
     router.push(`/post/${comment.id}`)
   }
 
+  function goToUserPage(e: MouseEvent<HTMLElement>) {
+    e.stopPropagation()
+
+    if (author) {
+      router.push(`/@${author.name}`)
+    }
+  }
+
   // 좋아요
   const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
     onError: toastApolloError,
@@ -275,12 +283,13 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
 
   return (
     <>
-      <FlexColumn>
+      <FlexColumn onClick={goToPostPage}>
         <Image
           src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
           alt="profile"
           width="40"
           height="40"
+          onClick={goToUserPage}
           style={borderRadiusCircle}
         />
         {children?.[0]}
@@ -288,7 +297,9 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
       <GridSmallGap onClick={goToPostPage}>
         <FlexBetween>
           <div>
-            <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>{' '}
+            <Bold disabled={!author} onClick={goToUserPage}>
+              {author?.nickname ?? '탈퇴한 사용자'}
+            </Bold>{' '}
             {author && (
               <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
                 <GreyInlineH5>@{author.name}</GreyInlineH5>
@@ -445,7 +456,7 @@ const Bold = styled.b<{ disabled: boolean }>`
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
 `
 
-const LineLink = styled(Link)`
+export const LineLink = styled(Link)`
   :hover {
     > * {
       text-decoration: underline;

@@ -1,3 +1,4 @@
+import LoginLink from 'src/components/atoms/LoginLink'
 import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import Link from 'next/link'
@@ -53,13 +54,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
     } else {
       toast.warn(
         <div>
-          로그인이 필요합니다.{' '}
-          <Link
-            href="/login"
-            onClick={() => sessionStorage.setItem('redirectToAfterLogin', router.asPath)}
-          >
-            로그인하기
-          </Link>
+          로그인이 필요합니다. <LoginLink />
         </div>
       )
     }

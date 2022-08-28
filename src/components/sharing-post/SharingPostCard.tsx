@@ -1,7 +1,10 @@
 import Image from 'next/future/image'
+import { useRouter } from 'next/router'
+import { MouseEvent } from 'react'
 import { Post } from 'src/graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from 'src/pages/post'
-import { GridSmallGap } from 'src/pages/post/[id]'
+import { GridSmallGap, LineLink } from 'src/pages/post/[id]'
+import { stopPropagation } from 'src/utils'
 import styled, { css } from 'styled-components'
 
 type Props = {
@@ -9,19 +12,43 @@ type Props = {
 }
 
 export default function SharedPostCard({ sharedPost }: Props) {
+  const author = sharedPost.author
+
+  // 페이지 이동
+  const router = useRouter()
+
+  function goToSharedPost(e: MouseEvent<HTMLElement>) {
+    e.stopPropagation()
+
+    router.push(`/post/${sharedPost.id}`)
+  }
+
+  function goToUserPage(e: MouseEvent<HTMLElement>) {
+    e.stopPropagation()
+
+    if (author) {
+      router.push(`/@${author.name}`)
+    }
+  }
+
   return (
-    <Border>
+    <Border onClick={goToSharedPost}>
       <GridSmallGap>
         <Flex>
           <Image
-            src={sharedPost.author?.imageUrl ?? '/images/shortcut-icon.webp'}
+            src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
             alt="profile"
             width="20"
             height="20"
+            onClick={goToUserPage}
             style={borderRadiusCircle}
           />
-          <FlexItem>{sharedPost.author?.nickname ?? '탈퇴한 사용자'}</FlexItem>
-          <GreyH5>@{sharedPost.author?.name}</GreyH5>
+          <FlexItem onClick={goToUserPage}>{author?.nickname ?? '탈퇴한 사용자'}</FlexItem>
+          {author && (
+            <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+              <GreyH5>@{author.name}</GreyH5>
+            </LineLink>
+          )}
           {' · '}
           <FlexItem>
             {new Date(sharedPost.creationTime).toLocaleDateString()}{' '}

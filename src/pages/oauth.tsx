@@ -1,9 +1,9 @@
+import LoginLink from 'src/components/atoms/LoginLink'
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { client } from 'src/apollo/client'
 import PageHead from 'src/components/PageHead'
-import { LoginLink } from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 
 const description = ''
@@ -25,7 +25,7 @@ export default function OAuthPage() {
         url.current = '/login'
         toast.warn(
           <div>
-            로그인이 만료됐어요. 다시 로그인해주세요 <LoginLink />
+            로그인이 만료됐어요. 다시 <LoginLink />
           </div>
         )
         return

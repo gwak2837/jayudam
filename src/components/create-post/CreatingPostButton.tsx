@@ -16,6 +16,7 @@ import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
+import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import {
   Button0,
@@ -41,13 +42,7 @@ export default function CreatingPostButton({ show }: Props) {
     } else {
       toast.warn(
         <div>
-          로그인이 필요합니다.{' '}
-          <Link
-            href="/login"
-            onClick={() => sessionStorage.setItem('redirectToAfterLogin', router.asPath)}
-          >
-            로그인하기
-          </Link>
+          로그인이 필요합니다. <LoginLink />
         </div>
       )
     }

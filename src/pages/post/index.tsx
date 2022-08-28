@@ -156,7 +156,7 @@ export default function PostsPage() {
 
               <GridSmallGap>
                 <AutoTextarea
-                  disabled={createLoading}
+                  disabled={!name || createLoading}
                   onInput={resizeTextareaHeight}
                   onKeyDown={submitWhenCmdEnter}
                   placeholder="Add content"
@@ -166,6 +166,7 @@ export default function PostsPage() {
                   <Error error={contentLength > 200}>{contentLength}</Error>
                   <PrimaryButton
                     disabled={
+                      !name ||
                       contentLength === 0 ||
                       contentLength > 200 ||
                       createLoading ||
