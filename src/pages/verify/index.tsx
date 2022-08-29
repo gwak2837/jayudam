@@ -14,7 +14,7 @@ import {
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
 import VerifyIcon from 'src/svgs/VerifyIcon'
-import { getViewportWidth } from 'src/utils'
+import { getViewportWidth, parseJWT } from 'src/utils'
 import { TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
 import { formatISOLocalDate } from 'src/utils/date'
 import styled from 'styled-components'
@@ -128,12 +128,18 @@ export default function VerificationPage() {
   const sexualCrimeCerts = allCerts?.sexualCrimeCerts
 
   function verifyJwt(jwt: string) {
-    toast.success('QR code 인식 완료')
-    resumeScanningQRCode()
-    setShowResult(true)
-    setShowSetting(false)
-    setShowSettingIcon(false)
-    verifyCertJwtMutation({ variables: { jwt } })
+    if (jwt === 'jayudam') {
+      toast.info('테스트용 QR Code 입니다')
+    } else if (parseJWT(jwt).exp * 1000 < Date.now()) {
+      toast.warn('만료된 QR Code 입니다')
+    } else {
+      toast.success('QR code 인식 완료')
+      resumeScanningQRCode()
+      setShowResult(true)
+      setShowSetting(false)
+      setShowSettingIcon(false)
+      verifyCertJwtMutation({ variables: { jwt } })
+    }
   }
 
   // 테스트용 QR code
@@ -195,6 +201,8 @@ export default function VerificationPage() {
               </button>
             </FlexBetween>
           </AbsoluteTop>
+
+          <div id="reader" />
 
           <AbsoluteFull show={showSetting}>
             <FlexReverseRow>
@@ -389,8 +397,6 @@ export default function VerificationPage() {
 
             {loading}
           </AbsoluteFull>
-
-          <div id="reader" />
         </GridMain>
       </Navigation>
     </PageHead>

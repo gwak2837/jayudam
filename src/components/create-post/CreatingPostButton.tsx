@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import Image from 'next/future/image'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -31,7 +30,6 @@ type Props = {
 
 export default function CreatingPostButton({ show }: Props) {
   const { name } = useRecoilValue(currentUser)
-  const router = useRouter()
 
   // Modal
   const [openCreatingPostModal, setOpenCreatingPostModal] = useState(false)
