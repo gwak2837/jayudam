@@ -81,7 +81,7 @@ export default function PostsPage() {
             <CreatingPostButton show={showButton} />
           </Sticky>
 
-          <PostCreationForm postCreationRef={postCreationRef} username={name}>
+          <PostCreationForm postCreationRef={postCreationRef}>
             {profileLoading ? (
               <Skeleton width="32px" height="32px" borderRadius="50%" />
             ) : (

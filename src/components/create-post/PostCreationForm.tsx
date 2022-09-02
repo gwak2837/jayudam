@@ -1,23 +1,28 @@
-import { gql } from '@apollo/client'
-import { RefObject, ReactNode } from 'react'
+import { ApolloCache, gql } from '@apollo/client'
+import { ReactNode, RefObject } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { useCreatePostMutation } from 'src/graphql/generated/types-and-hooks'
 import { FlexBetween_ } from 'src/styles'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
+import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
+
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
+import LoginLink from '../atoms/LoginLink'
 import { Card } from '../CommentCard'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
 
 type Props = {
   children: ReactNode
   postCreationRef: RefObject<HTMLFormElement>
-  username: string | null | undefined
 }
 
-export function PostCreationForm({ children, postCreationRef, username }: Props) {
+export function PostCreationForm({ children, postCreationRef }: Props) {
+  const { name } = useRecoilValue(currentUser)
+
   const {
     formState: { errors },
     handleSubmit,
@@ -32,29 +37,9 @@ export function PostCreationForm({ children, postCreationRef, username }: Props)
   const contentLength = watch('content').length
 
   const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
-    onCompleted: () => {
-      toast.success('이야기 생성 완료')
-    },
+    onCompleted: toastResult,
     onError: toastApolloError,
-    update: (cache, { data }) =>
-      data &&
-      cache.modify({
-        fields: {
-          posts: (existingPosts = []) => {
-            return [
-              cache.readFragment({
-                id: `Post:${data.createPost?.newPost.id}`,
-                fragment: gql`
-                  fragment NewPost on Post {
-                    id
-                  }
-                `,
-              }),
-              ...existingPosts,
-            ]
-          },
-        },
-      }),
+    update: addNewPost,
   })
 
   function createPost({ content }: any) {
@@ -65,14 +50,24 @@ export function PostCreationForm({ children, postCreationRef, username }: Props)
     })
   }
 
+  function needLogin() {
+    if (!name) {
+      toast.warn(
+        <div>
+          로그인이 필요합니다. <LoginLink />
+        </div>
+      )
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit(createPost)} ref={postCreationRef}>
-      <Card>
+      <Card onClick={needLogin}>
         {children}
 
         <GridSmallGap>
           <AutoTextarea
-            disabled={!username || createLoading}
+            disabled={!name || createLoading}
             onInput={resizeTextareaHeight}
             onKeyDown={submitWhenCmdEnter}
             placeholder="Add content"
@@ -82,7 +77,7 @@ export function PostCreationForm({ children, postCreationRef, username }: Props)
             <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
             <PrimaryButton
               disabled={
-                !username ||
+                !name ||
                 contentLength === 0 ||
                 contentLength > 200 ||
                 createLoading ||
@@ -115,3 +110,30 @@ const GridSmallGap = styled.div`
 export const PrimaryOrError = styled.span<{ error: boolean }>`
   color: ${(p) => (p.error ? p.theme.error : p.theme.primaryText)};
 `
+
+function toastResult() {
+  toast.success('이야기 생성 완료')
+}
+
+function addNewPost(cache: ApolloCache<any>, { data }: any) {
+  return (
+    data &&
+    cache.modify({
+      fields: {
+        posts: (existingPosts = []) => {
+          return [
+            cache.readFragment({
+              id: `Post:${data.createPost?.newPost.id}`,
+              fragment: gql`
+                fragment NewPost on Post {
+                  id
+                }
+              `,
+            }),
+            ...existingPosts,
+          ]
+        },
+      },
+    })
+  )
+}
