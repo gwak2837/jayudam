@@ -183,9 +183,9 @@ export type Pagination = {
 export type Post = {
   __typename?: 'Post'
   author?: Maybe<User>
-  commentCount?: Maybe<Scalars['NonNegativeInt']>
+  commentCount?: Maybe<Scalars['Int']>
   comments?: Maybe<Array<Post>>
-  content?: Maybe<Scalars['NonEmptyString']>
+  content?: Maybe<Scalars['String']>
   creationTime?: Maybe<Scalars['DateTime']>
   deletionTime?: Maybe<Scalars['DateTime']>
   doIComment: Scalars['Boolean']
@@ -193,9 +193,9 @@ export type Post = {
   id: Scalars['ID']
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
   isLiked: Scalars['Boolean']
-  likeCount?: Maybe<Scalars['NonNegativeInt']>
+  likeCount?: Maybe<Scalars['Int']>
   parentAuthor?: Maybe<User>
-  sharedCount?: Maybe<Scalars['NonNegativeInt']>
+  sharedCount?: Maybe<Scalars['Int']>
   sharingPost?: Maybe<Post>
   updateTime?: Maybe<Scalars['DateTime']>
 }
@@ -263,7 +263,7 @@ export type ServiceAgreement = {
   adAgreementTime?: Maybe<Scalars['DateTime']>
   locationAgreement: Scalars['Boolean']
   locationAgreementTime?: Maybe<Scalars['DateTime']>
-  personalDataStoringYear: Scalars['NonNegativeInt']
+  personalDataStoringYear: Scalars['Int']
   privacyAgreement: Scalars['Boolean']
   privacyAgreementTime?: Maybe<Scalars['DateTime']>
   termsAgreement: Scalars['Boolean']
@@ -287,7 +287,7 @@ export enum Sex {
 
 export type Town = {
   __typename?: 'Town'
-  count: Scalars['NonNegativeInt']
+  count: Scalars['Int']
   name?: Maybe<Scalars['String']>
 }
 
@@ -299,31 +299,33 @@ export type User = {
   blockingEndTime?: Maybe<Scalars['DateTime']>
   blockingStartTime?: Maybe<Scalars['DateTime']>
   certAgreement?: Maybe<CertAgreement>
-  cherry: Scalars['NonNegativeInt']
-  coverImageUrls?: Maybe<Scalars['URL']>
-  creationTime: Scalars['DateTime']
-  email?: Maybe<Scalars['EmailAddress']>
-  followerCount?: Maybe<Scalars['NonNegativeInt']>
-  followingCount?: Maybe<Scalars['NonNegativeInt']>
+  cherry: Scalars['Int']
+  coverImageUrls?: Maybe<Array<Scalars['String']>>
+  creationTime?: Maybe<Scalars['DateTime']>
+  email?: Maybe<Scalars['String']>
+  followerCount?: Maybe<Scalars['Int']>
+  followingCount?: Maybe<Scalars['Int']>
   grade?: Maybe<Grade>
   id: Scalars['UUID']
-  imageUrl?: Maybe<Scalars['URL']>
-  imageUrls?: Maybe<Array<Scalars['URL']>>
-  isPrivate: Scalars['Boolean']
-  isSleeping: Scalars['Boolean']
-  isVerifiedBirthday: Scalars['Boolean']
-  isVerifiedBirthyear: Scalars['Boolean']
-  isVerifiedEmail: Scalars['Boolean']
-  isVerifiedName: Scalars['Boolean']
-  isVerifiedPhoneNumber: Scalars['Boolean']
-  isVerifiedSex: Scalars['Boolean']
-  legalName?: Maybe<Scalars['NonEmptyString']>
+  imageUrl?: Maybe<Scalars['String']>
+  imageUrls?: Maybe<Array<Scalars['String']>>
+  isPrivate?: Maybe<Scalars['Boolean']>
+  isSleeping?: Maybe<Scalars['Boolean']>
+  isVerifiedBirthday?: Maybe<Scalars['Boolean']>
+  isVerifiedBirthyear?: Maybe<Scalars['Boolean']>
+  isVerifiedEmail?: Maybe<Scalars['Boolean']>
+  isVerifiedName?: Maybe<Scalars['Boolean']>
+  isVerifiedPhoneNumber?: Maybe<Scalars['Boolean']>
+  isVerifiedSex?: Maybe<Scalars['Boolean']>
+  legalName?: Maybe<Scalars['String']>
   logoutTime?: Maybe<Scalars['DateTime']>
-  name?: Maybe<Scalars['NonEmptyString']>
+  name?: Maybe<Scalars['String']>
   nickname?: Maybe<Scalars['String']>
   oAuthProviders?: Maybe<Array<OAuthProvider>>
+  postCount?: Maybe<Scalars['Int']>
   serviceAgreement?: Maybe<ServiceAgreement>
   sex?: Maybe<Sex>
+  sleepingTime?: Maybe<Scalars['DateTime']>
   towns?: Maybe<Array<Town>>
 }
 
@@ -353,22 +355,22 @@ export type CreatePostMutation = {
       creationTime?: any | null
       updateTime?: any | null
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
-      likeCount?: any | null
-      commentCount?: any | null
-      sharedCount?: any | null
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
       author?: {
         __typename?: 'User'
         id: any
-        name?: any | null
+        name?: string | null
         nickname?: string | null
-        imageUrl?: any | null
+        imageUrl?: string | null
       } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
     }
   } | null
 }
@@ -385,7 +387,7 @@ export type DeleteSharingPostMutation = {
       __typename?: 'Post'
       id: string
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       sharingPost?: { __typename?: 'Post'; id: string } | null
       parentAuthor?: { __typename?: 'User'; id: any } | null
@@ -393,7 +395,7 @@ export type DeleteSharingPostMutation = {
     sharedPost?: {
       __typename?: 'Post'
       id: string
-      sharedCount?: any | null
+      sharedCount?: number | null
       doIShare: boolean
     } | null
   } | null
@@ -413,29 +415,29 @@ export type SharePostMutation = {
       creationTime?: any | null
       updateTime?: any | null
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
-      likeCount?: any | null
-      commentCount?: any | null
-      sharedCount?: any | null
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
       sharingPost?: { __typename?: 'Post'; id: string } | null
       author?: {
         __typename?: 'User'
         id: any
-        name?: any | null
+        name?: string | null
         nickname?: string | null
-        imageUrl?: any | null
+        imageUrl?: string | null
       } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
     }
     sharedPost?: {
       __typename?: 'Post'
       id: string
       doIShare: boolean
-      sharedCount?: any | null
+      sharedCount?: number | null
     } | null
   } | null
 }
@@ -446,29 +448,29 @@ export type PostCardFragment = {
   creationTime?: any | null
   updateTime?: any | null
   deletionTime?: any | null
-  content?: any | null
+  content?: string | null
   imageUrls?: Array<any | null> | null
   isLiked: boolean
   doIComment: boolean
   doIShare: boolean
-  likeCount?: any | null
-  commentCount?: any | null
-  sharedCount?: any | null
+  likeCount?: number | null
+  commentCount?: number | null
+  sharedCount?: number | null
   author?: {
     __typename?: 'User'
     id: any
-    name?: any | null
+    name?: string | null
     nickname?: string | null
-    imageUrl?: any | null
+    imageUrl?: string | null
   } | null
-  parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+  parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
 }
 
 export type AuthQueryVariables = Exact<{ [key: string]: never }>
 
 export type AuthQuery = {
   __typename?: 'Query'
-  auth?: { __typename?: 'User'; id: any; name?: any | null } | null
+  auth?: { __typename?: 'User'; id: any; name?: string | null } | null
 }
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
@@ -487,27 +489,27 @@ export type UserQuery = {
   user?: {
     __typename?: 'User'
     id: any
-    creationTime: any
+    creationTime?: any | null
     bio?: string | null
     birthyear?: number | null
     birthday?: string | null
     blockingStartTime?: any | null
     blockingEndTime?: any | null
-    cherry: any
-    coverImageUrls?: any | null
-    followerCount?: any | null
-    followingCount?: any | null
+    cherry: number
+    coverImageUrls?: Array<string> | null
+    followerCount?: number | null
+    followingCount?: number | null
     grade?: Grade | null
-    imageUrls?: Array<any> | null
-    isPrivate: boolean
-    isSleeping: boolean
-    isVerifiedBirthyear: boolean
-    isVerifiedBirthday: boolean
-    isVerifiedSex: boolean
-    name?: any | null
+    imageUrls?: Array<string> | null
+    isPrivate?: boolean | null
+    isSleeping?: boolean | null
+    isVerifiedBirthyear?: boolean | null
+    isVerifiedBirthday?: boolean | null
+    isVerifiedSex?: boolean | null
+    name?: string | null
     nickname?: string | null
     sex?: Sex | null
-    towns?: Array<{ __typename?: 'Town'; count: any; name?: string | null }> | null
+    towns?: Array<{ __typename?: 'Town'; count: number; name?: string | null }> | null
   } | null
 }
 
@@ -515,7 +517,7 @@ export type MyProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type MyProfileQuery = {
   __typename?: 'Query'
-  user?: { __typename?: 'User'; id: any; imageUrl?: any | null } | null
+  user?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
 }
 
 export type PostsQueryVariables = Exact<{
@@ -531,38 +533,38 @@ export type PostsQuery = {
     creationTime?: any | null
     updateTime?: any | null
     deletionTime?: any | null
-    content?: any | null
+    content?: string | null
     imageUrls?: Array<any | null> | null
     isLiked: boolean
     doIComment: boolean
     doIShare: boolean
-    likeCount?: any | null
-    commentCount?: any | null
-    sharedCount?: any | null
+    likeCount?: number | null
+    commentCount?: number | null
+    sharedCount?: number | null
     sharingPost?: {
       __typename?: 'Post'
       id: string
       creationTime?: any | null
       updateTime?: any | null
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       author?: {
         __typename?: 'User'
         id: any
-        name?: any | null
+        name?: string | null
         nickname?: string | null
-        imageUrl?: any | null
+        imageUrl?: string | null
       } | null
     } | null
     author?: {
       __typename?: 'User'
       id: any
-      name?: any | null
+      name?: string | null
       nickname?: string | null
-      imageUrl?: any | null
+      imageUrl?: string | null
     } | null
-    parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+    parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
   }> | null
 }
 
@@ -580,28 +582,28 @@ export type CreateCommentMutation = {
       creationTime?: any | null
       updateTime?: any | null
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
-      likeCount?: any | null
-      commentCount?: any | null
-      sharedCount?: any | null
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
       author?: {
         __typename?: 'User'
         id: any
-        name?: any | null
+        name?: string | null
         nickname?: string | null
-        imageUrl?: any | null
+        imageUrl?: string | null
       } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
     }
     parentPost?: {
       __typename?: 'Post'
       id: string
       doIComment: boolean
-      commentCount?: any | null
+      commentCount?: number | null
     } | null
   } | null
 }
@@ -612,7 +614,7 @@ export type MeQueryVariables = Exact<{
 
 export type MeQuery = {
   __typename?: 'Query'
-  user?: { __typename?: 'User'; id: any; imageUrl?: any | null } | null
+  user?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
 }
 
 export type PostQueryVariables = Exact<{
@@ -627,28 +629,28 @@ export type PostQuery = {
     creationTime?: any | null
     updateTime?: any | null
     deletionTime?: any | null
-    content?: any | null
+    content?: string | null
     imageUrls?: Array<any | null> | null
     isLiked: boolean
     doIComment: boolean
     doIShare: boolean
-    likeCount?: any | null
-    commentCount?: any | null
-    sharedCount?: any | null
+    likeCount?: number | null
+    commentCount?: number | null
+    sharedCount?: number | null
     sharingPost?: {
       __typename?: 'Post'
       id: string
       creationTime?: any | null
       updateTime?: any | null
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       author?: {
         __typename?: 'User'
         id: any
-        name?: any | null
+        name?: string | null
         nickname?: string | null
-        imageUrl?: any | null
+        imageUrl?: string | null
       } | null
     } | null
     comments?: Array<{
@@ -657,54 +659,54 @@ export type PostQuery = {
       creationTime?: any | null
       updateTime?: any | null
       deletionTime?: any | null
-      content?: any | null
+      content?: string | null
       imageUrls?: Array<any | null> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
-      likeCount?: any | null
-      commentCount?: any | null
-      sharedCount?: any | null
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
       comments?: Array<{
         __typename?: 'Post'
         id: string
         creationTime?: any | null
         updateTime?: any | null
         deletionTime?: any | null
-        content?: any | null
+        content?: string | null
         imageUrls?: Array<any | null> | null
         isLiked: boolean
         doIComment: boolean
         doIShare: boolean
-        likeCount?: any | null
-        commentCount?: any | null
-        sharedCount?: any | null
+        likeCount?: number | null
+        commentCount?: number | null
+        sharedCount?: number | null
         author?: {
           __typename?: 'User'
           id: any
-          name?: any | null
+          name?: string | null
           nickname?: string | null
-          imageUrl?: any | null
+          imageUrl?: string | null
         } | null
-        parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+        parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
       }> | null
       author?: {
         __typename?: 'User'
         id: any
-        name?: any | null
+        name?: string | null
         nickname?: string | null
-        imageUrl?: any | null
+        imageUrl?: string | null
       } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
     }> | null
     author?: {
       __typename?: 'User'
       id: any
-      name?: any | null
+      name?: string | null
       nickname?: string | null
-      imageUrl?: any | null
+      imageUrl?: string | null
     } | null
-    parentAuthor?: { __typename?: 'User'; id: any; name?: any | null } | null
+    parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
   } | null
 }
 
@@ -718,7 +720,7 @@ export type ToggleLikingPostMutation = {
     __typename?: 'Post'
     id: string
     isLiked: boolean
-    likeCount?: any | null
+    likeCount?: number | null
   } | null
 }
 
@@ -758,7 +760,7 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser?: { __typename?: 'User'; id: any; name?: any | null } | null
+  updateUser?: { __typename?: 'User'; id: any; name?: string | null } | null
 }
 
 export type SampleCertJwtQueryVariables = Exact<{ [key: string]: never }>
@@ -1966,8 +1968,10 @@ export type UserKeySpecifier = (
   | 'name'
   | 'nickname'
   | 'oAuthProviders'
+  | 'postCount'
   | 'serviceAgreement'
   | 'sex'
+  | 'sleepingTime'
   | 'towns'
   | UserKeySpecifier
 )[]
@@ -2001,8 +2005,10 @@ export type UserFieldPolicy = {
   name?: FieldPolicy<any> | FieldReadFunction<any>
   nickname?: FieldPolicy<any> | FieldReadFunction<any>
   oAuthProviders?: FieldPolicy<any> | FieldReadFunction<any>
+  postCount?: FieldPolicy<any> | FieldReadFunction<any>
   serviceAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
+  sleepingTime?: FieldPolicy<any> | FieldReadFunction<any>
   towns?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type StrictTypedTypePolicies = {

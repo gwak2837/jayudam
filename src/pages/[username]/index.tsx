@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
+import Image from 'next/future/image'
+
 import { useRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
@@ -38,14 +40,22 @@ export default function UserPage() {
     }
   }, [currentUsername, router])
 
-  const { data, loading: userLoading } = useUserQuery({
+  // 사용자 데이터 가져오기
+  const {
+    data,
+    loading: userLoading,
+    error,
+  } = useUserQuery({
     onError: toastApolloError,
-    skip: username === 'null' || username === 'undefined',
+    skip: !username || username === 'null' || username === 'undefined',
     variables: {
       name: username === currentUsername ? null : username,
     },
   })
 
+  const user = data?.user
+
+  // Logout
   const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
     onCompleted: ({ logout }) => {
       if (logout) {
@@ -72,9 +82,12 @@ export default function UserPage() {
       <Navigation>
         <MinWidth>
           <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
-          {currentUsername && (
+
+          {user ? (
             <>
-              {currentUsername}
+              <CoverImage src={user.coverImageUrls?.[0] ?? '/images/cover.png'} alt="user cover" />
+              <CoverImage src={user.imageUrls?.[0] ?? '/images/profile.png'} alt="user profile" />
+              {username}
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
               </button>
@@ -101,12 +114,21 @@ export default function UserPage() {
 
               <div>내 문서</div>
             </>
+          ) : (
+            <div>해당 사용자는 존재하지 않아요</div>
           )}
+
+          {userLoading && <div>사용자 정보를 불러오고 있습니다</div>}
         </MinWidth>
       </Navigation>
     </PageHead>
   )
 }
+
+const CoverImage = styled(Image)`
+  width: 100%;
+  min-height: 3rem;
+`
 
 const MinWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};

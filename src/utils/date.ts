@@ -33,6 +33,6 @@ export function formatISOLocalDate(date2: Date | string | number | null | undefi
   return `${date.getFullYear()}-${localMonth}-${localDate}`
 }
 
-export function getTimeFromDateString(date: string | null) {
+export function getTimeFromDateString(date: string | null | undefined) {
   return date ? new Date(date).getTime() : null
 }
