@@ -1,6 +1,6 @@
 query MyProfile {
   user {
     id
-    imageUrl   
+    imageUrl
   }
 }

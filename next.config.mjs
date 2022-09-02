@@ -1,10 +1,11 @@
-/** @type {import('next').NextConfig} */
-
 import withPWA from 'next-pwa'
 
 const NODE_ENV = process.env.NODE_ENV
 
-export default withPWA({
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
   compiler: {
     styledComponents: true,
   },
@@ -38,4 +39,9 @@ export default withPWA({
     })
     return config
   },
-})
+}
+
+export default withPWA({
+  dest: 'public',
+  disable: NODE_ENV === 'development',
+})(nextConfig)

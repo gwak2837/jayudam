@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import Image from 'next/future/image'
 
@@ -81,12 +81,23 @@ export default function UserPage() {
     <PageHead title={`@${username} - 자유담`} description="">
       <Navigation>
         <MinWidth>
-          <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
-
           {user ? (
             <>
-              <CoverImage src={user.coverImageUrls?.[0] ?? '/images/cover.png'} alt="user cover" />
-              <CoverImage src={user.imageUrls?.[0] ?? '/images/profile.png'} alt="user profile" />
+              <Relative>
+                <ScrollResponsiveImage>
+                  <CoverImage
+                    src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
+                    alt="user cover"
+                    fill
+                    heightOnScroll={Math.min(Math.max(30, scrollY), 60)}
+                  />
+                </ScrollResponsiveImage>
+                <ProfileImage
+                  src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
+                  alt="user profile"
+                  fill
+                />
+              </Relative>
               {username}
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
@@ -119,15 +130,44 @@ export default function UserPage() {
           )}
 
           {userLoading && <div>사용자 정보를 불러오고 있습니다</div>}
+
+          <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
         </MinWidth>
       </Navigation>
     </PageHead>
   )
 }
 
-const CoverImage = styled(Image)`
+function ScrollResponsiveImage({ children }: any) {
+  const [scrollPosition, setPosition] = useState(0)
+
+  useEffect(() => {
+    function updatePosition() {
+      setPosition(Math.trunc(window.scrollY))
+    }
+    window.addEventListener('scroll', updatePosition, { passive: true })
+
+    return () => window.removeEventListener('scroll', updatePosition)
+  }, [])
+
+  return <>{children}</>
+}
+
+const Relative = styled.div`
+  position: relative;
+`
+
+const CoverImage = styled(Image)<{ heightOnScroll: number }>`
   width: 100%;
+  height: ${(p) => p.heightOnScroll}px;
   min-height: 3rem;
+  object-fit: cover;
+
+  aspect-ratio: 9 / 9;
+`
+
+const ProfileImage = styled(Image)`
+  object-fit: cover;
 `
 
 const MinWidth = styled.main`

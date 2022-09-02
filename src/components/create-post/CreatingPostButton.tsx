@@ -7,13 +7,15 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { useCreatePostMutation, useMeQuery } from 'src/graphql/generated/types-and-hooks'
-import { AutoTextarea_ as AutoTextarea, borderRadiusCircle } from 'src/pages/post'
+import { borderRadiusCircle } from 'src/pages/post'
 import QuillPenIcon from 'src/svgs/quill-pen.svg'
 import XIcon from 'src/svgs/x.svg'
 import { stopPropagation } from 'src/utils'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
+import { AutoTextarea_ } from '../atoms/AutoTextarea'
 
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
@@ -23,6 +25,7 @@ import {
   ModalOrFullscreen,
   PrimaryButton,
 } from '../sharing-post/SharingPostButton'
+import { PrimaryOrError } from './PostCreationForm'
 
 type Props = {
   show: boolean
@@ -143,11 +146,18 @@ export default function CreatingPostButton({ show }: Props) {
               })}
             />
           </Flex>
+          <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
         </ModalOrFullscreen>
       </Modal>
     </>
   )
 }
+
+const AutoTextarea = styled(AutoTextarea_)`
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
+  }
+`
 
 const Button = styled.button<{ show: boolean }>`
   display: flex;

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode } from 'react'
 import { useRecoilValue } from 'recoil'
 import CommunityIcon from 'src/svgs/CommunityIcon'
 import MyIcon from 'src/svgs/MyIcon'

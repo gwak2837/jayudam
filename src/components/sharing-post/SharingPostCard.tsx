@@ -3,9 +3,10 @@ import { useRouter } from 'next/router'
 import { MouseEvent } from 'react'
 import { Post } from 'src/graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from 'src/pages/post'
-import { GridSmallGap, LineLink } from 'src/pages/post/[id]'
+import { LineLink } from 'src/pages/post/[id]'
 import { stopPropagation } from 'src/utils'
 import styled, { css } from 'styled-components'
+import { GridSmallGap } from '../atoms/Flex'
 
 type Props = {
   sharedPost: Post

@@ -1,3 +1,13 @@
 {
-  "recommendations": ["arcanis.vscode-zipfs", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+  "recommendations": [
+    "visualstudioexptteam.vscodeintellicode",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "arcanis.vscode-zipfs",
+    "amatiasq.sort-imports",
+    "graphql.vscode-graphql",
+    "styled-components.vscode-styled-components"
+  ]
 }

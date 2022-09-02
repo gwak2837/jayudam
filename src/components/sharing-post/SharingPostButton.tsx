@@ -14,7 +14,7 @@ import {
   useMeQuery,
   useSharePostMutation,
 } from 'src/graphql/generated/types-and-hooks'
-import { AutoTextarea_ as AutoTextarea, borderRadiusCircle } from 'src/pages/post'
+import { borderRadiusCircle } from 'src/pages/post'
 import { Button } from 'src/pages/post/[id]'
 import { SubmitButton } from 'src/pages/register'
 import { flexBetween } from 'src/styles'
@@ -29,6 +29,7 @@ import styled from 'styled-components'
 
 import Modal from '../atoms/Modal'
 import SharedPostCard from './SharingPostCard'
+import { AutoTextarea_ } from '../atoms/AutoTextarea'
 
 type Props2 = {
   post: Post
@@ -195,6 +196,12 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
     </div>
   )
 }
+
+const AutoTextarea = styled(AutoTextarea_)`
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
+  }
+`
 
 const SmallModal = styled.form`
   background: ${(p) => p.theme.backgroud};

@@ -299,7 +299,7 @@ export type User = {
   blockingEndTime?: Maybe<Scalars['DateTime']>
   blockingStartTime?: Maybe<Scalars['DateTime']>
   certAgreement?: Maybe<CertAgreement>
-  cherry: Scalars['Int']
+  cherry?: Maybe<Scalars['Int']>
   coverImageUrls?: Maybe<Array<Scalars['String']>>
   creationTime?: Maybe<Scalars['DateTime']>
   email?: Maybe<Scalars['String']>
@@ -495,7 +495,7 @@ export type UserQuery = {
     birthday?: string | null
     blockingStartTime?: any | null
     blockingEndTime?: any | null
-    cherry: number
+    cherry?: number | null
     coverImageUrls?: Array<string> | null
     followerCount?: number | null
     followingCount?: number | null

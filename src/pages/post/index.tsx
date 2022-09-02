@@ -1,28 +1,17 @@
-import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import CommentCard, { PostLoadingCard } from 'src/components/CommentCard'
 import CreatingPostButton from 'src/components/create-post/CreatingPostButton'
+import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
 import PageHead from 'src/components/PageHead'
-import { PrimaryButton } from 'src/components/sharing-post/SharingPostButton'
-import {
-  Post,
-  useCreatePostMutation,
-  useMyProfileQuery,
-  usePostsQuery,
-} from 'src/graphql/generated/types-and-hooks'
+import { Post, useMyProfileQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
-import { FlexBetween_, Skeleton } from 'src/styles'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
+import { Skeleton } from 'src/styles'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
-
-import { Card, CommentCard, PostLoadingCard } from './[id]'
 
 export default function PostsPage() {
   const { name } = useRecoilValue(currentUser)
@@ -83,54 +72,6 @@ export default function PostsPage() {
     }
   }, [])
 
-  // 이야기 생성
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-    watch,
-  } = useForm({
-    defaultValues: {
-      content: '',
-    },
-  })
-
-  const contentLength = watch('content').length
-
-  const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
-    onCompleted: () => {
-      toast.success('이야기 생성 완료')
-    },
-    onError: toastApolloError,
-    update: (cache, { data }) =>
-      data &&
-      cache.modify({
-        fields: {
-          posts: (existingPosts = []) => {
-            return [
-              cache.readFragment({
-                id: `Post:${data.createPost?.newPost.id}`,
-                fragment: gql`
-                  fragment NewPost on Post {
-                    id
-                  }
-                `,
-              }),
-              ...existingPosts,
-            ]
-          },
-        },
-      }),
-  })
-
-  function createPost({ content }: any) {
-    createPostMutation({
-      variables: {
-        input: { content },
-      },
-    })
-  }
-
   return (
     <PageHead title="이야기 - 자유담" description="">
       <Navigation>
@@ -140,46 +81,19 @@ export default function PostsPage() {
             <CreatingPostButton show={showButton} />
           </Sticky>
 
-          <form onSubmit={handleSubmit(createPost)} ref={postCreationRef}>
-            <Card>
-              {profileLoading ? (
-                <Skeleton width="32px" height="32px" borderRadius="50%" />
-              ) : (
-                <Image
-                  src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
-                  alt="profile"
-                  width="32"
-                  height="32"
-                  style={borderRadiusCircle}
-                />
-              )}
-
-              <GridSmallGap>
-                <AutoTextarea
-                  disabled={!name || createLoading}
-                  onInput={resizeTextareaHeight}
-                  onKeyDown={submitWhenCmdEnter}
-                  placeholder="Add content"
-                  {...register('content')}
-                />
-                <FlexBetweenCenter>
-                  <Error error={contentLength > 200}>{contentLength}</Error>
-                  <PrimaryButton
-                    disabled={
-                      !name ||
-                      contentLength === 0 ||
-                      contentLength > 200 ||
-                      createLoading ||
-                      Object.keys(errors).length !== 0
-                    }
-                    type="submit"
-                  >
-                    글쓰기
-                  </PrimaryButton>
-                </FlexBetweenCenter>
-              </GridSmallGap>
-            </Card>
-          </form>
+          <PostCreationForm postCreationRef={postCreationRef} username={name}>
+            {profileLoading ? (
+              <Skeleton width="32px" height="32px" borderRadius="50%" />
+            ) : (
+              <Image
+                src={data2?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
+                alt="profile"
+                width="32"
+                height="32"
+                style={borderRadiusCircle}
+              />
+            )}
+          </PostCreationForm>
 
           <PostLoadingCard />
           {posts
@@ -231,42 +145,6 @@ const Sticky = styled.header`
 const SmallNormalH1 = styled.h1`
   font-size: 1rem;
   font-weight: 400;
-`
-
-export const AutoTextarea_ = styled.textarea`
-  width: 100%;
-  height: fit-content;
-  min-height: 2.5rem;
-  max-height: 80vh;
-  padding: 0.5rem;
-  resize: vertical;
-
-  flex: 1;
-
-  :focus {
-    outline: none;
-  }
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
-`
-
-const AutoTextarea = styled(AutoTextarea_)`
-  max-height: 50vh;
-`
-
-const FlexBetweenCenter = styled(FlexBetween_)`
-  align-items: center;
-`
-
-const GridSmallGap = styled.div`
-  display: grid;
-  gap: 0.5rem;
-`
-
-const Error = styled.span<{ error: boolean }>`
-  color: ${(p) => (p.error ? p.theme.error : p.theme.primaryText)};
 `
 
 export const borderRadiusCircle = { borderRadius: '50%' }
