@@ -16,6 +16,10 @@ const typePolicies: TypedTypePolicies = {
         merge: infiniteScroll,
         keyArgs: [],
       },
+      comments: {
+        merge: infiniteScroll,
+        keyArgs: ['parentId'],
+      },
     },
   },
 }

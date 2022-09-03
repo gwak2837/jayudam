@@ -230,6 +230,7 @@ export type Query = {
   __typename?: 'Query'
   auth?: Maybe<User>
   certs?: Maybe<Certs>
+  comments?: Maybe<Array<Post>>
   isUniqueUsername: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
   pendingCerts?: Maybe<Array<Cert>>
@@ -238,6 +239,12 @@ export type Query = {
   sampleCertJWT: Scalars['JWT']
   user?: Maybe<User>
   verificationHistories?: Maybe<Array<Certs>>
+}
+
+export type QueryCommentsArgs = {
+  lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
+  parentId: Scalars['ID']
 }
 
 export type QueryIsUniqueUsernameArgs = {
@@ -568,6 +575,61 @@ export type PostsQuery = {
   }> | null
 }
 
+export type CommentsQueryVariables = Exact<{
+  parentId: Scalars['ID']
+  lastId?: InputMaybe<Scalars['ID']>
+}>
+
+export type CommentsQuery = {
+  __typename?: 'Query'
+  comments?: Array<{
+    __typename?: 'Post'
+    id: string
+    creationTime?: any | null
+    updateTime?: any | null
+    deletionTime?: any | null
+    content?: string | null
+    imageUrls?: Array<any | null> | null
+    isLiked: boolean
+    doIComment: boolean
+    doIShare: boolean
+    likeCount?: number | null
+    commentCount?: number | null
+    sharedCount?: number | null
+    comments?: Array<{
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+    }> | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: string | null
+      nickname?: string | null
+      imageUrl?: string | null
+    } | null
+    parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+  }> | null
+}
+
 export type CreateCommentMutationVariables = Exact<{
   input: PostCreationInput
 }>
@@ -653,52 +715,6 @@ export type PostQuery = {
         imageUrl?: string | null
       } | null
     } | null
-    comments?: Array<{
-      __typename?: 'Post'
-      id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
-      content?: string | null
-      imageUrls?: Array<any | null> | null
-      isLiked: boolean
-      doIComment: boolean
-      doIShare: boolean
-      likeCount?: number | null
-      commentCount?: number | null
-      sharedCount?: number | null
-      comments?: Array<{
-        __typename?: 'Post'
-        id: string
-        creationTime?: any | null
-        updateTime?: any | null
-        deletionTime?: any | null
-        content?: string | null
-        imageUrls?: Array<any | null> | null
-        isLiked: boolean
-        doIComment: boolean
-        doIShare: boolean
-        likeCount?: number | null
-        commentCount?: number | null
-        sharedCount?: number | null
-        author?: {
-          __typename?: 'User'
-          id: any
-          name?: string | null
-          nickname?: string | null
-          imageUrl?: string | null
-        } | null
-        parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
-      }> | null
-      author?: {
-        __typename?: 'User'
-        id: any
-        name?: string | null
-        nickname?: string | null
-        imageUrl?: string | null
-      } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
-    }> | null
     author?: {
       __typename?: 'User'
       id: any
@@ -1229,6 +1245,50 @@ export function usePostsLazyQuery(
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
+export const CommentsDocument = gql`
+  query Comments($parentId: ID!, $lastId: ID) {
+    comments(parentId: $parentId, lastId: $lastId) {
+      ...postCard
+      comments {
+        ...postCard
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+
+/**
+ * __useCommentsQuery__
+ *
+ * To run a query within a React component, call `useCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommentsQuery({
+ *   variables: {
+ *      parentId: // value for 'parentId'
+ *      lastId: // value for 'lastId'
+ *   },
+ * });
+ */
+export function useCommentsQuery(
+  baseOptions: Apollo.QueryHookOptions<CommentsQuery, CommentsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<CommentsQuery, CommentsQueryVariables>(CommentsDocument, options)
+}
+export function useCommentsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<CommentsQuery, CommentsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<CommentsQuery, CommentsQueryVariables>(CommentsDocument, options)
+}
+export type CommentsQueryHookResult = ReturnType<typeof useCommentsQuery>
+export type CommentsLazyQueryHookResult = ReturnType<typeof useCommentsLazyQuery>
+export type CommentsQueryResult = Apollo.QueryResult<CommentsQuery, CommentsQueryVariables>
 export const CreateCommentDocument = gql`
   mutation CreateComment($input: PostCreationInput!) {
     createPost(input: $input) {
@@ -1335,12 +1395,6 @@ export const PostDocument = gql`
           name
           nickname
           imageUrl
-        }
-      }
-      comments {
-        ...postCard
-        comments {
-          ...postCard
         }
       }
     }
@@ -1888,6 +1942,7 @@ export type PostDeletionResultFieldPolicy = {
 export type QueryKeySpecifier = (
   | 'auth'
   | 'certs'
+  | 'comments'
   | 'isUniqueUsername'
   | 'myCertAgreement'
   | 'pendingCerts'
@@ -1901,6 +1956,7 @@ export type QueryKeySpecifier = (
 export type QueryFieldPolicy = {
   auth?: FieldPolicy<any> | FieldReadFunction<any>
   certs?: FieldPolicy<any> | FieldReadFunction<any>
+  comments?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueUsername?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>

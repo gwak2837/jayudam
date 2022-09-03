@@ -1,18 +1,22 @@
-import LoginLink from 'src/components/atoms/LoginLink'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import LoginLink from 'src/components/atoms/LoginLink'
+import CommentCard, { PostLoadingCard } from 'src/components/CommentCard'
 import PageHead from 'src/components/PageHead'
 import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
 import SharedPostCard from 'src/components/sharing-post/SharingPostCard'
 import {
   Post,
+  useCommentsQuery,
   usePostQuery,
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
+import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
 import { flexBetween, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
@@ -24,7 +28,6 @@ import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import { borderRadiusCircle } from '..'
-import CommentCard from 'src/components/CommentCard'
 
 const description = ''
 
@@ -50,11 +53,6 @@ export default function PostPage() {
   const sharingPost = data?.post?.sharingPost as Post
   const author = parentPost?.author
   const parentAuthor = parentPost?.parentAuthor
-  const comments = parentPost?.comments
-
-  const title = `${author?.nickname ?? '사용자'}: ${
-    parentPost?.content?.substring(0, 20) ?? '내용'
-  } - 자유담`
 
   // 좋아요
   const [toggleLikingPostMutation, { loading: likeLoading }] = useToggleLikingPostMutation({
@@ -83,7 +81,7 @@ export default function PostPage() {
     e.stopPropagation()
 
     if (name) {
-      toggleLikingPostMutation()
+      // toggleLikingPostMutation()
     } else {
       toast.warn(
         <div>
@@ -92,6 +90,11 @@ export default function PostPage() {
       )
     }
   }
+
+  // 기타
+  const title = `${author?.nickname ?? '사용자'}: ${
+    parentPost?.content?.substring(0, 20) ?? '내용'
+  } - 자유담`
 
   return (
     <PageHead title={title} description={description}>
@@ -172,16 +175,84 @@ export default function PostPage() {
             )}
           </Grid>
 
-          {loading ? (
-            <div>comments loading</div>
-          ) : comments ? (
-            comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
-          ) : (
-            <div>comments not found</div>
-          )}
+          <Comments />
         </main>
       </Navigation>
     </PageHead>
+  )
+}
+
+function Comments() {
+  // 댓글 불러오기
+  const router = useRouter()
+  const postId = (router.query.id ?? '') as string
+
+  const { data, loading, fetchMore } = useCommentsQuery({
+    notifyOnNetworkStatusChange: true,
+    onError: toastApolloError,
+    skip: !postId,
+    variables: { parentId: postId },
+  })
+
+  const comments = data?.comments
+
+  const [hasMoreData, setHasMoreData] = useState(true)
+
+  const infiniteScrollRef = useInfiniteScroll({
+    hasMoreData,
+    onIntersecting: async () =>
+      comments &&
+      comments.length > 0 &&
+      fetchMore({
+        variables: {
+          lastId: comments[comments.length - 1].id,
+        },
+      })
+        .then((response) => response.data.comments?.length !== 20 && setHasMoreData(false))
+        .catch(() => setHasMoreData(false)),
+  })
+
+  // 댓글 생성 Intersection Observer
+  const postCreationRef = useRef<HTMLFormElement>(null)
+
+  const [showButton, setShowButton] = useState(false)
+
+  useEffect(() => {
+    if (postCreationRef.current) {
+      const postCreationIntersect = new IntersectionObserver((entries) => {
+        setShowButton(!entries[0].isIntersecting)
+      })
+
+      postCreationIntersect.observe(postCreationRef.current)
+
+      return () => {
+        postCreationIntersect.disconnect()
+      }
+    }
+  }, [])
+
+  return (
+    <>
+      <PostLoadingCard />
+
+      {comments
+        ? comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
+        : !loading && <div>comments not found</div>}
+
+      {loading && (
+        <>
+          <PostLoadingCard />
+          <PostLoadingCard />
+          <PostLoadingCard />
+        </>
+      )}
+
+      {!loading && hasMoreData ? (
+        <div ref={infiniteScrollRef}>무한 스크롤</div>
+      ) : (
+        <div>모든 댓글을 불러왔어요</div>
+      )}
+    </>
   )
 }
 

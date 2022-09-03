@@ -15,11 +15,5 @@ query Post($id: ID!) {
         imageUrl
       }
     }
-    comments {
-      ...postCard
-      comments {
-        ...postCard
-      }
-    }
   }
 }
