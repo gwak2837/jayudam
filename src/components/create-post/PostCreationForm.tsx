@@ -1,10 +1,7 @@
-import { ApolloCache, gql } from '@apollo/client'
-import { ReactNode, RefObject } from 'react'
+import { ReactNode, RefObject, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import { useCreatePostMutation } from 'src/graphql/generated/types-and-hooks'
 import { FlexBetween_ } from 'src/styles'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
@@ -17,16 +14,28 @@ import { PrimaryButton } from '../sharing-post/SharingPostButton'
 
 type Props = {
   children: ReactNode
+  disabled: boolean
+  haveToReset: boolean
+  onReset: any
+  onSubmit: any
   postCreationRef: RefObject<HTMLFormElement>
 }
 
-export function PostCreationForm({ children, postCreationRef }: Props) {
+export function PostCreationForm({
+  children,
+  disabled,
+  haveToReset,
+  onReset,
+  onSubmit,
+  postCreationRef,
+}: Props) {
   const { name } = useRecoilValue(currentUser)
 
   const {
     formState: { errors },
     handleSubmit,
     register,
+    reset,
     watch,
   } = useForm({
     defaultValues: {
@@ -35,20 +44,6 @@ export function PostCreationForm({ children, postCreationRef }: Props) {
   })
 
   const contentLength = watch('content').length
-
-  const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
-    onCompleted: toastResult,
-    onError: toastApolloError,
-    update: addNewPost,
-  })
-
-  function createPost({ content }: any) {
-    createPostMutation({
-      variables: {
-        input: { content },
-      },
-    })
-  }
 
   function needLogin() {
     if (!name) {
@@ -60,14 +55,20 @@ export function PostCreationForm({ children, postCreationRef }: Props) {
     }
   }
 
+  useEffect(() => {
+    if (haveToReset) {
+      reset()
+      onReset()
+    }
+  }, [haveToReset, onReset, reset])
+
   return (
-    <form onSubmit={handleSubmit(createPost)} ref={postCreationRef}>
+    <form onSubmit={handleSubmit(onSubmit)} ref={postCreationRef}>
       <Card onClick={needLogin}>
         {children}
-
         <GridSmallGap>
           <AutoTextarea
-            disabled={!name || createLoading}
+            disabled={!name || disabled}
             onInput={resizeTextareaHeight}
             onKeyDown={submitWhenCmdEnter}
             placeholder="Add content"
@@ -80,7 +81,7 @@ export function PostCreationForm({ children, postCreationRef }: Props) {
                 !name ||
                 contentLength === 0 ||
                 contentLength > 200 ||
-                createLoading ||
+                disabled ||
                 Object.keys(errors).length !== 0
               }
               type="submit"
@@ -110,30 +111,3 @@ const GridSmallGap = styled.div`
 export const PrimaryOrError = styled.span<{ error: boolean }>`
   color: ${(p) => (p.error ? p.theme.error : p.theme.primaryText)};
 `
-
-function toastResult() {
-  toast.success('이야기 생성 완료')
-}
-
-function addNewPost(cache: ApolloCache<any>, { data }: any) {
-  return (
-    data &&
-    cache.modify({
-      fields: {
-        posts: (existingPosts = []) => {
-          return [
-            cache.readFragment({
-              id: `Post:${data.createPost?.newPost.id}`,
-              fragment: gql`
-                fragment NewPost on Post {
-                  id
-                }
-              `,
-            }),
-            ...existingPosts,
-          ]
-        },
-      },
-    })
-  )
-}

@@ -1,37 +1,24 @@
 import { gql } from '@apollo/client'
 import Image from 'next/future/image'
-import { useRouter } from 'next/router'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import { useCreatePostMutation, useMeQuery } from 'src/graphql/generated/types-and-hooks'
+import { useCreatePostMutation, useMyProfileQuery } from 'src/graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from 'src/pages/post'
 import QuillPenIcon from 'src/svgs/quill-pen.svg'
-import XIcon from 'src/svgs/x.svg'
-import { stopPropagation } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
-import { AutoTextarea_ } from '../atoms/AutoTextarea'
 
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
-import {
-  Button0,
-  FlexBetweenCenter,
-  ModalOrFullscreen,
-  PrimaryButton,
-} from '../sharing-post/SharingPostButton'
-import { PrimaryOrError } from './PostCreationForm'
+import PostCreationModalForm from './PostCreationModalForm'
 
 type Props = {
   show: boolean
 }
 
-export default function CreatingPostButton({ show }: Props) {
+export default function PostCreationButton({ show }: Props) {
   const { name } = useRecoilValue(currentUser)
 
   // Modal
@@ -53,25 +40,15 @@ export default function CreatingPostButton({ show }: Props) {
     setOpenCreatingPostModal(false)
   }
 
-  // 이야기 생성
-  const { data: data3 } = useMeQuery({
+  // 프로필 불러오기
+  const { data } = useMyProfileQuery({
     onError: toastApolloError,
     skip: !name,
   })
 
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-    watch,
-  } = useForm({
-    defaultValues: {
-      content: '',
-    },
-  })
+  const me = data?.user
 
-  const contentLength = watch('content').length
-
+  // 이야기 생성하기
   const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
     onCompleted: () => {
       toast.success('이야기 생성 완료')
@@ -113,51 +90,24 @@ export default function CreatingPostButton({ show }: Props) {
         <QuillPenIcon width="32" />
       </Button>
       <Modal lazy open={openCreatingPostModal} onClose={closeSharingModal} showCloseButton={false}>
-        <ModalOrFullscreen onClick={stopPropagation} onSubmit={handleSubmit(createPost)}>
-          <FlexBetweenCenter>
-            <Button0>
-              <XIcon width="40px" onClick={closeSharingModal} />
-            </Button0>
-            <PrimaryButton
-              disabled={contentLength === 0 || Object.keys(errors).length !== 0}
-              type="submit"
-            >
-              글쓰기
-            </PrimaryButton>
-          </FlexBetweenCenter>
-          <Flex>
-            <Image
-              src={data3?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
-              alt="profile"
-              width="40"
-              height="40"
-              style={borderRadiusCircle}
-            />
-            <AutoTextarea
-              autoFocus
-              disabled={createLoading}
-              onInput={resizeTextareaHeight}
-              onKeyDown={submitWhenCmdEnter}
-              placeholder="Add content"
-              {...register('content', {
-                required: true,
-                minLength: 1,
-                maxLength: 200,
-              })}
-            />
-          </Flex>
-          <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
-        </ModalOrFullscreen>
+        <PostCreationModalForm
+          disabled={createLoading}
+          onClose={closeSharingModal}
+          onSubmit={createPost}
+        >
+          <Image
+            src={me?.imageUrl ?? '/images/shortcut-icon.webp'}
+            alt="profile"
+            width="40"
+            height="40"
+            style={borderRadiusCircle}
+          />
+          <div />
+        </PostCreationModalForm>
       </Modal>
     </>
   )
 }
-
-const AutoTextarea = styled(AutoTextarea_)`
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
-`
 
 const Button = styled.button<{ show: boolean }>`
   display: flex;
@@ -169,9 +119,4 @@ const Button = styled.button<{ show: boolean }>`
   padding: 5px;
   transition: visibility 0.2s ease-out, opacity 0.2s ease-out;
   visibility: ${(p) => (p.show ? 'visible' : 'hidden')};
-`
-
-const Flex = styled.div`
-  display: flex;
-  gap: 0.5rem;
 `

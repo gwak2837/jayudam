@@ -1,3 +1,4 @@
+import { ApolloCache } from '@apollo/client'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -7,18 +8,22 @@ import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import LoginLink from 'src/components/atoms/LoginLink'
 import CommentCard, { PostLoadingCard } from 'src/components/CommentCard'
+import PostCreationButton from 'src/components/create-post/PostCreationButton'
+import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
 import PageHead from 'src/components/PageHead'
 import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
 import SharedPostCard from 'src/components/sharing-post/SharingPostCard'
 import {
   Post,
   useCommentsQuery,
+  useCreateCommentMutation,
+  useMyProfileQuery,
   usePostQuery,
   useToggleLikingPostMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
-import { flexBetween, flexCenter } from 'src/styles'
+import { Skeleton, flexBetween, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
 import CommentIcon from 'src/svgs/CommentIcon'
@@ -49,10 +54,10 @@ export default function PostPage() {
     variables: { id: postId },
   })
 
-  const parentPost = data?.post as Post
+  const post = data?.post as Post
   const sharingPost = data?.post?.sharingPost as Post
-  const author = parentPost?.author
-  const parentAuthor = parentPost?.parentAuthor
+  const author = post?.author
+  const parentAuthor = post?.parentAuthor
 
   // 좋아요
   const [toggleLikingPostMutation, { loading: likeLoading }] = useToggleLikingPostMutation({
@@ -91,9 +96,28 @@ export default function PostPage() {
     }
   }
 
+  // 댓글 생성 Intersection Observer
+  const postCreationRef = useRef<HTMLFormElement>(null)
+
+  const [showButton, setShowButton] = useState(false)
+
+  useEffect(() => {
+    if (postCreationRef.current) {
+      const postCreationIntersect = new IntersectionObserver((entries) => {
+        setShowButton(!entries[0].isIntersecting)
+      })
+
+      postCreationIntersect.observe(postCreationRef.current)
+
+      return () => {
+        postCreationIntersect.disconnect()
+      }
+    }
+  }, [])
+
   // 기타
-  const title = `${author?.nickname ?? '사용자'}: ${
-    parentPost?.content?.substring(0, 20) ?? '내용'
+  const title = `${author?.nickname ?? '글쓴이'}: ${
+    post?.content?.substring(0, 20) ?? '내용'
   } - 자유담`
 
   return (
@@ -101,13 +125,16 @@ export default function PostPage() {
       <Navigation>
         <main>
           <Sticky>
-            <BackArrowIcon onClick={goBack} />
-            이야기
+            <FlexCenter>
+              <BackArrowIcon width="1.5rem" onClick={goBack} />
+              이야기
+            </FlexCenter>
+            <PostCreationButton show={showButton} />
           </Sticky>
           <Grid>
-            {loading ? (
+            {!postId || loading ? (
               <div>post loading</div>
-            ) : parentPost ? (
+            ) : post ? (
               <>
                 <FlexCenter>
                   <Image
@@ -136,37 +163,35 @@ export default function PostPage() {
                   </GreyInlineH5>
                 )}
                 <p>
-                  {parentPost.deletionTime
-                    ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-                    : parentPost.content}
+                  {post.deletionTime
+                    ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+                    : post.content}
                 </p>
 
                 {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
 
                 <div>
-                  {new Date(parentPost.creationTime).toLocaleString()}{' '}
-                  <span>{parentPost.updateTime && '(수정됨)'}</span>
+                  {new Date(post.creationTime).toLocaleString()}{' '}
+                  <span>{post.updateTime && '(수정됨)'}</span>
                 </div>
                 <GridColumn4Center>
                   <div>
-                    <Button
-                      color={theme.error}
-                      onClick={toggleLikingPost}
-                      selected={parentPost.isLiked}
-                    >
-                      <HeartIcon /> <span>{parentPost.likeCount}</span>
+                    <Button color={theme.error} onClick={toggleLikingPost} selected={post.isLiked}>
+                      <HeartIcon /> <span>{post.likeCount}</span>
                     </Button>
                   </div>
                   <div>
                     <Button
                       color={theme.primaryText}
                       onClick={showPostCreationModal}
-                      selected={parentPost.doIComment}
+                      selected={post.doIComment}
                     >
-                      <CommentIcon /> <span>{parentPost.commentCount}</span>
+                      <CommentIcon /> <span>{post.commentCount}</span>
                     </Button>
                   </div>
-                  <SharingPostButton post={parentPost} sharedPost={parentPost} />
+                  <div>
+                    <SharingPostButton post={post} sharedPost={post} />
+                  </div>
                   <div>기타</div>
                 </GridColumn4Center>
               </>
@@ -175,18 +200,19 @@ export default function PostPage() {
             )}
           </Grid>
 
-          <Comments />
+          <Comments postCreationRef={postCreationRef} />
         </main>
       </Navigation>
     </PageHead>
   )
 }
 
-function Comments() {
-  // 댓글 불러오기
+function Comments({ postCreationRef }: any) {
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
+  const { name } = useRecoilValue(currentUser)
 
+  // 댓글 불러오기
   const { data, loading, fetchMore } = useCommentsQuery({
     notifyOnNetworkStatusChange: true,
     onError: toastApolloError,
@@ -212,28 +238,58 @@ function Comments() {
         .catch(() => setHasMoreData(false)),
   })
 
-  // 댓글 생성 Intersection Observer
-  const postCreationRef = useRef<HTMLFormElement>(null)
+  // 프로필 불러오기
+  const { data: data2, loading: profileLoading } = useMyProfileQuery({
+    onError: toastApolloError,
+    skip: !name,
+  })
 
-  const [showButton, setShowButton] = useState(false)
+  const me = data2?.user
 
-  useEffect(() => {
-    if (postCreationRef.current) {
-      const postCreationIntersect = new IntersectionObserver((entries) => {
-        setShowButton(!entries[0].isIntersecting)
-      })
+  // 댓글 생성
+  const [createPostMutation, { loading: createLoading }] = useCreateCommentMutation({
+    onCompleted: () => {
+      toast.success('댓글 생성 완료')
+      setIsSubmitionSuccess(true)
+    },
+    onError: toastApolloError,
+    update: addNewPost,
+  })
 
-      postCreationIntersect.observe(postCreationRef.current)
+  const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
 
-      return () => {
-        postCreationIntersect.disconnect()
-      }
-    }
-  }, [])
+  function createPost({ content }: any) {
+    createPostMutation({
+      variables: {
+        input: {
+          content,
+          parentPostId: postId,
+        },
+      },
+    })
+  }
 
   return (
     <>
-      <PostLoadingCard />
+      <PostCreationForm
+        disabled={createLoading}
+        haveToReset={isSubmitionSuccess}
+        onReset={() => setIsSubmitionSuccess(false)}
+        onSubmit={createPost}
+        postCreationRef={postCreationRef}
+      >
+        {profileLoading ? (
+          <Skeleton width="32px" height="32px" borderRadius="50%" />
+        ) : (
+          <Image
+            src={me?.imageUrl ?? '/images/shortcut-icon.webp'}
+            alt="profile"
+            width="32"
+            height="32"
+            style={borderRadiusCircle}
+          />
+        )}
+      </PostCreationForm>
 
       {comments
         ? comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
@@ -256,19 +312,19 @@ function Comments() {
   )
 }
 
-const Sticky = styled.div`
+const Sticky = styled.header`
   position: sticky;
   top: 0;
+  z-index: 1;
 
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  background: #fff;
-  padding: 0 1rem;
+  gap: 1rem;
 
-  svg {
-    width: 3rem;
-    padding: 0.5rem 1rem 0.5rem 0;
-  }
+  background: #fff;
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
 `
 
 const Grid = styled.div`
@@ -370,3 +426,19 @@ export const Button = styled.button<{ color: string; selected: boolean }>`
     }
   }
 `
+
+function addNewPost(cache: ApolloCache<any>, { data }: any) {
+  if (!data) return
+
+  const newPost = {
+    id: data.createPost?.newPost.id,
+    __typename: 'Post',
+  }
+
+  return cache.modify({
+    fields: {
+      comments: (existingPosts = []) => [...existingPosts, newPost],
+      posts: (existingPosts = []) => [newPost, ...existingPosts],
+    },
+  })
+}

@@ -1,17 +1,14 @@
-import LoginLink from 'src/components/atoms/LoginLink'
 import { gql } from '@apollo/client'
 import Image from 'next/future/image'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import LoginLink from 'src/components/atoms/LoginLink'
 import {
   Post,
   useDeleteSharingPostMutation,
-  useMeQuery,
+  useMyProfileQuery,
   useSharePostMutation,
 } from 'src/graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from 'src/pages/post'
@@ -20,16 +17,14 @@ import { SubmitButton } from 'src/pages/register'
 import { flexBetween } from 'src/styles'
 import { theme } from 'src/styles/global'
 import ShareIcon from 'src/svgs/ShareIcon'
-import XIcon from 'src/svgs/x.svg'
 import { stopPropagation } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
+import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import Modal from '../atoms/Modal'
+import PostCreationModalForm from '../create-post/PostCreationModalForm'
 import SharedPostCard from './SharingPostCard'
-import { AutoTextarea_ } from '../atoms/AutoTextarea'
 
 type Props2 = {
   post: Post
@@ -37,7 +32,6 @@ type Props2 = {
 }
 
 export default function SharingPostButton({ post, sharedPost }: Props2) {
-  const router = useRouter()
   const { name } = useRecoilValue(currentUser)
 
   // 생성
@@ -65,20 +59,13 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
     setSharingPostModal(false)
   }
 
-  const { data } = useMeQuery({
+  // 프로필 불러오기
+  const { data } = useMyProfileQuery({
     onError: toastApolloError,
     skip: !name,
   })
 
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-  } = useForm({
-    defaultValues: {
-      content: '',
-    },
-  })
+  const me = data?.user
 
   const [sharePostMutation, { loading: shareLoading }] = useSharePostMutation({
     onCompleted: () => {
@@ -141,7 +128,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
   }
 
   return (
-    <div>
+    <>
       <Button color={theme.secondary} onClick={openSharingModal} selected={post.doIShare}>
         <ShareIcon /> <span>{post.sharedCount}</span>
       </Button>
@@ -151,59 +138,39 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
         onClose={closeDeletingSharingPost}
         showCloseButton={false}
       >
-        <SmallModal onClick={stopPropagation}>
+        <SmallForm onClick={stopPropagation}>
           <h3>공유했던 글을 삭제할까요?</h3>
           <Grid1to1>
-            <button onClick={closeDeletingSharingPost}>취소</button>
-            <button onClick={deleteSharingPost} type="button">
+            <button disabled={deleteLoading} onClick={closeDeletingSharingPost}>
+              취소
+            </button>
+            <button disabled={deleteLoading} onClick={deleteSharingPost} type="button">
               삭제
             </button>
           </Grid1to1>
-        </SmallModal>
+        </SmallForm>
       </Modal>
       <Modal lazy open={openSharingPostModal} onClose={closeSharingModal} showCloseButton={false}>
-        <ModalOrFullscreen onClick={stopPropagation} onSubmit={handleSubmit(sharePost)}>
-          <FlexBetweenCenter>
-            <Button0>
-              <XIcon width="40px" onClick={closeSharingModal} />
-            </Button0>
-            <PrimaryButton disabled={errors && Object.keys(errors).length !== 0} type="submit">
-              글쓰기
-            </PrimaryButton>
-          </FlexBetweenCenter>
-          <Flex>
-            <Image
-              src={data?.user?.imageUrl ?? '/images/shortcut-icon.webp'}
-              alt="profile"
-              width="40"
-              height="40"
-              style={borderRadiusCircle}
-            />
-            <AutoTextarea
-              autoFocus
-              disabled={shareLoading}
-              onInput={resizeTextareaHeight}
-              onKeyDown={submitWhenCmdEnter}
-              placeholder="Add content"
-              {...register('content', {
-                maxLength: 200,
-              })}
-            />
-          </Flex>
+        <PostCreationModalForm
+          disabled={shareLoading}
+          onClose={closeSharingModal}
+          onSubmit={sharePost}
+        >
+          <Image
+            src={me?.imageUrl ?? '/images/shortcut-icon.webp'}
+            alt="profile"
+            width="40"
+            height="40"
+            style={borderRadiusCircle}
+          />
           <SharedPostCard sharedPost={sharedPost} />
-        </ModalOrFullscreen>
+        </PostCreationModalForm>
       </Modal>
-    </div>
+    </>
   )
 }
 
-const AutoTextarea = styled(AutoTextarea_)`
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
-`
-
-const SmallModal = styled.form`
+const SmallForm = styled.form`
   background: ${(p) => p.theme.backgroud};
   border-radius: 0.5rem;
   padding: 1rem;
@@ -214,7 +181,7 @@ const SmallModal = styled.form`
   gap: 1rem;
 `
 
-export const ModalOrFullscreen = styled(SmallModal)`
+export const FullscreenForm = styled(SmallForm)`
   width: 100%;
   height: 100%;
   border-radius: 0;
