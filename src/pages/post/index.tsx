@@ -127,8 +127,6 @@ export default function PostsPage() {
             )}
           </PostCreationForm>
 
-          <PostLoadingCard />
-
           {posts
             ? posts.map((post) => (
                 <CommentCard key={post.id} comment={post as Post} showSharedPost />
@@ -143,11 +141,14 @@ export default function PostsPage() {
             </>
           )}
 
-          {!postLoading && hasMoreData ? (
-            <div ref={infiniteScrollRef}>무한 스크롤</div>
-          ) : (
-            <div>모든 게시글을 불러왔어요</div>
-          )}
+          {!postLoading &&
+            (hasMoreData ? (
+              <div ref={infiniteScrollRef}>
+                <PostLoadingCard />
+              </div>
+            ) : (
+              <div>모든 게시글을 불러왔어요</div>
+            ))}
         </main>
       </Navigation>
     </PageHead>

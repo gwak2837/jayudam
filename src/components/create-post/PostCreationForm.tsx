@@ -2,12 +2,12 @@ import { ReactNode, RefObject, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { FlexBetween_ } from 'src/styles'
 import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
+import { FlexBetweenCenter } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import { Card } from '../CommentCard'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
@@ -97,10 +97,6 @@ export function PostCreationForm({
 
 const AutoTextarea = styled(AutoTextarea_)`
   max-height: 50vh;
-`
-
-const FlexBetweenCenter = styled(FlexBetween_)`
-  align-items: center;
 `
 
 const GridSmallGap = styled.div`

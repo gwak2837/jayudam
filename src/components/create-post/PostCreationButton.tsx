@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -22,11 +21,11 @@ export default function PostCreationButton({ show }: Props) {
   const { name } = useRecoilValue(currentUser)
 
   // Modal
-  const [openCreatingPostModal, setOpenCreatingPostModal] = useState(false)
+  const [isModalOpened, setIsModalOpened] = useState(false)
 
-  function openCreatingModal() {
+  function openCreatingPostModal() {
     if (name) {
-      setOpenCreatingPostModal(true)
+      setIsModalOpened(true)
     } else {
       toast.warn(
         <div>
@@ -36,8 +35,8 @@ export default function PostCreationButton({ show }: Props) {
     }
   }
 
-  function closeSharingModal() {
-    setOpenCreatingPostModal(false)
+  function closeCreatingPostModal() {
+    setIsModalOpened(false)
   }
 
   // 프로필 불러오기
@@ -52,26 +51,21 @@ export default function PostCreationButton({ show }: Props) {
   const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
     onCompleted: () => {
       toast.success('이야기 생성 완료')
-      setOpenCreatingPostModal(false)
+      setIsModalOpened(false)
+      setIsSubmitionSuccess(true)
     },
     onError: toastApolloError,
     update: (cache, { data }) =>
       data &&
       cache.modify({
         fields: {
-          posts: (existingPosts = []) => {
-            return [
-              cache.readFragment({
-                id: `Post:${data.createPost?.newPost.id}`,
-                fragment: gql`
-                  fragment NewPost on Post {
-                    id
-                  }
-                `,
-              }),
-              ...existingPosts,
-            ]
-          },
+          posts: (existingPosts = []) => [
+            {
+              id: data.createPost?.newPost.id,
+              __typename: 'Post',
+            },
+            ...existingPosts,
+          ],
         },
       }),
   })
@@ -84,15 +78,19 @@ export default function PostCreationButton({ show }: Props) {
     })
   }
 
+  const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
+
   return (
     <>
-      <Button show={show} onClick={openCreatingModal}>
+      <Button show={show} onClick={openCreatingPostModal}>
         <QuillPenIcon width="32" />
       </Button>
-      <Modal lazy open={openCreatingPostModal} onClose={closeSharingModal} showCloseButton={false}>
+      <Modal lazy open={isModalOpened} onClose={closeCreatingPostModal} showCloseButton={false}>
         <PostCreationModalForm
           disabled={createLoading}
-          onClose={closeSharingModal}
+          haveToReset={isSubmitionSuccess}
+          onClose={closeCreatingPostModal}
+          onReset={() => setIsSubmitionSuccess(false)}
           onSubmit={createPost}
         >
           <Image

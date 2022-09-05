@@ -9,16 +9,6 @@ export const Slider = styled.ul<{ padding?: string }>`
   padding: ${(p) => p.padding ?? 0};
 `
 
-export const FlexBetween_ = styled.div`
-  display: flex;
-  justify-content: space-between;
-`
-
-export const FlexCenter_ = styled.div`
-  display: flex;
-  align-items: center;
-`
-
 export const focusInExpandFwd = keyframes`
   0% {
     letter-spacing: -0.5em;

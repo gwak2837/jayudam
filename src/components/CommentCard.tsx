@@ -1,22 +1,29 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { memo, ReactNode, MouseEvent } from 'react'
+import { MouseEvent, ReactNode, memo } from 'react'
+import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { Post, useToggleLikingPostMutation } from 'src/graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from 'src/pages/post'
-import { LineLink, Button, GridColumn4, GreyInlineH5, Bold } from 'src/pages/post/[id]'
+import { Bold, Button, GreyInlineH5, GridColumn4, LineLink } from 'src/pages/post/[id]'
 import { Skeleton } from 'src/styles'
 import { theme } from 'src/styles/global'
 import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
 import ShareIcon from 'src/svgs/ShareIcon'
-import { stopPropagation } from 'src/utils'
-import styled from 'styled-components'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
+import { stopPropagation } from 'src/utils'
+import { currentUser } from 'src/utils/recoil'
+import styled from 'styled-components'
+
+import { applyLineBreak } from '../utils/react'
+import { FlexBetween, GridSmallGap as GridSmallGap_ } from './atoms/Flex'
+import LoginLink from './atoms/LoginLink'
+import CommentCreationButton from './create-post/CommentCreationButton'
 import SharingPostButton from './sharing-post/SharingPostButton'
 import SharedPostCard from './sharing-post/SharingPostCard'
-import { FlexBetween, GridSmallGap as GridSmallGap_ } from './atoms/Flex'
 
 type Props2 = {
   comment: Post
@@ -54,6 +61,8 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
   const parentAuthor = comment.parentAuthor
   const sharedPost = comment.sharingPost
 
+  const { name } = useRecoilValue(currentUser)
+
   // 해당 글로 이동하기
   const router = useRouter()
 
@@ -78,13 +87,16 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
   function toggleLikingPost(e: any) {
     e.preventDefault()
     e.stopPropagation()
-    toggleLikingPostMutation()
-  }
 
-  // 댓글 달기
-  function showPostCreationModal(e: any) {
-    e.preventDefault()
-    e.stopPropagation()
+    if (name) {
+      toggleLikingPostMutation()
+    } else {
+      toast.warn(
+        <div>
+          로그인이 필요합니다. <LoginLink />
+        </div>
+      )
+    }
   }
 
   return (
@@ -130,7 +142,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
         <p>
           {comment.deletionTime
             ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-            : comment.content}
+            : applyLineBreak(comment.content)}
         </p>
 
         {showSharedPost && sharedPost && <SharedPostCard sharedPost={sharedPost as Post} />}
@@ -142,15 +154,11 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
             </Button>
           </div>
           <div>
-            <Button
-              color={theme.primaryText}
-              onClick={showPostCreationModal}
-              selected={comment.doIComment}
-            >
-              <CommentIcon /> <span>{comment.commentCount}</span>
-            </Button>
+            <CommentCreationButton parentPost={comment} />
           </div>
-          <SharingPostButton post={comment} sharedPost={comment} />
+          <div>
+            <SharingPostButton post={comment} sharedPost={comment} />
+          </div>
           <div>기타</div>
         </GridColumn4>
       </GridSmallGap>
@@ -204,7 +212,7 @@ const FlexColumn = styled.div`
   gap: 0.5rem;
 `
 
-const VerticalLine = styled.div`
+export const VerticalLine = styled.div`
   border-left: 1px solid #888;
   margin: auto;
   flex-grow: 1;

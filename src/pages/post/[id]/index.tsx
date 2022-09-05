@@ -8,6 +8,7 @@ import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import LoginLink from 'src/components/atoms/LoginLink'
 import CommentCard, { PostLoadingCard } from 'src/components/CommentCard'
+import CommentCreationButton from 'src/components/create-post/CommentCreationButton'
 import PostCreationButton from 'src/components/create-post/PostCreationButton'
 import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
 import PageHead from 'src/components/PageHead'
@@ -26,7 +27,6 @@ import Navigation from 'src/layouts/Navigation'
 import { Skeleton, flexBetween, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
-import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import { currentUser } from 'src/utils/recoil'
@@ -71,22 +71,6 @@ export default function PostPage() {
 
     if (name) {
       toggleLikingPostMutation()
-    } else {
-      toast.warn(
-        <div>
-          로그인이 필요합니다. <LoginLink />
-        </div>
-      )
-    }
-  }
-
-  // 댓글 달기
-  function showPostCreationModal(e: any) {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (name) {
-      // toggleLikingPostMutation()
     } else {
       toast.warn(
         <div>
@@ -181,13 +165,7 @@ export default function PostPage() {
                     </Button>
                   </div>
                   <div>
-                    <Button
-                      color={theme.primaryText}
-                      onClick={showPostCreationModal}
-                      selected={post.doIComment}
-                    >
-                      <CommentIcon /> <span>{post.commentCount}</span>
-                    </Button>
+                    <CommentCreationButton parentPost={post} />
                   </div>
                   <div>
                     <SharingPostButton post={post} sharedPost={post} />
@@ -253,7 +231,7 @@ function Comments({ postCreationRef }: any) {
       setIsSubmitionSuccess(true)
     },
     onError: toastApolloError,
-    update: addNewPost,
+    update: addNewComment,
   })
 
   const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
@@ -427,7 +405,7 @@ export const Button = styled.button<{ color: string; selected: boolean }>`
   }
 `
 
-function addNewPost(cache: ApolloCache<any>, { data }: any) {
+export function addNewComment(cache: ApolloCache<any>, { data }: any) {
   if (!data) return
 
   const newPost = {

@@ -33,24 +33,6 @@ export function getViewportHeight() {
   )
 }
 
-export function mulberry32(a: number) {
-  return function () {
-    let t = (a += 0x6d2b79f5)
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-export function shuffleArray(array: unknown[], getRandomNumber: () => number) {
-  const newArray = [...array]
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(getRandomNumber() * (i + 1))
-    ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-  }
-  return newArray
-}
-
 export function stopPropagation(e: MouseEvent<HTMLElement>) {
   e.stopPropagation()
 }
@@ -108,14 +90,6 @@ export async function uploadImageFiles(formData: FormData) {
   return response.json()
 }
 
-export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
-  if (e.code === 'Enter' && e.shiftKey) {
-    e.preventDefault() // To prevent adding line break when shift+enter pressed
-    const submitEvent = new Event('submit', { bubbles: true })
-    const parentForm = (e.target as any).form as HTMLFormElement
-    parentForm.dispatchEvent(submitEvent)
-  }
-}
 
 export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
   if (a === b) return true

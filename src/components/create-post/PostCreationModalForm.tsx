@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import XIcon from 'src/svgs/x.svg'
 import { stopPropagation } from 'src/utils'
@@ -7,27 +7,32 @@ import { resizeTextareaHeight, submitWhenCmdEnter } from 'src/utils/react'
 import styled from 'styled-components'
 
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
-import { Flex as Flex_ } from '../atoms/Flex'
-import {
-  Button0,
-  FlexBetweenCenter,
-  FullscreenForm,
-  PrimaryButton,
-} from '../sharing-post/SharingPostButton'
+import { FlexBetweenCenter, Flex as Flex_ } from '../atoms/Flex'
+import { Button0, FullscreenForm, PrimaryButton } from '../sharing-post/SharingPostButton'
 import { PrimaryOrError } from './PostCreationForm'
 
 type Props = {
   children: ReactNode[]
   disabled: boolean
+  haveToReset: boolean
   onClose: any
+  onReset: any
   onSubmit: any
 }
 
-export default function PostCreationModalForm({ children, disabled, onClose, onSubmit }: Props) {
+export default function PostCreationModalForm({
+  children,
+  disabled,
+  haveToReset,
+  onClose,
+  onReset,
+  onSubmit,
+}: Props) {
   const {
     formState: { errors },
     handleSubmit,
     register,
+    reset,
     watch,
   } = useForm({
     defaultValues: {
@@ -36,6 +41,13 @@ export default function PostCreationModalForm({ children, disabled, onClose, onS
   })
 
   const contentLength = watch('content').length
+
+  useEffect(() => {
+    if (haveToReset) {
+      reset()
+      onReset()
+    }
+  }, [haveToReset, onReset, reset])
 
   return (
     <FullscreenForm onClick={stopPropagation} onSubmit={handleSubmit(onSubmit)}>
@@ -50,6 +62,7 @@ export default function PostCreationModalForm({ children, disabled, onClose, onS
           글쓰기
         </PrimaryButton>
       </FlexBetweenCenter>
+      {children[2]}
       <Flex>
         {children[0]}
         <AutoTextarea

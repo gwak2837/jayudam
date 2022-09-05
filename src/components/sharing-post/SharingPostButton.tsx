@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import Image from 'next/future/image'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -14,7 +13,6 @@ import {
 import { borderRadiusCircle } from 'src/pages/post'
 import { Button } from 'src/pages/post/[id]'
 import { SubmitButton } from 'src/pages/register'
-import { flexBetween } from 'src/styles'
 import { theme } from 'src/styles/global'
 import ShareIcon from 'src/svgs/ShareIcon'
 import { stopPropagation } from 'src/utils'
@@ -34,7 +32,7 @@ type Props2 = {
 export default function SharingPostButton({ post, sharedPost }: Props2) {
   const { name } = useRecoilValue(currentUser)
 
-  // 생성
+  // Modal
   const [openSharingPostModal, setSharingPostModal] = useState(false)
 
   function openSharingModal(e: any) {
@@ -67,29 +65,25 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
 
   const me = data?.user
 
+  // 이야기 공유
   const [sharePostMutation, { loading: shareLoading }] = useSharePostMutation({
     onCompleted: () => {
       toast.success('이야기 공유 완료')
       setSharingPostModal(false)
+      setIsSubmitionSuccess(true)
     },
     onError: toastApolloError,
     update: (cache, { data }) =>
       data &&
       cache.modify({
         fields: {
-          posts: (existingPosts = []) => {
-            return [
-              cache.readFragment({
-                id: `Post:${data.createPost?.newPost.id}`,
-                fragment: gql`
-                  fragment NewPost on Post {
-                    id
-                  }
-                `,
-              }),
-              ...existingPosts,
-            ]
-          },
+          posts: (existingPosts = []) => [
+            {
+              id: data.createPost?.newPost.id,
+              __typename: 'Post',
+            },
+            ...existingPosts,
+          ],
         },
       }),
   })
@@ -104,6 +98,8 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
       },
     })
   }
+
+  const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
 
   // 삭제
   const [openDeletingSharingPost, setDeletingSharingPost] = useState(false)
@@ -153,6 +149,8 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
       <Modal lazy open={openSharingPostModal} onClose={closeSharingModal} showCloseButton={false}>
         <PostCreationModalForm
           disabled={shareLoading}
+          haveToReset={isSubmitionSuccess}
+          onReset={() => setIsSubmitionSuccess(false)}
           onClose={closeSharingModal}
           onSubmit={sharePost}
         >
@@ -194,11 +192,6 @@ export const FullscreenForm = styled(SmallForm)`
   }
 `
 
-export const FlexBetweenCenter = styled.div`
-  ${flexBetween}
-  align-items: center;
-`
-
 export const Button0 = styled.button`
   padding: 0;
   display: flex;
@@ -209,11 +202,6 @@ export const PrimaryButton = styled(SubmitButton)`
   border-radius: 999px;
   padding: 0.5rem 1rem;
   width: auto;
-`
-
-const Flex = styled.div`
-  display: flex;
-  gap: 0.5rem;
 `
 
 const Grid1to1 = styled.div`
