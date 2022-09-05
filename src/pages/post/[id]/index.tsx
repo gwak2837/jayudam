@@ -6,14 +6,19 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import { FlexBetween, FlexCenter, FlexColumn, GridSmallGap } from 'src/components/atoms/Flex'
 import LoginLink from 'src/components/atoms/LoginLink'
-import CommentCard, { PostLoadingCard } from 'src/components/CommentCard'
+import CommentCard, { PostLoadingCard, Width } from 'src/components/CommentCard'
 import CommentCreationButton from 'src/components/create-post/CommentCreationButton'
 import PostCreationButton from 'src/components/create-post/PostCreationButton'
 import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
 import PageHead from 'src/components/PageHead'
 import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
-import SharedPostCard from 'src/components/sharing-post/SharingPostCard'
+import SharedPostCard, {
+  GreyH5,
+  OverflowAuto,
+  TextOverflow,
+} from 'src/components/sharing-post/SharingPostCard'
 import {
   Post,
   useCommentsQuery,
@@ -24,10 +29,12 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import Navigation from 'src/layouts/Navigation'
-import { Skeleton, flexBetween, flexCenter } from 'src/styles'
+import { Skeleton, flexCenter } from 'src/styles'
 import { theme } from 'src/styles/global'
 import BackArrowIcon from 'src/svgs/back-arrow.svg'
+import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
+import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
@@ -109,18 +116,52 @@ export default function PostPage() {
       <Navigation>
         <main>
           <Sticky>
-            <FlexCenter>
+            <FlexCenterSamllGap>
               <BackArrowIcon width="1.5rem" onClick={goBack} />
               이야기
-            </FlexCenter>
+            </FlexCenterSamllGap>
             <PostCreationButton show={showButton} />
           </Sticky>
           <Grid>
             {!postId || loading ? (
-              <div>post loading</div>
+              <>
+                <FlexCenterSamllGap>
+                  <Skeleton width="40px" height="40px" borderRadius="50%" />
+                  <FlexBetweenGap>
+                    <GridSmallGap>
+                      <Skeleton width="50%" />
+                      <Skeleton width="30%" />
+                    </GridSmallGap>
+                    <ThreeDotsIcon width="1.5rem" />
+                  </FlexBetweenGap>
+                </FlexCenterSamllGap>
+
+                <GridSmallGap>
+                  <Skeleton />
+                  <Skeleton width="80%" />
+                  <Skeleton width="50%" />
+                </GridSmallGap>
+
+                {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
+
+                <Skeleton width="30%" />
+
+                <GridColumn4Center>
+                  <Width>
+                    <HeartIcon /> <Skeleton width="1rem" />
+                  </Width>
+                  <Width>
+                    <CommentIcon /> <Skeleton width="1rem" />
+                  </Width>
+                  <Width>
+                    <ShareIcon /> <Skeleton width="1rem" />
+                  </Width>
+                  <div>기타</div>
+                </GridColumn4Center>
+              </>
             ) : post ? (
               <>
-                <FlexCenter>
+                <FlexCenterSamllGap>
                   <Image
                     src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
                     alt="profile"
@@ -128,24 +169,30 @@ export default function PostPage() {
                     height="40"
                     style={borderRadiusCircle}
                   />
-                  <FlexBetween>
-                    <div>
-                      <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>
+                  <FlexBetweenGap>
+                    <FlexColumnSmallGap>
+                      <TextOverflow>
+                        <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>
+                      </TextOverflow>
                       {author && (
+                        // <OverflowAuto>
                         <LineLink href={`/@${author.name}`}>
                           <GreyH5>@{author.name}</GreyH5>
                         </LineLink>
+                        // </OverflowAuto>
                       )}
-                    </div>
+                    </FlexColumnSmallGap>
                     <ThreeDotsIcon width="1.5rem" />
-                  </FlexBetween>
-                </FlexCenter>
+                  </FlexBetweenGap>
+                </FlexCenterSamllGap>
+
                 {parentAuthor && author && parentAuthor.name !== author.name && (
                   <GreyInlineH5>
                     Replying to{' '}
                     <LineLink href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</LineLink>
                   </GreyInlineH5>
                 )}
+
                 <p>
                   {post.deletionTime
                     ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
@@ -311,8 +358,7 @@ const Grid = styled.div`
   padding: 1rem;
 `
 
-const FlexBetween = styled.div`
-  ${flexBetween}
+const FlexBetweenGap = styled(FlexBetween)`
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
@@ -329,18 +375,20 @@ const FlexBetween = styled.div`
   }
 `
 
-export const FlexCenter = styled.div`
-  ${flexCenter}
-  gap: 0.5rem;
-`
-
-export const GreyH5 = styled.h5`
+export const GreyInlineH5 = styled.h5`
   color: ${(p) => p.theme.primaryTextAchromatic};
   font-weight: 400;
+  display: inline-block;
 `
 
-export const GreyInlineH5 = styled(GreyH5)`
-  display: inline-block;
+const FlexCenterSamllGap = styled(FlexCenter)`
+  gap: 0 0.5rem;
+  min-width: 0;
+`
+
+const FlexColumnSmallGap = styled(FlexColumn)`
+  gap: 0 0.5rem;
+  min-width: 0;
 `
 
 export const GridColumn4 = styled.div`

@@ -12,9 +12,12 @@ export const FlexBetweenCenter = styled(FlexBetween)`
   align-items: center;
 `
 
-export const FlexCenterCenter = styled(Flex)`
-  justify-content: center;
+export const FlexCenter = styled(Flex)`
   align-items: center;
+`
+
+export const FlexCenterCenter = styled(FlexCenter)`
+  justify-content: center;
 `
 
 export const FlexColumn = styled(Flex)`
@@ -27,6 +30,11 @@ export const GridSmallGap = styled.div`
 `
 
 export const GridGap = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`
+
+export const GridBigGap = styled.div`
   display: grid;
   gap: 1rem;
 `

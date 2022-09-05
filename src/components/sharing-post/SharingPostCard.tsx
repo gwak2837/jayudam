@@ -6,7 +6,8 @@ import { borderRadiusCircle } from 'src/pages/post'
 import { LineLink } from 'src/pages/post/[id]'
 import { stopPropagation } from 'src/utils'
 import styled, { css } from 'styled-components'
-import { GridSmallGap } from '../atoms/Flex'
+
+import { FlexCenter, GridSmallGap } from '../atoms/Flex'
 
 type Props = {
   sharedPost: Post
@@ -35,7 +36,7 @@ export default function SharedPostCard({ sharedPost }: Props) {
   return (
     <Border onClick={goToSharedPost}>
       <GridSmallGap>
-        <Flex>
+        <FlexCenterGap>
           <Image
             src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
             alt="profile"
@@ -44,18 +45,19 @@ export default function SharedPostCard({ sharedPost }: Props) {
             onClick={goToUserPage}
             style={borderRadiusCircle}
           />
-          <FlexItem onClick={goToUserPage}>{author?.nickname ?? '탈퇴한 사용자'}</FlexItem>
+          <TextOverflow onClick={goToUserPage}>{author?.nickname ?? '탈퇴한 사용자'}</TextOverflow>
           {author && (
-            <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
-              <GreyH5>@{author.name}</GreyH5>
-            </LineLink>
+            <OverflowAuto>
+              <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+                <GreyH5>@{author.name}</GreyH5>
+              </LineLink>
+            </OverflowAuto>
           )}
-          {' · '}
-          <FlexItem>
+          <TextOverflow>
             {new Date(sharedPost.creationTime).toLocaleDateString()}{' '}
             <span>{sharedPost.updateTime && '(수정됨)'}</span>
-          </FlexItem>
-        </Flex>
+          </TextOverflow>
+        </FlexCenterGap>
         <p>
           {sharedPost.deletionTime
             ? `${new Date(sharedPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
@@ -72,28 +74,29 @@ const Border = styled.div`
   padding: 0.8rem;
 `
 
-const Flex = styled.div`
-  display: flex;
-  align-items: center;
+const FlexCenterGap = styled(FlexCenter)`
   gap: 0.5rem;
 
   min-width: 0;
 `
 
-const flexItemTextOverflow = css`
-  min-width: 1rem;
+export const TextOverflow = styled.div`
+  min-width: 2rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 `
 
-const GreyH5 = styled.h5`
+export const OverflowAuto = styled.div`
+  overflow: auto;
+`
+
+export const GreyH5 = styled.h5`
   color: ${(p) => p.theme.primaryTextAchromatic};
   font-weight: 400;
 
-  ${flexItemTextOverflow}
-`
-
-const FlexItem = styled.div`
-  ${flexItemTextOverflow}
+  min-width: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `

@@ -3,7 +3,11 @@ import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import { useCreatePostMutation, useMyProfileQuery } from 'src/graphql/generated/types-and-hooks'
+import {
+  Post,
+  useCreatePostMutation,
+  useMyProfileQuery,
+} from 'src/graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from 'src/pages/post'
 import { Button, addNewComment } from 'src/pages/post/[id]'
 import { theme } from 'src/styles/global'
@@ -12,14 +16,14 @@ import { applyLineBreak } from 'src/utils/react'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
-import { FlexColumn as FlexColumn_, Flex as Flex_, GridSmallGap } from '../atoms/Flex'
+import { FlexColumn as FlexColumn_, Flex as Flex_, GridGap } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import { VerticalLine } from '../CommentCard'
 import PostCreationModalForm from './PostCreationModalForm'
 
 type Props = {
-  parentPost: any
+  parentPost: Post
 }
 
 export default function CommentCreationButton({ parentPost }: Props) {
@@ -35,7 +39,11 @@ export default function CommentCreationButton({ parentPost }: Props) {
     e.stopPropagation()
 
     if (name) {
-      setIsModalOpened(true)
+      if (parentPost.deletionTime) {
+        toast.warn('댓글을 달 수 없습니다')
+      } else {
+        setIsModalOpened(true)
+      }
     } else {
       toast.warn(
         <div>
@@ -118,15 +126,16 @@ export default function CommentCreationButton({ parentPost }: Props) {
               <VerticalLine />
             </FlexColumn>
             <div>
-              <GridSmallGap>
+              <GridGap>
                 <div>
                   <h4>{parentAuthor?.nickname}</h4>
                   <span>@{parentAuthor?.name}</span>
-                  <span>{parentPost?.creationTime}</span>
+                  <span>{parentPost.creationTime}</span>
+                  <span>{parentPost.updateTime && '(수정됨)'}</span>
                 </div>
                 <p>{applyLineBreak(parentPost.content)}</p>
                 <span>Replying to @{parentAuthor?.name}</span>
-              </GridSmallGap>
+              </GridGap>
             </div>
           </Flex>
         </PostCreationModalForm>

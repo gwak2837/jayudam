@@ -19,11 +19,11 @@ import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
 import { applyLineBreak } from '../utils/react'
-import { FlexBetween, GridSmallGap as GridSmallGap_ } from './atoms/Flex'
+import { FlexBetween, FlexCenter, FlexColumn, GridGap } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
 import SharingPostButton from './sharing-post/SharingPostButton'
-import SharedPostCard from './sharing-post/SharingPostCard'
+import SharedPostCard, { GreyH5, OverflowAuto, TextOverflow } from './sharing-post/SharingPostCard'
 
 type Props2 = {
   comment: Post
@@ -101,7 +101,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
 
   return (
     <>
-      <FlexColumn onClick={goToPostPage}>
+      <FlexColumnGap onClick={goToPostPage}>
         <Image
           src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
           alt="profile"
@@ -111,24 +111,30 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
           style={borderRadiusCircle}
         />
         {children?.[0]}
-      </FlexColumn>
-      <GridSmallGap onClick={goToPostPage}>
-        <FlexBetween>
-          <div>
-            <Bold disabled={!author} onClick={goToUserPage}>
-              {author?.nickname ?? '탈퇴한 사용자'}
-            </Bold>{' '}
+      </FlexColumnGap>
+
+      <GridGapPointer onClick={goToPostPage}>
+        <FlexBetweenGap>
+          <FlexCenterGap>
+            <TextOverflow>
+              <Bold disabled={!author} onClick={goToUserPage}>
+                {author?.nickname ?? '탈퇴한 사용자'}
+              </Bold>
+            </TextOverflow>
             {author && (
-              <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
-                <GreyInlineH5>@{author.name}</GreyInlineH5>
-              </LineLink>
+              <OverflowAuto>
+                <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+                  <GreyH5> @{author.name}</GreyH5>
+                </LineLink>
+              </OverflowAuto>
             )}
-            {' · '}
-            <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
-            <span>{comment.updateTime && '(수정됨)'}</span>
-          </div>
+            <TextOverflow>
+              <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
+              <span>{comment.updateTime && '(수정됨)'}</span>
+            </TextOverflow>
+          </FlexCenterGap>
           <ThreeDotsIcon width="1rem" />
-        </FlexBetween>
+        </FlexBetweenGap>
 
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
           <GreyInlineH5>
@@ -161,7 +167,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
           </div>
           <div>기타</div>
         </GridColumn4>
-      </GridSmallGap>
+      </GridGapPointer>
 
       {children?.[1]}
     </>
@@ -173,10 +179,10 @@ export const PostLoadingCard = memo(PostLoadingCard_)
 function PostLoadingCard_() {
   return (
     <Card>
-      <FlexColumn>
+      <FlexColumnGap>
         <Skeleton width="40px" height="40px" borderRadius="50%" />
-      </FlexColumn>
-      <GridSmallGap>
+      </FlexColumnGap>
+      <GridGapPointer>
         <Skeleton width="40%" />
         <Skeleton />
         <Skeleton width="80%" />
@@ -192,7 +198,7 @@ function PostLoadingCard_() {
           </Width>
           <div>기타</div>
         </GridColumn4>
-      </GridSmallGap>
+      </GridGapPointer>
     </Card>
   )
 }
@@ -206,10 +212,17 @@ export const Card = styled.li`
   padding: 0.8rem 1rem;
 `
 
-const FlexColumn = styled.div`
-  display: flex;
-  flex-flow: column;
+const FlexColumnGap = styled(FlexColumn)`
   gap: 0.5rem;
+`
+
+const FlexBetweenGap = styled(FlexBetween)`
+  gap: 1rem;
+  min-width: 0;
+
+  > svg {
+    flex-shrink: 0;
+  }
 `
 
 export const VerticalLine = styled.div`
@@ -218,12 +231,18 @@ export const VerticalLine = styled.div`
   flex-grow: 1;
 `
 
-const Width = styled.div`
+export const Width = styled.div`
   > svg {
     width: 1rem;
   }
 `
 
-const GridSmallGap = styled(GridSmallGap_)`
+const GridGapPointer = styled(GridGap)`
   cursor: pointer;
+`
+
+const FlexCenterGap = styled(FlexCenter)`
+  gap: 0 0.5rem;
+  min-width: 0;
+  flex-flow: row wrap;
 `
