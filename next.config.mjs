@@ -26,10 +26,6 @@ const nextConfig = {
   },
   output: 'standalone',
   poweredByHeader: NODE_ENV === 'development',
-  pwa: {
-    dest: 'public',
-    disable: NODE_ENV === 'development',
-  },
   reactStrictMode: NODE_ENV === 'development',
   swcMinify: true,
   webpack: (config) => {

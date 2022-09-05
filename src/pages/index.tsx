@@ -1,9 +1,10 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
-import PageHead from 'src/components/PageHead'
-import Navigation from 'src/layouts/Navigation'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
+
+import PageHead from '../components/PageHead'
+import Navigation from '../layouts/Navigation'
+import { TABLET_MIN_WIDTH } from '../utils/constants'
 
 export default function HomePage() {
   return (

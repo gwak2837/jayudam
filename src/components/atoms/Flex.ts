@@ -38,3 +38,7 @@ export const GridBigGap = styled.div`
   display: grid;
   gap: 1rem;
 `
+
+export const GrayText = styled.span`
+  color: #888;
+`

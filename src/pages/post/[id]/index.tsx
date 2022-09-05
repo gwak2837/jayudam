@@ -6,7 +6,14 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import { FlexBetween, FlexCenter, FlexColumn, GridSmallGap } from 'src/components/atoms/Flex'
+import {
+  FlexBetween,
+  FlexCenter,
+  FlexColumn,
+  GrayText,
+  GridBigGap,
+  GridSmallGap,
+} from 'src/components/atoms/Flex'
 import LoginLink from 'src/components/atoms/LoginLink'
 import CommentCard, { PostLoadingCard, Width } from 'src/components/CommentCard'
 import CommentCreationButton from 'src/components/create-post/CommentCreationButton'
@@ -14,11 +21,7 @@ import PostCreationButton from 'src/components/create-post/PostCreationButton'
 import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
 import PageHead from 'src/components/PageHead'
 import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
-import SharedPostCard, {
-  GreyH5,
-  OverflowAuto,
-  TextOverflow,
-} from 'src/components/sharing-post/SharingPostCard'
+import SharedPostCard, { GreyH5, TextOverflow } from 'src/components/sharing-post/SharingPostCard'
 import {
   Post,
   useCommentsQuery,
@@ -36,6 +39,7 @@ import CommentIcon from 'src/svgs/CommentIcon'
 import HeartIcon from 'src/svgs/HeartIcon'
 import ShareIcon from 'src/svgs/ShareIcon'
 import ThreeDotsIcon from 'src/svgs/three-dots.svg'
+import { stopPropagation } from 'src/utils'
 import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
@@ -175,11 +179,9 @@ export default function PostPage() {
                         <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>
                       </TextOverflow>
                       {author && (
-                        // <OverflowAuto>
                         <LineLink href={`/@${author.name}`}>
                           <GreyH5>@{author.name}</GreyH5>
                         </LineLink>
-                        // </OverflowAuto>
                       )}
                     </FlexColumnSmallGap>
                     <ThreeDotsIcon width="1.5rem" />
@@ -187,10 +189,12 @@ export default function PostPage() {
                 </FlexCenterSamllGap>
 
                 {parentAuthor && author && parentAuthor.name !== author.name && (
-                  <GreyInlineH5>
-                    Replying to{' '}
-                    <LineLink href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</LineLink>
-                  </GreyInlineH5>
+                  <TextOverflow>
+                    <GrayText>Replying to </GrayText>
+                    <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+                      @{parentAuthor.name}
+                    </LineLink>
+                  </TextOverflow>
                 )}
 
                 <p>
@@ -201,10 +205,11 @@ export default function PostPage() {
 
                 {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
 
-                <div>
+                <GrayText>
                   {new Date(post.creationTime).toLocaleString()}{' '}
                   <span>{post.updateTime && '(수정됨)'}</span>
-                </div>
+                </GrayText>
+
                 <GridColumn4Center>
                   <div>
                     <Button color={theme.error} onClick={toggleLikingPost} selected={post.isLiked}>
@@ -242,7 +247,7 @@ function Comments({ postCreationRef }: any) {
     notifyOnNetworkStatusChange: true,
     onError: toastApolloError,
     skip: !postId,
-    variables: { parentId: postId },
+    variables: { parentId: postId, limit },
   })
 
   const comments = data?.comments
@@ -259,7 +264,7 @@ function Comments({ postCreationRef }: any) {
           lastId: comments[comments.length - 1].id,
         },
       })
-        .then((response) => response.data.comments?.length !== 20 && setHasMoreData(false))
+        .then((response) => response.data.comments?.length !== limit && setHasMoreData(false))
         .catch(() => setHasMoreData(false)),
   })
 
@@ -318,11 +323,10 @@ function Comments({ postCreationRef }: any) {
 
       {comments
         ? comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
-        : !loading && <div>comments not found</div>}
+        : postId && !loading && <div>comments not found</div>}
 
-      {loading && (
+      {(!postId || loading) && (
         <>
-          <PostLoadingCard />
           <PostLoadingCard />
           <PostLoadingCard />
         </>
@@ -336,6 +340,8 @@ function Comments({ postCreationRef }: any) {
     </>
   )
 }
+
+const limit = 2
 
 const Sticky = styled.header`
   position: sticky;
@@ -352,10 +358,8 @@ const Sticky = styled.header`
   padding: 0.5rem 1rem;
 `
 
-const Grid = styled.div`
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
+const Grid = styled(GridBigGap)`
+  padding: 0 1rem 1rem;
 `
 
 const FlexBetweenGap = styled(FlexBetween)`
@@ -421,10 +425,12 @@ export const LineLink = styled(Link)`
   }
 `
 
-export const Button = styled.button<{ color: string; selected: boolean }>`
+export const Button = styled.button<{ color: string; selected?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   padding: 0;
 
   > svg {
@@ -457,8 +463,7 @@ export function addNewComment(cache: ApolloCache<any>, { data }: any) {
   if (!data) return
 
   const newPost = {
-    id: data.createPost?.newPost.id,
-    __typename: 'Post',
+    __ref: `Post:${data.createPost?.newPost.id}`,
   }
 
   return cache.modify({

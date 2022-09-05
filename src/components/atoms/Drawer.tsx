@@ -1,7 +1,8 @@
 import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
+
+import { TABLET_MIN_WIDTH } from '../../utils/constants'
 
 const Transition = styled.div`
   > div {

@@ -2,24 +2,24 @@ import Image from 'next/future/image'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import LoginLink from 'src/components/atoms/LoginLink'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
 import {
   Post,
   useDeleteSharingPostMutation,
   useMyProfileQuery,
   useSharePostMutation,
-} from 'src/graphql/generated/types-and-hooks'
-import { borderRadiusCircle } from 'src/pages/post'
-import { Button } from 'src/pages/post/[id]'
-import { SubmitButton } from 'src/pages/register'
-import { theme } from 'src/styles/global'
-import ShareIcon from 'src/svgs/ShareIcon'
-import { stopPropagation } from 'src/utils'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
+} from '../../graphql/generated/types-and-hooks'
+import { borderRadiusCircle } from '../../pages/post'
+import { Button } from '../../pages/post/[id]'
+import { SubmitButton } from '../../pages/register'
+import { theme } from '../../styles/global'
+import ShareIcon from '../../svgs/ShareIcon'
+import { stopPropagation } from '../../utils'
+import { TABLET_MIN_WIDTH } from '../../utils/constants'
+import { currentUser } from '../../utils/recoil'
+import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import PostCreationModalForm from '../create-post/PostCreationModalForm'
 import SharedPostCard from './SharingPostCard'

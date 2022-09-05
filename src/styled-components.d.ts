@@ -1,7 +1,7 @@
 // https://styled-components.com/docs/api#create-a-declarations-file
 
 import 'styled-components'
-import { theme } from 'src/styles/global'
+import { theme } from './styles/global'
 
 export type Theme = typeof theme
 

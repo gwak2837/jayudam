@@ -1,5 +1,6 @@
 import { InMemoryCache } from '@apollo/client'
-import { TypedTypePolicies } from 'src/graphql/generated/types-and-hooks'
+
+import { TypedTypePolicies } from '../graphql/generated/types-and-hooks'
 
 function infiniteScroll(existing: unknown[], incoming: unknown[]) {
   if (!existing) {

@@ -4,7 +4,13 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import PageHead from '../components/PageHead'
+import CheckBoxIcon from '../svgs/CheckBoxIcon'
+import GoogleLogo from '../svgs/google-logo.svg'
+import KakaoLogo from '../svgs/kakao-logo.svg'
+import NaverLogo from '../svgs/naver-logo.svg'
 import {
   MOBILE_MIN_HEIGHT,
   NEXT_PUBLIC_BACKEND_URL,
@@ -12,14 +18,8 @@ import {
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
-} from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
-import CheckBoxIcon from '../svgs/CheckBoxIcon'
-import GoogleLogo from '../svgs/google-logo.svg'
-import KakaoLogo from '../svgs/kakao-logo.svg'
-import NaverLogo from '../svgs/naver-logo.svg'
+} from '../utils/constants'
+import { currentUser } from '../utils/recoil'
 
 export default function LoginPage() {
   const { name } = useRecoilValue(currentUser)

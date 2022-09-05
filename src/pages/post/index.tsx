@@ -1,4 +1,4 @@
-import { ApolloCache, gql } from '@apollo/client'
+import { ApolloCache } from '@apollo/client'
 import Image from 'next/future/image'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
@@ -189,13 +189,9 @@ function addNewPost(cache: ApolloCache<any>, { data }: any) {
     data &&
     cache.modify({
       fields: {
-        posts: (existingPosts = []) => [
-          {
-            id: data.createPost?.newPost.id,
-            __typename: 'Post',
-          },
-          ...existingPosts,
-        ],
+        posts: () => {
+          // return [{ __ref: `Post:${data.createPost?.newPost.id}` }, ...existingPosts]
+        },
       },
     })
   )

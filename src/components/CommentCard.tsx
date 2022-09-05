@@ -1,25 +1,24 @@
 import Image from 'next/future/image'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MouseEvent, ReactNode, memo } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import { Post, useToggleLikingPostMutation } from 'src/graphql/generated/types-and-hooks'
-import { borderRadiusCircle } from 'src/pages/post'
-import { Bold, Button, GreyInlineH5, GridColumn4, LineLink } from 'src/pages/post/[id]'
-import { Skeleton } from 'src/styles'
-import { theme } from 'src/styles/global'
-import CommentIcon from 'src/svgs/CommentIcon'
-import HeartIcon from 'src/svgs/HeartIcon'
-import ShareIcon from 'src/svgs/ShareIcon'
-import ThreeDotsIcon from 'src/svgs/three-dots.svg'
-import { stopPropagation } from 'src/utils'
-import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
 
+import { toastApolloError } from '../apollo/error'
+import { Post, useToggleLikingPostMutation } from '../graphql/generated/types-and-hooks'
+import { borderRadiusCircle } from '../pages/post'
+import { Bold, Button, GridColumn4, LineLink } from '../pages/post/[id]'
+import { Skeleton } from '../styles'
+import { theme } from '../styles/global'
+import CommentIcon from '../svgs/CommentIcon'
+import HeartIcon from '../svgs/HeartIcon'
+import ShareIcon from '../svgs/ShareIcon'
+import ThreeDotsIcon from '../svgs/three-dots.svg'
+import { stopPropagation } from '../utils'
 import { applyLineBreak } from '../utils/react'
-import { FlexBetween, FlexCenter, FlexColumn, GridGap } from './atoms/Flex'
+import { currentUser } from '../utils/recoil'
+import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
 import SharingPostButton from './sharing-post/SharingPostButton'
@@ -129,20 +128,20 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
               </OverflowAuto>
             )}
             <TextOverflow>
-              <span>{new Date(comment.creationTime).toLocaleDateString()}</span>
-              <span>{comment.updateTime && '(수정됨)'}</span>
+              <GrayText>{new Date(comment.creationTime).toLocaleDateString()}</GrayText>
+              <GrayText>{comment.updateTime && '(수정됨)'}</GrayText>
             </TextOverflow>
           </FlexCenterGap>
           <ThreeDotsIcon width="1rem" />
         </FlexBetweenGap>
 
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
-          <GreyInlineH5>
-            Replying to{' '}
-            <Link href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+          <TextOverflow>
+            <GrayText>Replying to </GrayText>
+            <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
               @{parentAuthor.name}
-            </Link>
-          </GreyInlineH5>
+            </LineLink>
+          </TextOverflow>
         )}
 
         <p>
@@ -155,7 +154,12 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
 
         <GridColumn4>
           <div>
-            <Button color={theme.error} onClick={toggleLikingPost} selected={comment.isLiked}>
+            <Button
+              color={theme.error}
+              disabled={loading}
+              onClick={toggleLikingPost}
+              selected={comment.isLiked}
+            >
               <HeartIcon /> <span>{comment.likeCount}</span>
             </Button>
           </div>
@@ -226,7 +230,7 @@ const FlexBetweenGap = styled(FlexBetween)`
 `
 
 export const VerticalLine = styled.div`
-  border-left: 1px solid #888;
+  border-left: 2px solid #888;
   margin: auto;
   flex-grow: 1;
 `

@@ -1,28 +1,27 @@
+import Image from 'next/future/image'
 import { useRouter } from 'next/router'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import Image from 'next/future/image'
-
 import { useRecoilState } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import PageHead from 'src/components/PageHead'
-import { useLogoutMutation, useUserQuery } from 'src/graphql/generated/types-and-hooks'
-import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import Navigation from 'src/layouts/Navigation'
-import { getUsername } from 'src/utils'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
+import PageHead from '../../components/PageHead'
+import { useLogoutMutation, useUserQuery } from '../../graphql/generated/types-and-hooks'
+import useNeedToLogin from '../../hooks/useNeedToLogin'
+import Navigation from '../../layouts/Navigation'
+import GoogleLogo from '../../svgs/google-logo.svg'
+import KakaoLogo from '../../svgs/kakao-logo.svg'
+import NaverLogo from '../../svgs/naver-logo.svg'
+import { getUsername } from '../../utils'
 import {
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
   TABLET_MIN_WIDTH,
-} from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
-import GoogleLogo from '../../svgs/google-logo.svg'
-import KakaoLogo from '../../svgs/kakao-logo.svg'
-import NaverLogo from '../../svgs/naver-logo.svg'
+} from '../../utils/constants'
+import { currentUser } from '../../utils/recoil'
 import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
 export default function UserPage() {

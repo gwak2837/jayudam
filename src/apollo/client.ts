@@ -1,7 +1,7 @@
 import { ApolloClient, NormalizedCacheObject, createHttpLink } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
-import { NEXT_PUBLIC_BACKEND_URL } from 'src/utils/constants'
 
+import { NEXT_PUBLIC_BACKEND_URL } from '../utils/constants'
 import cache from './cache'
 
 const httpLink = createHttpLink({

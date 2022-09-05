@@ -2,24 +2,26 @@ import Image from 'next/future/image'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
 import {
   Post,
   useCreatePostMutation,
   useMyProfileQuery,
-} from 'src/graphql/generated/types-and-hooks'
-import { borderRadiusCircle } from 'src/pages/post'
-import { Button, addNewComment } from 'src/pages/post/[id]'
-import { theme } from 'src/styles/global'
-import CommentIcon from 'src/svgs/CommentIcon'
-import { applyLineBreak } from 'src/utils/react'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
-import { FlexColumn as FlexColumn_, Flex as Flex_, GridGap } from '../atoms/Flex'
+} from '../../graphql/generated/types-and-hooks'
+import { borderRadiusCircle } from '../../pages/post'
+import { Button, LineLink, addNewComment } from '../../pages/post/[id]'
+import { theme } from '../../styles/global'
+import CommentIcon from '../../svgs/CommentIcon'
+import { stopPropagation } from '../../utils'
+import { applyLineBreak } from '../../utils/react'
+import { currentUser } from '../../utils/recoil'
+import { FlexCenter, FlexColumn, Flex as Flex_, GrayText, GridGap } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import { VerticalLine } from '../CommentCard'
+import { TextOverflow } from '../sharing-post/SharingPostCard'
 import PostCreationModalForm from './PostCreationModalForm'
 
 type Props = {
@@ -76,7 +78,7 @@ export default function CommentCreationButton({ parentPost }: Props) {
     update: addNewComment,
   })
 
-  function createPost({ content }: any) {
+  function createComment({ content }: any) {
     createCommentMutation({
       variables: {
         input: {
@@ -88,6 +90,13 @@ export default function CommentCreationButton({ parentPost }: Props) {
   }
 
   const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
+
+  if (!parentAuthor)
+    return (
+      <Button color={theme.primaryTextAchromatic} disabled={true}>
+        <CommentIcon /> <span>{parentPost.commentCount}</span>
+      </Button>
+    )
 
   return (
     <>
@@ -104,7 +113,7 @@ export default function CommentCreationButton({ parentPost }: Props) {
           haveToReset={isSubmitionSuccess}
           onReset={() => setIsSubmitionSuccess(false)}
           onClose={closeCreatingCommentModal}
-          onSubmit={createPost}
+          onSubmit={createComment}
         >
           <Image
             src={me?.imageUrl ?? '/images/shortcut-icon.webp'}
@@ -115,7 +124,7 @@ export default function CommentCreationButton({ parentPost }: Props) {
           />
           <div />
           <Flex>
-            <FlexColumn>
+            <FlexColumnGap>
               <Image
                 src={parentAuthor?.imageUrl ?? '/images/shortcut-icon.webp'}
                 alt="profile"
@@ -124,19 +133,27 @@ export default function CommentCreationButton({ parentPost }: Props) {
                 style={borderRadiusCircle}
               />
               <VerticalLine />
-            </FlexColumn>
-            <div>
-              <GridGap>
-                <div>
-                  <h4>{parentAuthor?.nickname}</h4>
-                  <span>@{parentAuthor?.name}</span>
-                  <span>{parentPost.creationTime}</span>
+            </FlexColumnGap>
+
+            <GridGap>
+              <FlexCenterGap>
+                <TextOverflow as="h4">{parentAuthor.nickname}</TextOverflow>
+                <TextOverflow as="span">@{parentAuthor.name}</TextOverflow>
+                <TextOverflow>
+                  <span>{new Date(parentPost.creationTime).toLocaleDateString()}</span>
                   <span>{parentPost.updateTime && '(수정됨)'}</span>
-                </div>
-                <p>{applyLineBreak(parentPost.content)}</p>
-                <span>Replying to @{parentAuthor?.name}</span>
-              </GridGap>
-            </div>
+                </TextOverflow>
+              </FlexCenterGap>
+
+              <p>{applyLineBreak(parentPost.content)}</p>
+
+              <TextOverflow>
+                <GrayText>Replying to </GrayText>
+                <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+                  @{parentAuthor.name}
+                </LineLink>
+              </TextOverflow>
+            </GridGap>
           </Flex>
         </PostCreationModalForm>
       </Modal>
@@ -148,6 +165,12 @@ const Flex = styled(Flex_)`
   gap: 0.5rem;
 `
 
-const FlexColumn = styled(FlexColumn_)`
+const FlexColumnGap = styled(FlexColumn)`
   gap: 0.5rem;
+`
+
+const FlexCenterGap = styled(FlexCenter)`
+  gap: 0 0.5rem;
+  min-width: 0;
+  flex-flow: row wrap;
 `

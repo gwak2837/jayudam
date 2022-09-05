@@ -1,8 +1,8 @@
 import { ReactNode, useState } from 'react'
-import { flexCenter } from 'src/styles'
 import styled from 'styled-components'
 
 import CheckBoxIcon from '../../svgs/CheckBoxIcon'
+import { FlexCenter } from './Flex'
 
 type Props2 = {
   children: ReactNode
@@ -24,7 +24,7 @@ export default function Checkbox({ children, id, initialValue, onChange }: Props
   }
 
   return (
-    <AutoLogin htmlFor={`checkbox-${id}`}>
+    <AutoLogin as="label" htmlFor={`checkbox-${id}`}>
       <InvisibleInput
         id={`checkbox-${id}`}
         checked={isChecked}
@@ -37,8 +37,7 @@ export default function Checkbox({ children, id, initialValue, onChange }: Props
   )
 }
 
-const AutoLogin = styled.label`
-  ${flexCenter}
+const AutoLogin = styled(FlexCenter)`
   gap: 0.4rem;
   cursor: pointer;
 `

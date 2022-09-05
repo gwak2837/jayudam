@@ -1,10 +1,11 @@
-import LoginLink from 'src/components/atoms/LoginLink'
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { client } from 'src/apollo/client'
-import PageHead from 'src/components/PageHead'
-import Navigation from 'src/layouts/Navigation'
+import LoginLink from 'src/components/atoms/LoginLink'
+
+import { client } from '../apollo/client'
+import PageHead from '../components/PageHead'
+import Navigation from '../layouts/Navigation'
 
 const description = ''
 

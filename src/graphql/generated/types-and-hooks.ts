@@ -370,13 +370,7 @@ export type CreatePostMutation = {
       likeCount?: number | null
       commentCount?: number | null
       sharedCount?: number | null
-      author?: {
-        __typename?: 'User'
-        id: any
-        name?: string | null
-        nickname?: string | null
-        imageUrl?: string | null
-      } | null
+      author?: { __typename?: 'User'; id: any } | null
       parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
     }
   } | null
@@ -577,6 +571,7 @@ export type PostsQuery = {
 export type CommentsQueryVariables = Exact<{
   parentId: Scalars['ID']
   lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
 }>
 
 export type CommentsQuery = {
@@ -845,11 +840,28 @@ export const CreatePostDocument = gql`
   mutation CreatePost($input: PostCreationInput!) {
     createPost(input: $input) {
       newPost {
-        ...postCard
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        isLiked
+        doIComment
+        doIShare
+        likeCount
+        commentCount
+        sharedCount
+        author {
+          id
+        }
+        parentAuthor {
+          id
+          name
+        }
       }
     }
   }
-  ${PostCardFragmentDoc}
 `
 export type CreatePostMutationFn = Apollo.MutationFunction<
   CreatePostMutation,
@@ -1235,8 +1247,8 @@ export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
 export const CommentsDocument = gql`
-  query Comments($parentId: ID!, $lastId: ID) {
-    comments(parentId: $parentId, lastId: $lastId) {
+  query Comments($parentId: ID!, $lastId: ID, $limit: PositiveInt) {
+    comments(parentId: $parentId, lastId: $lastId, limit: $limit) {
       ...postCard
       comments {
         ...postCard
@@ -1260,6 +1272,7 @@ export const CommentsDocument = gql`
  *   variables: {
  *      parentId: // value for 'parentId'
  *      lastId: // value for 'lastId'
+ *      limit: // value for 'limit'
  *   },
  * });
  */

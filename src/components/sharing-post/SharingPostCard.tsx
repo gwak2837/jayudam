@@ -1,12 +1,12 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
 import { MouseEvent } from 'react'
-import { Post } from 'src/graphql/generated/types-and-hooks'
-import { borderRadiusCircle } from 'src/pages/post'
-import { LineLink } from 'src/pages/post/[id]'
-import { stopPropagation } from 'src/utils'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
+import { Post } from '../../graphql/generated/types-and-hooks'
+import { borderRadiusCircle } from '../../pages/post'
+import { LineLink } from '../../pages/post/[id]'
+import { stopPropagation } from '../../utils'
 import { FlexCenter, GridSmallGap } from '../atoms/Flex'
 
 type Props = {

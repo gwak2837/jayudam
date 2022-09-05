@@ -1,7 +1,8 @@
 import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
+
+import XIcon from '../../svgs/x-white.svg'
 
 type Props = {
   children: ReactNode
