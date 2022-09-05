@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
+import { FlexCenterCenter } from 'src/components/atoms/Flex'
 import SingleSelectionButtons_ from 'src/components/atoms/SingleSelectionButtons'
 import PageHead from 'src/components/PageHead'
 import {
@@ -15,7 +16,6 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import Navigation from 'src/layouts/Navigation'
-import { FlexCenter_ } from 'src/styles'
 import TimerIcon from 'src/svgs/timer.svg'
 import { getViewportWidth, parseJWT } from 'src/utils'
 import { MOBILE_MIN_WIDTH } from 'src/utils/constants'
@@ -476,7 +476,7 @@ const FlexBetweenGap = styled(FlexBetween)`
   gap: 1rem;
 `
 
-const FlexCenterCenterGap = styled(FlexCenter_)`
+const FlexCenterCenterGap = styled(FlexCenterCenter)`
   justify-content: center;
   gap: 0.5rem;
 `
