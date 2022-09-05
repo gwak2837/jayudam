@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import LoginLink from 'src/components/atoms/LoginLink'
 
 import { client } from '../apollo/client'
+import LoginLink from '../components/atoms/LoginLink'
 import PageHead from '../components/PageHead'
 import Navigation from '../layouts/Navigation'
 

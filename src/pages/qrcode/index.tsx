@@ -4,30 +4,30 @@ import { useForm } from 'react-hook-form'
 import { useTimer } from 'react-timer-hook'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import AppleCheckbox from 'src/components/atoms/AppleCheckbox'
-import { FlexCenterCenter } from 'src/components/atoms/Flex'
-import SingleSelectionButtons_ from 'src/components/atoms/SingleSelectionButtons'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
+import AppleCheckbox from '../../components/atoms/AppleCheckbox'
+import { FlexCenterCenter } from '../../components/atoms/Flex'
+import SingleSelectionButtons_ from '../../components/atoms/SingleSelectionButtons'
+import PageHead from '../../components/PageHead'
 import {
   CertAgreementInput,
   useCertJwtMutation,
   useMyCertAgreementQuery,
-} from 'src/graphql/generated/types-and-hooks'
-import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import Navigation from 'src/layouts/Navigation'
-import TimerIcon from 'src/svgs/timer.svg'
-import { getViewportWidth, parseJWT } from 'src/utils'
-import { MOBILE_MIN_WIDTH } from 'src/utils/constants'
+} from '../../graphql/generated/types-and-hooks'
+import useNeedToLogin from '../../hooks/useNeedToLogin'
+import Navigation from '../../layouts/Navigation'
+import TimerIcon from '../../svgs/timer.svg'
+import { getViewportWidth, parseJWT } from '../../utils'
+import { MOBILE_MIN_WIDTH } from '../../utils/constants'
 import {
   formatISOLocalDate,
   getNMonthBefore,
   getNYearBefore,
   getTimeFromDateString,
-} from 'src/utils/date'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
+} from '../../utils/date'
+import { currentUser } from '../../utils/recoil'
 import { SubmitButton } from '../register'
 
 export default function QRCodePage() {

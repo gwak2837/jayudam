@@ -5,17 +5,18 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import Checkbox from 'src/components/atoms/Checkbox'
-import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
+import Checkbox from '../../components/atoms/Checkbox'
+import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
+import PageHead from '../../components/PageHead'
 import {
   useIsUniqueUsernameLazyQuery,
   useUpdateUserMutation,
-} from 'src/graphql/generated/types-and-hooks'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
+} from '../../graphql/generated/types-and-hooks'
+import { TABLET_MIN_WIDTH } from '../../utils/constants'
+import { currentUser } from '../../utils/recoil'
 
 export default function RegisterPage() {
   const [{ name }, setCurrentUser] = useRecoilState(currentUser)

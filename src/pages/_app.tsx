@@ -9,18 +9,19 @@ import Script from 'next/script'
 import React, { ReactNode, useEffect } from 'react'
 import { ToastContainer, cssTransition } from 'react-toastify'
 import { RecoilRoot, useRecoilState } from 'recoil'
-import { client } from 'src/apollo/client'
-import { toastApolloError } from 'src/apollo/error'
-import { useAuthQuery } from 'src/graphql/generated/types-and-hooks'
-import { GlobalStyle } from 'src/styles/global'
-import { theme } from 'src/styles/global'
+import { ThemeProvider } from 'styled-components'
+
+import { client } from '../apollo/client'
+import { toastApolloError } from '../apollo/error'
+import { useAuthQuery } from '../graphql/generated/types-and-hooks'
+import { GlobalStyle } from '../styles/global'
+import { theme } from '../styles/global'
 import {
   NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
   NEXT_PUBLIC_GOOGLE_ANALYTICS_ID,
-} from 'src/utils/constants'
-import { pageview } from 'src/utils/google-analytics'
-import { currentUser } from 'src/utils/recoil'
-import { ThemeProvider } from 'styled-components'
+} from '../utils/constants'
+import { pageview } from '../utils/google-analytics'
+import { currentUser } from '../utils/recoil'
 
 // https://github.com/styled-components/styled-components/issues/3738
 const ThemeProvider2: any = ThemeProvider

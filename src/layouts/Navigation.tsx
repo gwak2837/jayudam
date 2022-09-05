@@ -2,14 +2,15 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
 import { useRecoilValue } from 'recoil'
-import CommunityIcon from 'src/svgs/CommunityIcon'
-import MyIcon from 'src/svgs/MyIcon'
-import PaperPlaneIcon from 'src/svgs/PaperPlaneIcon'
-import QRCodeIcon from 'src/svgs/QRCodeIcon'
-import VerifyIcon from 'src/svgs/VerifyIcon'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
+
+import CommunityIcon from '../svgs/CommunityIcon'
+import MyIcon from '../svgs/MyIcon'
+import PaperPlaneIcon from '../svgs/PaperPlaneIcon'
+import QRCodeIcon from '../svgs/QRCodeIcon'
+import VerifyIcon from '../svgs/VerifyIcon'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../utils/constants'
+import { currentUser } from '../utils/recoil'
 
 type Props = {
   children: ReactNode

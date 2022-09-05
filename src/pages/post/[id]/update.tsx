@@ -1,5 +1,6 @@
 import React from 'react'
-import PageHead from 'src/components/PageHead'
+
+import PageHead from '../../../components/PageHead'
 
 const description = '자유담에 글을 작성해보세요'
 

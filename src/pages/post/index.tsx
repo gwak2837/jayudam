@@ -3,22 +3,23 @@ import Image from 'next/future/image'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
-import CommentCard, { PostLoadingCard } from 'src/components/CommentCard'
-import PostCreationButton from 'src/components/create-post/PostCreationButton'
-import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
+import CommentCard, { PostLoadingCard } from '../../components/CommentCard'
+import PostCreationButton from '../../components/create-post/PostCreationButton'
+import { PostCreationForm } from '../../components/create-post/PostCreationForm'
+import PageHead from '../../components/PageHead'
 import {
   Post,
   useCreatePostMutation,
   useMyProfileQuery,
   usePostsQuery,
-} from 'src/graphql/generated/types-and-hooks'
-import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
-import Navigation from 'src/layouts/Navigation'
-import { Skeleton } from 'src/styles'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
+} from '../../graphql/generated/types-and-hooks'
+import useInfiniteScroll from '../../hooks/useInfiniteScroll'
+import Navigation from '../../layouts/Navigation'
+import { Skeleton } from '../../styles'
+import { currentUser } from '../../utils/recoil'
 
 export default function PostsPage() {
   const { name } = useRecoilValue(currentUser)

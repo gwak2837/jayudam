@@ -2,27 +2,27 @@ import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode'
 import { CameraDevice } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { toastApolloError } from 'src/apollo/error'
-import Modal from 'src/components/atoms/Modal'
-import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
+import Modal from '../../components/atoms/Modal'
+import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
+import PageHead from '../../components/PageHead'
 import {
   Sex,
   useSampleCertJwtLazyQuery,
   useVerifyCertJwtMutation,
-} from 'src/graphql/generated/types-and-hooks'
-import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import Navigation from 'src/layouts/Navigation'
-import VerifyIcon from 'src/svgs/VerifyIcon'
-import { getViewportWidth, parseJWT } from 'src/utils'
-import { TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
-import { formatISOLocalDate } from 'src/utils/date'
-import styled from 'styled-components'
-
+} from '../../graphql/generated/types-and-hooks'
+import useNeedToLogin from '../../hooks/useNeedToLogin'
+import Navigation from '../../layouts/Navigation'
 import FlipIcon from '../../svgs/flip.svg'
 import SettingIcon from '../../svgs/setting.svg'
 import TestTubeIcon from '../../svgs/test-tube.svg'
+import VerifyIcon from '../../svgs/VerifyIcon'
 import XIcon from '../../svgs/x-button.svg'
+import { getViewportWidth, parseJWT } from '../../utils'
+import { TABLET_MIN_WIDTH_1 } from '../../utils/constants'
+import { formatISOLocalDate } from '../../utils/date'
 
 export default function VerificationPage() {
   useNeedToLogin()

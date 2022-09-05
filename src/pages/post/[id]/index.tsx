@@ -5,7 +5,9 @@ import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../../apollo/error'
 import {
   FlexBetween,
   FlexCenter,
@@ -13,15 +15,18 @@ import {
   GrayText,
   GridBigGap,
   GridSmallGap,
-} from 'src/components/atoms/Flex'
-import LoginLink from 'src/components/atoms/LoginLink'
-import CommentCard, { PostLoadingCard, Width } from 'src/components/CommentCard'
-import CommentCreationButton from 'src/components/create-post/CommentCreationButton'
-import PostCreationButton from 'src/components/create-post/PostCreationButton'
-import { PostCreationForm } from 'src/components/create-post/PostCreationForm'
-import PageHead from 'src/components/PageHead'
-import SharingPostButton from 'src/components/sharing-post/SharingPostButton'
-import SharedPostCard, { GreyH5, TextOverflow } from 'src/components/sharing-post/SharingPostCard'
+} from '../../../components/atoms/Flex'
+import LoginLink from '../../../components/atoms/LoginLink'
+import CommentCard, { PostLoadingCard, Width } from '../../../components/CommentCard'
+import CommentCreationButton from '../../../components/create-post/CommentCreationButton'
+import PostCreationButton from '../../../components/create-post/PostCreationButton'
+import { PostCreationForm } from '../../../components/create-post/PostCreationForm'
+import PageHead from '../../../components/PageHead'
+import SharingPostButton from '../../../components/sharing-post/SharingPostButton'
+import SharedPostCard, {
+  GreyH5,
+  TextOverflow,
+} from '../../../components/sharing-post/SharingPostCard'
 import {
   Post,
   useCommentsQuery,
@@ -29,20 +34,18 @@ import {
   useMyProfileQuery,
   usePostQuery,
   useToggleLikingPostMutation,
-} from 'src/graphql/generated/types-and-hooks'
-import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
-import Navigation from 'src/layouts/Navigation'
-import { Skeleton, flexCenter } from 'src/styles'
-import { theme } from 'src/styles/global'
-import BackArrowIcon from 'src/svgs/back-arrow.svg'
-import CommentIcon from 'src/svgs/CommentIcon'
-import HeartIcon from 'src/svgs/HeartIcon'
-import ShareIcon from 'src/svgs/ShareIcon'
-import ThreeDotsIcon from 'src/svgs/three-dots.svg'
-import { stopPropagation } from 'src/utils'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
+} from '../../../graphql/generated/types-and-hooks'
+import useInfiniteScroll from '../../../hooks/useInfiniteScroll'
+import Navigation from '../../../layouts/Navigation'
+import { Skeleton, flexCenter } from '../../../styles'
+import { theme } from '../../../styles/global'
+import BackArrowIcon from '../../../svgs/back-arrow.svg'
+import CommentIcon from '../../../svgs/CommentIcon'
+import HeartIcon from '../../../svgs/HeartIcon'
+import ShareIcon from '../../../svgs/ShareIcon'
+import ThreeDotsIcon from '../../../svgs/three-dots.svg'
+import { stopPropagation } from '../../../utils'
+import { currentUser } from '../../../utils/recoil'
 import { borderRadiusCircle } from '..'
 
 const description = ''
