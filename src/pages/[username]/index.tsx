@@ -1,6 +1,6 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
@@ -82,21 +82,15 @@ export default function UserPage() {
         <MinWidth>
           {user ? (
             <>
-              <Relative>
-                <ScrollResponsiveImage>
-                  <CoverImage
-                    src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
-                    alt="user cover"
-                    fill
-                    heightOnScroll={Math.min(Math.max(30, scrollY), 60)}
-                  />
-                </ScrollResponsiveImage>
+              <ScrollResponsiveImage src={user.coverImageUrls?.[0] ?? '/images/cover.png'} />
+
+              <RelativeSquare>
                 <ProfileImage
                   src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
                   alt="user profile"
                   fill
                 />
-              </Relative>
+              </RelativeSquare>
               {username}
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
@@ -123,46 +117,59 @@ export default function UserPage() {
               <div>내 인증기록</div>
 
               <div>내 문서</div>
+
+              <div style={{ overflow: 'scroll', margin: 0 }}>
+                <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
+              </div>
             </>
           ) : (
             <div>해당 사용자는 존재하지 않아요</div>
           )}
 
           {userLoading && <div>사용자 정보를 불러오고 있습니다</div>}
-
-          <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
         </MinWidth>
       </Navigation>
     </PageHead>
   )
 }
 
-function ScrollResponsiveImage({ children }: any) {
+function ScrollResponsiveImage({ src }: any) {
   const [scrollPosition, setPosition] = useState(0)
+  console.log('👀 - scrollPosition', scrollPosition)
 
   useEffect(() => {
     function updatePosition() {
-      setPosition(Math.trunc(window.scrollY))
+      setPosition(~~window.scrollY)
     }
     window.addEventListener('scroll', updatePosition, { passive: true })
 
     return () => window.removeEventListener('scroll', updatePosition)
   }, [])
 
-  return <>{children}</>
+  return (
+    <Relative height={~~scrollPosition}>
+      <CoverImage src={src} alt="user cover" fill />
+    </Relative>
+  )
 }
 
-const Relative = styled.div`
+const Relative = styled.div<{ height: number }>`
   position: relative;
+  aspect-ratio: 2 / 1;
+
+  width: 100%;
+  min-height: 3rem;
+  height: ${(p) => p.height}px;
+  max-height: 100px;
 `
 
-const CoverImage = styled(Image)<{ heightOnScroll: number }>`
-  width: 100%;
-  height: ${(p) => p.heightOnScroll}px;
-  min-height: 3rem;
-  object-fit: cover;
+const RelativeSquare = styled.div`
+  position: relative;
+  aspect-ratio: 1 / 1;
+`
 
-  aspect-ratio: 9 / 9;
+const CoverImage = styled(Image)`
+  object-fit: cover;
 `
 
 const ProfileImage = styled(Image)`
@@ -171,6 +178,7 @@ const ProfileImage = styled(Image)`
 
 const MinWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
+  overflow: auto;
 `
 
 function goToKakaoLoginPage() {
