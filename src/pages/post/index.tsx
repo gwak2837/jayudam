@@ -6,7 +6,7 @@ import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../../apollo/error'
-import CommentCard, { PostLoadingCard } from '../../components/CommentCard'
+import PostCard, { PostLoadingCard } from '../../components/CommentCard'
 import PostCreationButton from '../../components/create-post/PostCreationButton'
 import { PostCreationForm } from '../../components/create-post/PostCreationForm'
 import PageHead from '../../components/PageHead'
@@ -129,9 +129,7 @@ export default function PostsPage() {
           </PostCreationForm>
 
           {posts
-            ? posts.map((post) => (
-                <CommentCard key={post.id} comment={post as Post} showSharedPost />
-              ))
+            ? posts.map((post) => <PostCard key={post.id} post={post as Post} showSharedPost />)
             : !postLoading && <div>posts not found</div>}
 
           {postLoading && (

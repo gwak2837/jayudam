@@ -194,7 +194,7 @@ export type Post = {
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
   isLiked: Scalars['Boolean']
   likeCount?: Maybe<Scalars['Int']>
-  parentAuthor?: Maybe<User>
+  parentPost?: Maybe<Post>
   sharedCount?: Maybe<Scalars['Int']>
   sharingPost?: Maybe<Post>
   updateTime?: Maybe<Scalars['DateTime']>
@@ -371,7 +371,10 @@ export type CreatePostMutation = {
       commentCount?: number | null
       sharedCount?: number | null
       author?: { __typename?: 'User'; id: any } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
     }
   } | null
 }
@@ -391,7 +394,10 @@ export type DeleteSharingPostMutation = {
       content?: string | null
       imageUrls?: Array<any | null> | null
       sharingPost?: { __typename?: 'Post'; id: string } | null
-      parentAuthor?: { __typename?: 'User'; id: any } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
     } | null
     sharedPost?: {
       __typename?: 'Post'
@@ -432,7 +438,10 @@ export type SharePostMutation = {
         nickname?: string | null
         imageUrl?: string | null
       } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
     }
     sharedPost?: {
       __typename?: 'Post'
@@ -464,7 +473,10 @@ export type PostCardFragment = {
     nickname?: string | null
     imageUrl?: string | null
   } | null
-  parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+  parentPost?: {
+    __typename?: 'Post'
+    author?: { __typename?: 'User'; id: any; name?: string | null } | null
+  } | null
 }
 
 export type AuthQueryVariables = Exact<{ [key: string]: never }>
@@ -564,7 +576,10 @@ export type PostsQuery = {
       nickname?: string | null
       imageUrl?: string | null
     } | null
-    parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+    parentPost?: {
+      __typename?: 'Post'
+      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+    } | null
   }> | null
 }
 
@@ -611,7 +626,10 @@ export type CommentsQuery = {
         nickname?: string | null
         imageUrl?: string | null
       } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
     }> | null
     author?: {
       __typename?: 'User'
@@ -620,7 +638,10 @@ export type CommentsQuery = {
       nickname?: string | null
       imageUrl?: string | null
     } | null
-    parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+    parentPost?: {
+      __typename?: 'Post'
+      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+    } | null
   }> | null
 }
 
@@ -647,7 +668,10 @@ export type CreateCommentMutation = {
       commentCount?: number | null
       sharedCount?: number | null
       author?: { __typename?: 'User'; id: any } | null
-      parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
       comments?: Array<{ __typename?: 'Post'; id: string }> | null
     }
     parentPost?: {
@@ -679,6 +703,29 @@ export type PostQuery = {
     likeCount?: number | null
     commentCount?: number | null
     sharedCount?: number | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: string | null
+      nickname?: string | null
+      imageUrl?: string | null
+    } | null
+    parentPost?: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+    } | null
     sharingPost?: {
       __typename?: 'Post'
       id: string
@@ -695,14 +742,6 @@ export type PostQuery = {
         imageUrl?: string | null
       } | null
     } | null
-    author?: {
-      __typename?: 'User'
-      id: any
-      name?: string | null
-      nickname?: string | null
-      imageUrl?: string | null
-    } | null
-    parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
   } | null
 }
 
@@ -825,9 +864,11 @@ export const PostCardFragmentDoc = gql`
       nickname
       imageUrl
     }
-    parentAuthor {
-      id
-      name
+    parentPost {
+      author {
+        id
+        name
+      }
     }
   }
 `
@@ -850,9 +891,11 @@ export const CreatePostDocument = gql`
         author {
           id
         }
-        parentAuthor {
-          id
-          name
+        parentPost {
+          author {
+            id
+            name
+          }
         }
       }
     }
@@ -906,8 +949,11 @@ export const DeleteSharingPostDocument = gql`
         sharingPost {
           id
         }
-        parentAuthor {
-          id
+        parentPost {
+          author {
+            id
+            name
+          }
         }
       }
       sharedPost {
@@ -1305,9 +1351,11 @@ export const CreateCommentDocument = gql`
         author {
           id
         }
-        parentAuthor {
-          id
-          name
+        parentPost {
+          author {
+            id
+            name
+          }
         }
         comments {
           id
@@ -1361,7 +1409,38 @@ export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<
 export const PostDocument = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      ...postCard
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      isLiked
+      doIComment
+      doIShare
+      likeCount
+      commentCount
+      sharedCount
+      author {
+        id
+        name
+        nickname
+        imageUrl
+      }
+      parentPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        author {
+          id
+          name
+          nickname
+          imageUrl
+        }
+      }
       sharingPost {
         id
         creationTime
@@ -1378,7 +1457,6 @@ export const PostDocument = gql`
       }
     }
   }
-  ${PostCardFragmentDoc}
 `
 
 /**
@@ -1874,7 +1952,7 @@ export type PostKeySpecifier = (
   | 'imageUrls'
   | 'isLiked'
   | 'likeCount'
-  | 'parentAuthor'
+  | 'parentPost'
   | 'sharedCount'
   | 'sharingPost'
   | 'updateTime'
@@ -1893,7 +1971,7 @@ export type PostFieldPolicy = {
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isLiked?: FieldPolicy<any> | FieldReadFunction<any>
   likeCount?: FieldPolicy<any> | FieldReadFunction<any>
-  parentAuthor?: FieldPolicy<any> | FieldReadFunction<any>
+  parentPost?: FieldPolicy<any> | FieldReadFunction<any>
   sharedCount?: FieldPolicy<any> | FieldReadFunction<any>
   sharingPost?: FieldPolicy<any> | FieldReadFunction<any>
   updateTime?: FieldPolicy<any> | FieldReadFunction<any>

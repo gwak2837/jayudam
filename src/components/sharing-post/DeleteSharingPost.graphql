@@ -8,8 +8,11 @@ mutation DeleteSharingPost($sharedPostId: ID!) {
       sharingPost {
         id
       }
-      parentAuthor {
-        id
+      parentPost {
+        author {
+          id
+          name
+        }
       }
     }
     sharedPost {

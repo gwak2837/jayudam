@@ -1,6 +1,6 @@
 import { FieldFunctionOptions, InMemoryCache } from '@apollo/client'
 
-import { Post, TypedTypePolicies } from '../graphql/generated/types-and-hooks'
+import { TypedTypePolicies } from '../graphql/generated/types-and-hooks'
 
 const typePolicies: TypedTypePolicies = {
   Query: {

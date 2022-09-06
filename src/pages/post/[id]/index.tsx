@@ -17,7 +17,7 @@ import {
   GridSmallGap,
 } from '../../../components/atoms/Flex'
 import LoginLink from '../../../components/atoms/LoginLink'
-import CommentCard, { PostLoadingCard, Width } from '../../../components/CommentCard'
+import PostCard, { PostLoadingCard, Width } from '../../../components/CommentCard'
 import CommentCreationButton from '../../../components/create-post/CommentCreationButton'
 import PostCreationButton from '../../../components/create-post/PostCreationButton'
 import { PostCreationForm } from '../../../components/create-post/PostCreationForm'
@@ -71,7 +71,8 @@ export default function PostPage() {
   const post = data?.post as Post
   const sharingPost = data?.post?.sharingPost as Post
   const author = post?.author
-  const parentAuthor = post?.parentAuthor
+  const parentPost = post?.parentPost
+  const parentAuthor = parentPost?.author
 
   // 좋아요
   const [toggleLikingPostMutation, { loading: likeLoading }] = useToggleLikingPostMutation({
@@ -129,45 +130,53 @@ export default function PostPage() {
             </FlexCenterSamllGap>
             <PostCreationButton show={showButton} />
           </Sticky>
-          <Grid>
-            {!postId || loading ? (
-              <>
-                <FlexCenterSamllGap>
-                  <Skeleton width="40px" height="40px" borderRadius="50%" />
-                  <FlexBetweenGap>
-                    <GridSmallGap>
-                      <Skeleton width="50%" />
-                      <Skeleton width="30%" />
-                    </GridSmallGap>
-                    <ThreeDotsIcon width="1.5rem" />
-                  </FlexBetweenGap>
-                </FlexCenterSamllGap>
 
-                <GridSmallGap>
-                  <Skeleton />
-                  <Skeleton width="80%" />
-                  <Skeleton width="50%" />
-                </GridSmallGap>
+          {parentPost && (
+            <>
+              <PostCard haveToScroll post={parentPost} showButtons={false} showVerticalLine />
+              <Padding />
+            </>
+          )}
 
-                {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
+          {!postId || loading ? (
+            <Grid>
+              <FlexCenterSamllGap>
+                <Skeleton width="40px" height="40px" borderRadius="50%" />
+                <FlexBetweenGap>
+                  <GridSmallGap>
+                    <Skeleton width="50%" />
+                    <Skeleton width="30%" />
+                  </GridSmallGap>
+                  <ThreeDotsIcon width="1.5rem" />
+                </FlexBetweenGap>
+              </FlexCenterSamllGap>
 
-                <Skeleton width="30%" />
+              <GridSmallGap>
+                <Skeleton />
+                <Skeleton width="80%" />
+                <Skeleton width="50%" />
+              </GridSmallGap>
 
-                <GridColumn4Center>
-                  <Width>
-                    <HeartIcon /> <Skeleton width="1rem" />
-                  </Width>
-                  <Width>
-                    <CommentIcon /> <Skeleton width="1rem" />
-                  </Width>
-                  <Width>
-                    <ShareIcon /> <Skeleton width="1rem" />
-                  </Width>
-                  <div>기타</div>
-                </GridColumn4Center>
-              </>
-            ) : post ? (
-              <>
+              {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
+
+              <Skeleton width="30%" />
+
+              <GridColumn4Center>
+                <Width>
+                  <HeartIcon /> <Skeleton width="1rem" />
+                </Width>
+                <Width>
+                  <CommentIcon /> <Skeleton width="1rem" />
+                </Width>
+                <Width>
+                  <ShareIcon /> <Skeleton width="1rem" />
+                </Width>
+                <div>기타</div>
+              </GridColumn4Center>
+            </Grid>
+          ) : (
+            post && (
+              <Grid>
                 <FlexCenterSamllGap>
                   <Image
                     src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
@@ -232,11 +241,16 @@ export default function PostPage() {
                   </div>
                   <div>기타</div>
                 </GridColumn4Center>
-              </>
-            ) : (
-              <div>post not found</div>
-            )}
-          </Grid>
+              </Grid>
+            )
+          )}
+
+          {postId && !loading && !post && (
+            <Relative>
+              <Image src="/images/no-post.jpg" alt="no post" fill />
+              <CenterH2>No Post</CenterH2>
+            </Relative>
+          )}
 
           <Comments postCreationRef={postCreationRef} />
         </main>
@@ -250,17 +264,18 @@ function Comments({ postCreationRef }: any) {
   const postId = (router.query.id ?? '') as string
   const { name } = useRecoilValue(currentUser)
 
-  // 댓글 불러오기
+  // 댓글 불러오기 (무한 스크롤 페이지네이션)
+  const [hasMoreData, setHasMoreData] = useState(true)
+
   const { data, loading, fetchMore } = useCommentsQuery({
     notifyOnNetworkStatusChange: true,
+    onCompleted: ({ comments }) => (!comments || comments.length === 0) && setHasMoreData(false),
     onError: toastApolloError,
     skip: !postId,
     variables: { parentId: postId, limit },
   })
 
   const comments = data?.comments
-
-  const [hasMoreData, setHasMoreData] = useState(true)
 
   const infiniteScrollRef = useInfiniteScroll({
     hasMoreData,
@@ -285,6 +300,8 @@ function Comments({ postCreationRef }: any) {
   const me = data2?.user
 
   // 댓글 생성
+  const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
+
   const [createPostMutation, { loading: createLoading }] = useCreateCommentMutation({
     onCompleted: () => {
       toast.success('댓글 생성 완료')
@@ -293,8 +310,6 @@ function Comments({ postCreationRef }: any) {
     onError: toastApolloError,
     update: addNewComment,
   })
-
-  const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
 
   function createPost({ content }: any) {
     createPostMutation({
@@ -330,8 +345,14 @@ function Comments({ postCreationRef }: any) {
       </PostCreationForm>
 
       {comments
-        ? comments.map((comment) => <CommentCard key={comment.id} comment={comment as Post} />)
-        : postId && !loading && <div>comments not found</div>}
+        ? comments.map((comment) => <PostCard key={comment.id} post={comment as Post} />)
+        : postId &&
+          !loading && (
+            <Relative>
+              <Image src="/images/no-comment.jpg" alt="no post" fill />
+              <CenterH2>No Comment</CenterH2>
+            </Relative>
+          )}
 
       {(!postId || loading) && (
         <>
@@ -340,11 +361,12 @@ function Comments({ postCreationRef }: any) {
         </>
       )}
 
-      {!loading && hasMoreData ? (
-        <div ref={infiniteScrollRef}>무한 스크롤</div>
-      ) : (
-        <div>모든 댓글을 불러왔어요</div>
-      )}
+      {!loading &&
+        (hasMoreData ? (
+          <div ref={infiniteScrollRef}>무한 스크롤</div>
+        ) : (
+          comments && <div>모든 댓글을 불러왔어요</div>
+        ))}
     </>
   )
 }
@@ -482,3 +504,20 @@ export function addNewComment(cache: ApolloCache<any>, { data }: any) {
     },
   })
 }
+
+const Relative = styled.div`
+  position: relative;
+  aspect-ratio: 3 / 2;
+`
+
+const CenterH2 = styled.h2`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: -1px 0 #fff, 0 1px #fff, 1px 0 #fff, 0 -1px #fff;
+`
+
+const Padding = styled.div`
+  padding-top: 1rem;
+`

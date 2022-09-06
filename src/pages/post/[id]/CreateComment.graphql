@@ -16,9 +16,11 @@ mutation CreateComment($input: PostCreationInput!) {
       author {
         id
       }
-      parentAuthor {
-        id
-        name
+      parentPost {
+        author {
+          id
+          name
+        }
       }
       comments {
         id

@@ -1,6 +1,6 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import { MouseEvent, ReactNode, memo } from 'react'
+import { MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
@@ -25,40 +25,64 @@ import SharingPostButton from './sharing-post/SharingPostButton'
 import SharedPostCard, { GreyH5, OverflowAuto, TextOverflow } from './sharing-post/SharingPostCard'
 
 type Props2 = {
-  comment: Post
+  haveToScroll?: boolean
+  post: Post
+  showButtons?: boolean
   showSharedPost?: boolean
+  showVerticalLine?: boolean
 }
 
-export default memo(CommentCard)
+export default memo(PostCard)
 
-function CommentCard({ comment, showSharedPost }: Props2) {
-  const comments = comment.comments
+function PostCard({
+  haveToScroll,
+  post,
+  showButtons = true,
+  showSharedPost,
+  showVerticalLine,
+}: Props2) {
+  const comments = post.comments
+
+  const postRef = useRef<HTMLLIElement>(null)
+
+  useEffect(() => {
+    if (haveToScroll && postRef.current) {
+      window.scrollTo(0, postRef.current.scrollHeight)
+    }
+  }, [haveToScroll])
 
   return (
-    <Card>
-      <CommentContent comment={comment} showParentAuthor showSharedPost={showSharedPost}>
+    <Card as="li" ref={postRef}>
+      <PostContent
+        post={post}
+        showParentAuthor
+        showButtons={showButtons}
+        showSharedPost={showSharedPost}
+      >
+        {showVerticalLine && <VerticalLine />}
         {comments && <VerticalLine />}
         {comments?.map((comment, i) => (
-          <CommentContent key={comment.id} comment={comment}>
+          <PostContent key={comment.id} post={comment}>
             {[comments?.length - 1 !== i && <VerticalLine key={i} />]}
-          </CommentContent>
+          </PostContent>
         ))}
-      </CommentContent>
+      </PostContent>
     </Card>
   )
 }
 
 type Props = {
   children?: ReactNode[]
-  comment: Post
+  post: Post
+  showButtons?: boolean
   showParentAuthor?: boolean
   showSharedPost?: boolean
 }
 
-function CommentContent({ children, comment, showParentAuthor, showSharedPost }: Props) {
-  const author = comment.author
-  const parentAuthor = comment.parentAuthor
-  const sharedPost = comment.sharingPost
+function PostContent({ children, post, showButtons, showParentAuthor, showSharedPost }: Props) {
+  const author = post.author
+  const parentAuthor = post.parentPost?.author
+  const sharedPost = post.sharingPost
 
   const { name } = useRecoilValue(currentUser)
 
@@ -66,7 +90,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
   const router = useRouter()
 
   function goToPostPage() {
-    router.push(`/post/${comment.id}`)
+    router.push(`/post/${post.id}`)
   }
 
   function goToUserPage(e: MouseEvent<HTMLElement>) {
@@ -80,7 +104,7 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
   // 좋아요
   const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
     onError: toastApolloError,
-    variables: { id: comment.id },
+    variables: { id: post.id },
   })
 
   function toggleLikingPost(e: any) {
@@ -128,8 +152,8 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
               </OverflowAuto>
             )}
             <TextOverflow>
-              <GrayText>{new Date(comment.creationTime).toLocaleDateString()}</GrayText>
-              <GrayText>{comment.updateTime && '(수정됨)'}</GrayText>
+              <GrayText>{new Date(post.creationTime).toLocaleDateString()}</GrayText>
+              <GrayText>{post.updateTime && '(수정됨)'}</GrayText>
             </TextOverflow>
           </FlexCenterGap>
           <ThreeDotsIcon width="1rem" />
@@ -145,32 +169,34 @@ function CommentContent({ children, comment, showParentAuthor, showSharedPost }:
         )}
 
         <p>
-          {comment.deletionTime
-            ? `${new Date(comment.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-            : applyLineBreak(comment.content)}
+          {post.deletionTime
+            ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+            : applyLineBreak(post.content)}
         </p>
 
         {showSharedPost && sharedPost && <SharedPostCard sharedPost={sharedPost as Post} />}
 
-        <GridColumn4>
-          <div>
-            <Button
-              color={theme.error}
-              disabled={loading}
-              onClick={toggleLikingPost}
-              selected={comment.isLiked}
-            >
-              <HeartIcon /> <span>{comment.likeCount}</span>
-            </Button>
-          </div>
-          <div>
-            <CommentCreationButton parentPost={comment} />
-          </div>
-          <div>
-            <SharingPostButton post={comment} sharedPost={comment} />
-          </div>
-          <div>기타</div>
-        </GridColumn4>
+        {showButtons && (
+          <GridColumn4>
+            <div>
+              <Button
+                color={theme.error}
+                disabled={loading}
+                onClick={toggleLikingPost}
+                selected={post.isLiked}
+              >
+                <HeartIcon /> <span>{post.likeCount}</span>
+              </Button>
+            </div>
+            <div>
+              <CommentCreationButton parentPost={post} />
+            </div>
+            <div>
+              <SharingPostButton post={post} sharedPost={post} />
+            </div>
+            <div>기타</div>
+          </GridColumn4>
+        )}
       </GridGapPointer>
 
       {children?.[1]}
@@ -207,10 +233,8 @@ function PostLoadingCard_() {
   )
 }
 
-export const Card = styled.li`
-  display: grid;
+export const Card = styled(GridGap)`
   grid-template-columns: auto 1fr;
-  gap: 0.5rem;
 
   border: 1px solid ${(p) => p.theme.shadow};
   padding: 0.8rem 1rem;

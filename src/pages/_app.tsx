@@ -69,7 +69,8 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
         <ApolloProvider client={client}>
           <RecoilRoot>
             <Authentication>
-              <Component {...pageProps} />
+              {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
+              <Component key={router.asPath} {...pageProps} />
             </Authentication>
           </RecoilRoot>
         </ApolloProvider>

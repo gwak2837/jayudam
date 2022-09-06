@@ -17,8 +17,10 @@ fragment postCard on Post {
     nickname
     imageUrl
   }
-  parentAuthor {
-    id
-    name
+  parentPost {
+    author {
+      id
+      name
+    }
   }
 }
