@@ -54,6 +54,6 @@ export const AUTHOR = '로빈리뷰(LobinReview)'
 export const CANONICAL_URL =
   NEXT_PUBLIC_VERCEL_ENV === 'production'
     ? 'https://jayudam.vercel.app'
-    : process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
+    : NEXT_PUBLIC_VERCEL_ENV === 'preview'
     ? `https://${NEXT_PUBLIC_VERCEL_URL}`
     : 'http://localhost:3000'

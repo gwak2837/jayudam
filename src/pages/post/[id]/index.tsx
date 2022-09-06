@@ -306,6 +306,7 @@ function Comments({ postCreationRef }: any) {
     onCompleted: () => {
       toast.success('댓글 생성 완료')
       setIsSubmitionSuccess(true)
+      setHasMoreData(true)
     },
     onError: toastApolloError,
     update: addNewComment,
@@ -344,15 +345,21 @@ function Comments({ postCreationRef }: any) {
         )}
       </PostCreationForm>
 
-      {comments
-        ? comments.map((comment) => <PostCard key={comment.id} post={comment as Post} />)
-        : postId &&
-          !loading && (
-            <Relative>
-              <Image src="/images/no-comment.jpg" alt="no post" fill />
-              <CenterH2>No Comment</CenterH2>
-            </Relative>
-          )}
+      {comments ? (
+        <MinHeight>
+          {comments.map((comment) => (
+            <PostCard key={comment.id} post={comment as Post} />
+          ))}
+        </MinHeight>
+      ) : (
+        postId &&
+        !loading && (
+          <Relative>
+            <Image src="/images/no-comment.jpg" alt="no post" fill />
+            <CenterH2>No Comment</CenterH2>
+          </Relative>
+        )
+      )}
 
       {(!postId || loading) && (
         <>
@@ -363,15 +370,15 @@ function Comments({ postCreationRef }: any) {
 
       {!loading &&
         (hasMoreData ? (
-          <div ref={infiniteScrollRef}>무한 스크롤</div>
+          <CenterText ref={infiniteScrollRef}>무한 스크롤</CenterText>
         ) : (
-          comments && <div>모든 댓글을 불러왔어요</div>
+          comments && <CenterText>모든 댓글을 불러왔어요</CenterText>
         ))}
     </>
   )
 }
 
-const limit = 2
+const limit = process.env.NODE_ENV === 'production' ? 20 : 2
 
 const Sticky = styled.header`
   position: sticky;
@@ -499,8 +506,8 @@ export function addNewComment(cache: ApolloCache<any>, { data }: any) {
   return cache.modify({
     broadcast: false,
     fields: {
-      comments: (existingPosts = []) => [newPost, ...existingPosts],
-      posts: (existingPosts = []) => [newPost, ...existingPosts],
+      comments: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
+      posts: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
     },
   })
 }
@@ -520,4 +527,13 @@ const CenterH2 = styled.h2`
 
 const Padding = styled.div`
   padding-top: 1rem;
+`
+
+const MinHeight = styled.ul`
+  min-height: max(50vh, 300px);
+`
+
+const CenterText = styled.div`
+  font-size: 0.9rem;
+  text-align: center;
 `

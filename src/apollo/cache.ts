@@ -24,24 +24,24 @@ const cache = new InMemoryCache({
 export default cache
 
 function infiniteScroll(
-  existing: unknown[],
-  incoming: unknown[],
+  existings: unknown[],
+  incomings: unknown[],
   { args, readField }: FieldFunctionOptions
 ) {
-  if (!existing) return incoming
-  if (!incoming || incoming.length === 0) return existing
+  if (!existings) return incomings
+  if (!incomings || incomings.length === 0) return existings
 
-  const newList = [...existing]
+  const newList = [...existings]
+  const existingsSet = new Set(existings.map((aa: any) => readField('id', aa)))
 
-  const insertingIndex = getInsertingIndex(existing, args?.lastId, readField)
+  const insertingIndex = getInsertingIndex(existings, args?.lastId, readField)
 
-  if (insertingIndex) {
-    for (let j = 0; j < incoming.length; j++) {
-      newList[insertingIndex + j] = incoming[j]
-    }
-  } else {
-    for (let j = 0; j < incoming.length; j++) {
-      newList[j] = incoming[j]
+  for (let i = insertingIndex, j = 0; j < incomings.length; j++) {
+    const incoming = incomings[j] as any
+
+    if (!existingsSet.has(readField('id', incoming))) {
+      newList[i] = incoming
+      i++
     }
   }
 
@@ -49,8 +49,11 @@ function infiniteScroll(
 }
 
 function getInsertingIndex(existing: unknown[], lastId: string | undefined, readField: any) {
+  if (!lastId) return 0
+
   for (let i = existing.length - 1; i >= 0; i--) {
     if (readField('id', existing[i]) === lastId) return i + 1
   }
-  return null
+
+  return 0
 }
