@@ -40,12 +40,10 @@ export default function CommentCreationButton({ parentPost }: Props) {
     e.preventDefault()
     e.stopPropagation()
 
-    if (name) {
-      if (parentPost.deletionTime) {
-        toast.warn('댓글을 달 수 없습니다')
-      } else {
-        setIsModalOpened(true)
-      }
+    if (parentPost.deletionTime) {
+      toast.warn('댓글을 달 수 없습니다')
+    } else if (name) {
+      setIsModalOpened(true)
     } else {
       toast.warn(
         <div>
@@ -91,9 +89,9 @@ export default function CommentCreationButton({ parentPost }: Props) {
 
   const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
 
-  if (!parentAuthor)
+  if (parentPost.deletionTime)
     return (
-      <Button color={theme.primaryTextAchromatic} disabled={true}>
+      <Button disabled={true} onClick={openCreatingCommentModal}>
         <CommentIcon /> <span>{parentPost.commentCount}</span>
       </Button>
     )
@@ -137,8 +135,14 @@ export default function CommentCreationButton({ parentPost }: Props) {
 
             <GridGap>
               <FlexCenterGap>
-                <TextOverflow as="h4">{parentAuthor.nickname}</TextOverflow>
-                <TextOverflow as="span">@{parentAuthor.name}</TextOverflow>
+                {parentAuthor ? (
+                  <>
+                    <TextOverflow as="h4">{parentAuthor.nickname}</TextOverflow>
+                    <TextOverflow as="span">@{parentAuthor.name}</TextOverflow>
+                  </>
+                ) : (
+                  <GrayText>탈퇴한 사용자</GrayText>
+                )}
                 <TextOverflow>
                   <span>{new Date(parentPost.creationTime).toLocaleDateString()}</span>
                   <span>{parentPost.updateTime && '(수정됨)'}</span>
@@ -147,12 +151,14 @@ export default function CommentCreationButton({ parentPost }: Props) {
 
               <p>{applyLineBreak(parentPost.content)}</p>
 
-              <TextOverflow>
-                <GrayText>Replying to </GrayText>
-                <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
-                  @{parentAuthor.name}
-                </LineLink>
-              </TextOverflow>
+              {parentAuthor && (
+                <TextOverflow>
+                  <GrayText>Replying to </GrayText>
+                  <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+                    @{parentAuthor.name}
+                  </LineLink>
+                </TextOverflow>
+              )}
             </GridGap>
           </Flex>
         </PostCreationModalForm>

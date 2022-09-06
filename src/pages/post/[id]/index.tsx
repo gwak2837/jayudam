@@ -345,28 +345,25 @@ function Comments({ postCreationRef }: any) {
         )}
       </PostCreationForm>
 
-      {comments ? (
-        <MinHeight>
-          {comments.map((comment) => (
-            <PostCard key={comment.id} post={comment as Post} />
-          ))}
-        </MinHeight>
-      ) : (
-        postId &&
-        !loading && (
+      <MinHeight>
+        {comments?.map((comment) => (
+          <PostCard key={comment.id} post={comment as Post} />
+        ))}
+
+        {(!postId || loading) && (
+          <>
+            <PostLoadingCard />
+            <PostLoadingCard />
+          </>
+        )}
+
+        {!comments && postId && !loading && (
           <Relative>
             <Image src="/images/no-comment.jpg" alt="no post" fill />
             <CenterH2>No Comment</CenterH2>
           </Relative>
-        )
-      )}
-
-      {(!postId || loading) && (
-        <>
-          <PostLoadingCard />
-          <PostLoadingCard />
-        </>
-      )}
+        )}
+      </MinHeight>
 
       {!loading &&
         (hasMoreData ? (
@@ -462,7 +459,7 @@ export const LineLink = styled(Link)`
   }
 `
 
-export const Button = styled.button<{ color: string; selected?: boolean }>`
+export const Button = styled.button<{ color?: string; selected?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;

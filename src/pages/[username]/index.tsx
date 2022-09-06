@@ -135,7 +135,6 @@ export default function UserPage() {
 
 function ScrollResponsiveImage({ src }: any) {
   const [scrollPosition, setPosition] = useState(0)
-  console.log('👀 - scrollPosition', scrollPosition)
 
   useEffect(() => {
     function updatePosition() {
@@ -147,13 +146,13 @@ function ScrollResponsiveImage({ src }: any) {
   }, [])
 
   return (
-    <Relative height={~~scrollPosition}>
+    <Relative>
       <CoverImage src={src} alt="user cover" fill />
     </Relative>
   )
 }
 
-const Relative = styled.div<{ height: number }>`
+const Relative = styled.div<{ height?: number }>`
   position: relative;
   aspect-ratio: 2 / 1;
 
