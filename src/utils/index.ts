@@ -1,5 +1,5 @@
 import { NextRouter } from 'next/router'
-import { KeyboardEvent, MouseEvent } from 'react'
+import { MouseEvent } from 'react'
 
 import { NEXT_PUBLIC_BACKEND_URL } from './constants'
 
@@ -89,7 +89,6 @@ export async function uploadImageFiles(formData: FormData) {
   })
   return response.json()
 }
-
 
 export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
   if (a === b) return true

@@ -1,7 +1,28 @@
 mutation CreateComment($input: PostCreationInput!) {
   createPost(input: $input) {
     newPost {
-      ...postCard
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      isLiked
+      doIComment
+      doIShare
+      likeCount
+      commentCount
+      sharedCount
+      author {
+        id
+      }
+      parentAuthor {
+        id
+        name
+      }
+      comments {
+        id
+      }
     }
     parentPost {
       id

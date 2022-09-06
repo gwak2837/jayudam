@@ -646,14 +646,9 @@ export type CreateCommentMutation = {
       likeCount?: number | null
       commentCount?: number | null
       sharedCount?: number | null
-      author?: {
-        __typename?: 'User'
-        id: any
-        name?: string | null
-        nickname?: string | null
-        imageUrl?: string | null
-      } | null
+      author?: { __typename?: 'User'; id: any } | null
       parentAuthor?: { __typename?: 'User'; id: any; name?: string | null } | null
+      comments?: Array<{ __typename?: 'Post'; id: string }> | null
     }
     parentPost?: {
       __typename?: 'Post'
@@ -1295,7 +1290,28 @@ export const CreateCommentDocument = gql`
   mutation CreateComment($input: PostCreationInput!) {
     createPost(input: $input) {
       newPost {
-        ...postCard
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        isLiked
+        doIComment
+        doIShare
+        likeCount
+        commentCount
+        sharedCount
+        author {
+          id
+        }
+        parentAuthor {
+          id
+          name
+        }
+        comments {
+          id
+        }
       }
       parentPost {
         id
@@ -1304,7 +1320,6 @@ export const CreateCommentDocument = gql`
       }
     }
   }
-  ${PostCardFragmentDoc}
 `
 export type CreateCommentMutationFn = Apollo.MutationFunction<
   CreateCommentMutation,

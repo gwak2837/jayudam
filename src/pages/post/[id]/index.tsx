@@ -215,7 +215,12 @@ export default function PostPage() {
 
                 <GridColumn4Center>
                   <div>
-                    <Button color={theme.error} onClick={toggleLikingPost} selected={post.isLiked}>
+                    <Button
+                      color={theme.error}
+                      disabled={likeLoading}
+                      onClick={toggleLikingPost}
+                      selected={post.isLiked}
+                    >
                       <HeartIcon /> <span>{post.likeCount}</span>
                     </Button>
                   </div>
@@ -470,8 +475,9 @@ export function addNewComment(cache: ApolloCache<any>, { data }: any) {
   }
 
   return cache.modify({
+    broadcast: false,
     fields: {
-      comments: (existingPosts = []) => [...existingPosts, newPost],
+      comments: (existingPosts = []) => [newPost, ...existingPosts],
       posts: (existingPosts = []) => [newPost, ...existingPosts],
     },
   })
