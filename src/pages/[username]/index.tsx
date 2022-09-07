@@ -1,6 +1,6 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
@@ -9,6 +9,7 @@ import { toastApolloError } from '../../apollo/error'
 import PageHead from '../../components/PageHead'
 import { useLogoutMutation, useUserQuery } from '../../graphql/generated/types-and-hooks'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
+import useScroll from '../../hooks/useScroll'
 import Navigation from '../../layouts/Navigation'
 import GoogleLogo from '../../svgs/google-logo.svg'
 import KakaoLogo from '../../svgs/kakao-logo.svg'
@@ -29,6 +30,7 @@ export default function UserPage() {
   const username = getUsername(router)
   const [{ name: currentUsername }, setCurrentUser] = useRecoilState(currentUser)
 
+  // 라우팅
   useNeedToLogin(currentUsername === null)
 
   useEffect(() => {
@@ -76,16 +78,28 @@ export default function UserPage() {
     logoutMutation()
   }
 
+  useScroll()
+
   return (
     <PageHead title={`@${username} - 자유담`} description="">
       <Navigation>
         <MinWidth>
           {user ? (
             <>
-              <ScrollResponsiveImage
-                coverSrc={user.coverImageUrls?.[0] ?? '/images/cover.png'}
-                profileSrc={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
-              />
+              <StickyOuter>
+                <CoverImage
+                  src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
+                  alt="user cover"
+                  fill
+                />
+              </StickyOuter>
+              <RelativeSquare>
+                <ProfileImage
+                  src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
+                  alt="user profile"
+                  fill
+                />
+              </RelativeSquare>
 
               {username}
               <button disabled={logoutLoading} onClick={logout}>
@@ -174,30 +188,6 @@ export default function UserPage() {
   )
 }
 
-function ScrollResponsiveImage({ coverSrc, profileSrc }: any) {
-  useLayoutEffect(() => {
-    function setScrollY() {
-      const scrollY = ~~window.scrollY
-      if (scrollY < 500) document.body.style.setProperty('--scroll', `${scrollY}px`)
-    }
-    window.addEventListener('scroll', setScrollY, { passive: true })
-
-    return () => window.removeEventListener('scroll', setScrollY)
-  }, [])
-
-  return (
-    <>
-      <StickyOuter>
-        <CoverImage src={coverSrc} alt="user cover" fill />
-        <StickyInner></StickyInner>
-      </StickyOuter>
-      <RelativeSquare>
-        <ProfileImage src={profileSrc} alt="user profile" fill />
-      </RelativeSquare>
-    </>
-  )
-}
-
 const MinWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
 `
@@ -213,15 +203,6 @@ const StickyOuter = styled.div`
 
   display: flex;
   align-items: center;
-`
-
-const StickyInner = styled.div`
-  position: sticky;
-  top: 0;
-
-  height: ${HEADER_MIN_HEIGHT};
-  width: 100%;
-  margin: 0 auto;
 `
 
 const CoverImage = styled(Image)`
