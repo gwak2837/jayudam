@@ -1,6 +1,6 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
@@ -82,15 +82,11 @@ export default function UserPage() {
         <MinWidth>
           {user ? (
             <>
-              <ScrollResponsiveImage src={user.coverImageUrls?.[0] ?? '/images/cover.png'} />
+              <ScrollResponsiveImage
+                coverSrc={user.coverImageUrls?.[0] ?? '/images/cover.png'}
+                profileSrc={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
+              />
 
-              <RelativeSquare>
-                <ProfileImage
-                  src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
-                  alt="user profile"
-                  fill
-                />
-              </RelativeSquare>
               {username}
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
@@ -117,10 +113,55 @@ export default function UserPage() {
               <div>내 인증기록</div>
 
               <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
+              <div>내 문서</div>
 
-              <div style={{ overflow: 'scroll', margin: 0 }}>
-                <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
-              </div>
+              {/* <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre> */}
             </>
           ) : (
             <div>해당 사용자는 존재하지 않아요</div>
@@ -133,51 +174,79 @@ export default function UserPage() {
   )
 }
 
-function ScrollResponsiveImage({ src }: any) {
-  const [scrollPosition, setPosition] = useState(0)
-
-  useEffect(() => {
-    function updatePosition() {
-      setPosition(~~window.scrollY)
+function ScrollResponsiveImage({ coverSrc, profileSrc }: any) {
+  useLayoutEffect(() => {
+    function setScrollY() {
+      const scrollY = ~~window.scrollY
+      if (scrollY < 500) document.body.style.setProperty('--scroll', `${scrollY}px`)
     }
-    window.addEventListener('scroll', updatePosition, { passive: true })
+    window.addEventListener('scroll', setScrollY, { passive: true })
 
-    return () => window.removeEventListener('scroll', updatePosition)
+    return () => window.removeEventListener('scroll', setScrollY)
   }, [])
 
   return (
-    <Relative>
-      <CoverImage src={src} alt="user cover" fill />
-    </Relative>
+    <>
+      <StickyOuter>
+        <CoverImage src={coverSrc} alt="user cover" fill />
+        <StickyInner></StickyInner>
+      </StickyOuter>
+      <RelativeSquare>
+        <ProfileImage src={profileSrc} alt="user profile" fill />
+      </RelativeSquare>
+    </>
   )
 }
 
-const Relative = styled.div<{ height?: number }>`
-  position: relative;
-  aspect-ratio: 2 / 1;
-
-  width: 100%;
-  min-height: 3rem;
-  height: ${(p) => p.height}px;
-  max-height: 100px;
+const MinWidth = styled.main`
+  max-width: ${TABLET_MIN_WIDTH};
 `
 
-const RelativeSquare = styled.div`
-  position: relative;
-  aspect-ratio: 1 / 1;
+const HEADER_MAX_HEIGHT = '250px'
+const HEADER_MIN_HEIGHT = '3rem'
+
+const StickyOuter = styled.div`
+  position: sticky;
+  top: calc(${HEADER_MIN_HEIGHT} - ${HEADER_MAX_HEIGHT});
+
+  height: ${HEADER_MAX_HEIGHT};
+
+  display: flex;
+  align-items: center;
+`
+
+const StickyInner = styled.div`
+  position: sticky;
+  top: 0;
+
+  height: ${HEADER_MIN_HEIGHT};
+  width: 100%;
+  margin: 0 auto;
 `
 
 const CoverImage = styled(Image)`
   object-fit: cover;
+
+  inset: auto !important;
+  bottom: 0 !important;
+  height: calc(100% - var(--scroll)) !important;
+  min-height: ${HEADER_MIN_HEIGHT};
+`
+
+const RelativeSquare = styled.div`
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+
+  margin: 0 auto;
+  z-index: 1;
 `
 
 const ProfileImage = styled(Image)`
+  border-radius: 50%;
   object-fit: cover;
-`
-
-const MinWidth = styled.main`
-  max-width: ${TABLET_MIN_WIDTH};
-  overflow: auto;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
 `
 
 function goToKakaoLoginPage() {
