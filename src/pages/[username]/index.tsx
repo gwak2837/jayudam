@@ -6,7 +6,11 @@ import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../../apollo/error'
-import { Absolute as Absolute_, Relative as Relative_ } from '../../components/atoms/Flex'
+import {
+  Absolute as Absolute_,
+  Relative as Relative_,
+  TextOverflow as TextOverflow_,
+} from '../../components/atoms/Flex'
 import PageHead from '../../components/PageHead'
 import { useLogoutMutation, useUserQuery } from '../../graphql/generated/types-and-hooks'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
@@ -17,11 +21,13 @@ import KakaoLogo from '../../svgs/kakao-logo.svg'
 import NaverLogo from '../../svgs/naver-logo.svg'
 import { getUsername } from '../../utils'
 import {
+  MOBILE_MIN_HEIGHT,
   NEXT_PUBLIC_BACKEND_URL,
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
   TABLET_MIN_WIDTH,
+  TABLET_MIN_WIDTH_1,
 } from '../../utils/constants'
 import { currentUser } from '../../utils/recoil'
 import { GoogleButton, KakaoButton, NaverButton } from '../login'
@@ -93,6 +99,7 @@ export default function UserPage() {
                   alt="user cover"
                   fill
                 />
+                <AnimatedH3 as="h3">{user.nickname}</AnimatedH3>
               </Sticky>
 
               <Relative>
@@ -107,7 +114,11 @@ export default function UserPage() {
                 </Absolute>
               </Relative>
 
-              {username}
+              <Width>
+                <H3 as="h3">{user.nickname}</H3>
+                <H4 as="h4">@{username}</H4>
+              </Width>
+
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
               </button>
@@ -195,15 +206,22 @@ export default function UserPage() {
 }
 
 const MinWidth = styled.main`
-  max-width: ${TABLET_MIN_WIDTH};
+  @media (max-width: ${TABLET_MIN_WIDTH_1}) {
+    width: 100vw;
+  }
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
+  }
 `
 
 const Sticky = styled.div`
   position: sticky;
   top: -200px;
-  z-index: 1;
+  z-index: 2;
 
   height: 250px;
+  overflow: hidden;
 `
 
 const CoverImage = styled(Image)`
@@ -221,7 +239,7 @@ const CoverImage = styled(Image)`
     }
     to {
       height: 50px;
-      filter: brightness(75%);
+      filter: brightness(66%);
     }
   }
 `
@@ -229,15 +247,13 @@ const CoverImage = styled(Image)`
 const Relative = styled(Relative_)`
   width: 100%;
   height: 75px;
+  z-index: 2;
 
   animation: 200s linear calc(min(var(--scroll), 200) * -1s) 1 normal forwards paused hide;
 
   @keyframes hide {
-    0% {
-      z-index: 1;
-    }
     99% {
-      z-index: 1;
+      z-index: 2;
     }
     100% {
       z-index: 0;
@@ -255,15 +271,13 @@ const RelativeSquare = styled(Relative_)`
 
   border: 2px solid #fff;
   border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%);
 
   animation: 200s linear calc(var(--scroll) * -1s) 1 normal forwards paused shrink-profile;
 
   @keyframes shrink-profile {
-    from {
-      width: 150px;
-      height: 150px;
-      transform: translate(-50%, -50%);
-    }
     to {
       width: 75px;
       height: 75px;
@@ -276,6 +290,54 @@ const ProfileImage = styled(Image)`
   border: 2px solid #000;
   border-radius: 50%;
   object-fit: cover;
+`
+
+const Width = styled.div`
+  position: relative;
+  z-index: 1;
+
+  padding: 1rem;
+`
+
+const H3 = styled(TextOverflow_)`
+  font-weight: 500;
+  text-align: center;
+`
+
+const H4 = styled(TextOverflow_)`
+  color: ${(p) => p.theme.primaryTextAchromatic};
+  font-weight: 400;
+  text-align: center;
+`
+
+const AnimatedH3 = styled(H3)`
+  position: absolute;
+  bottom: -100px;
+  z-index: 3;
+
+  color: #fff;
+  padding: 0 1rem;
+
+  animation: 50s linear calc(max(0, calc(var(--scroll) - 290)) * -1s) 1 normal forwards paused show;
+
+  @keyframes show {
+    from {
+      bottom: 0;
+      transform: translateY(100%);
+    }
+    to {
+      bottom: 25px;
+      transform: translateY(50%);
+    }
+  }
+
+  @media (max-width: ${TABLET_MIN_WIDTH_1}) {
+    width: 100vw;
+  }
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    width: ${MOBILE_MIN_HEIGHT};
+  }
 `
 
 function goToKakaoLoginPage() {

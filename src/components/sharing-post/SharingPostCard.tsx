@@ -7,7 +7,7 @@ import { Post } from '../../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../../pages/post'
 import { LineLink } from '../../pages/post/[id]'
 import { stopPropagation } from '../../utils'
-import { FlexCenter, GridSmallGap } from '../atoms/Flex'
+import { FlexCenter, GridSmallGap, TextOverflow as TextOverflow_ } from '../atoms/Flex'
 
 type Props = {
   sharedPost: Post
@@ -49,7 +49,7 @@ export default function SharedPostCard({ sharedPost }: Props) {
           {author && (
             <OverflowAuto>
               <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
-                <GreyH5>@{author.name}</GreyH5>
+                <GreyH5 as="h5">@{author.name}</GreyH5>
               </LineLink>
             </OverflowAuto>
           )}
@@ -80,23 +80,17 @@ const FlexCenterGap = styled(FlexCenter)`
   min-width: 0;
 `
 
-export const TextOverflow = styled.div`
+export const TextOverflow = styled(TextOverflow_)`
   min-width: 2rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `
 
 export const OverflowAuto = styled.div`
   overflow: auto;
 `
 
-export const GreyH5 = styled.h5`
+export const GreyH5 = styled(TextOverflow_)`
   color: ${(p) => p.theme.primaryTextAchromatic};
   font-weight: 400;
 
   min-width: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `

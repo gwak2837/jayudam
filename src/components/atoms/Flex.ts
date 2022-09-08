@@ -50,3 +50,9 @@ export const Relative = styled.div`
 export const Absolute = styled.div`
   position: absolute;
 `
+
+export const TextOverflow = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
