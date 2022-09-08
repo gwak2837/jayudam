@@ -94,30 +94,34 @@ export default function UserPage() {
           {user ? (
             <>
               <Sticky>
-                <CoverImage
-                  src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
-                  alt="user cover"
-                  fill
-                />
+                <CoverRelative>
+                  <CoverImage
+                    src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
+                    alt="user cover"
+                    fill
+                  />
+                </CoverRelative>
                 <AnimatedH3 as="h3">{user.nickname}</AnimatedH3>
               </Sticky>
 
-              <Relative>
+              <RelativeZIndex>
                 <Absolute>
-                  <RelativeSquare>
+                  <RelativeTransform>
                     <ProfileImage
                       src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
                       alt="user profile"
                       fill
                     />
-                  </RelativeSquare>
+                  </RelativeTransform>
                 </Absolute>
-              </Relative>
+              </RelativeZIndex>
 
               <Width>
                 <H3 as="h3">{user.nickname}</H3>
                 <H4 as="h4">@{username}</H4>
               </Width>
+
+              <p>{user.bio}</p>
 
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
@@ -224,27 +228,23 @@ const Sticky = styled.div`
   overflow: hidden;
 `
 
-const CoverImage = styled(Image)`
-  object-fit: cover;
-
-  inset: auto !important;
-  bottom: 0 !important;
-  min-height: 50px;
-
+const CoverRelative = styled(Relative_)`
+  height: 100%;
   animation: 200s linear calc(min(var(--scroll), 200) * -1s) 1 normal forwards paused shink-cover;
 
   @keyframes shink-cover {
-    from {
-      height: 250px;
-    }
     to {
-      height: 50px;
+      transform: translateY(50%);
       filter: brightness(66%);
     }
   }
 `
 
-const Relative = styled(Relative_)`
+const CoverImage = styled(Image)`
+  object-fit: cover;
+`
+
+const RelativeZIndex = styled(Relative_)`
   width: 100%;
   height: 75px;
   z-index: 2;
@@ -262,26 +262,23 @@ const Relative = styled(Relative_)`
 `
 
 const Absolute = styled(Absolute_)`
+  top: -100%;
   left: 50%;
   transform: translateX(-50%);
 `
 
-const RelativeSquare = styled(Relative_)`
-  left: 50%;
-
+const RelativeTransform = styled(Relative_)`
   border: 2px solid #fff;
   border-radius: 50%;
   width: 150px;
   height: 150px;
-  transform: translate(-50%, -50%);
 
-  animation: 200s linear calc(var(--scroll) * -1s) 1 normal forwards paused shrink-profile;
+  animation: 200s linear calc(var(--scroll) * -1s) 1 normal forwards paused shrink;
+  /* will-change: transform; */
 
-  @keyframes shrink-profile {
+  @keyframes shrink {
     to {
-      width: 75px;
-      height: 75px;
-      transform: translate(-50%, 0);
+      transform: scale(0.5) translateY(50%);
     }
   }
 `
@@ -312,22 +309,21 @@ const H4 = styled(TextOverflow_)`
 
 const AnimatedH3 = styled(H3)`
   position: absolute;
-  bottom: -100px;
+  bottom: 0;
   z-index: 3;
 
   color: #fff;
   padding: 0 1rem;
 
   animation: 50s linear calc(max(0, calc(var(--scroll) - 290)) * -1s) 1 normal forwards paused show;
+  /* will-change: transform; */
 
   @keyframes show {
     from {
-      bottom: 0;
       transform: translateY(100%);
     }
     to {
-      bottom: 25px;
-      transform: translateY(50%);
+      transform: translateY(-50%);
     }
   }
 
