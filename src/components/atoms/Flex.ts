@@ -42,3 +42,11 @@ export const GridBigGap = styled.div`
 export const GrayText = styled.span`
   color: #888;
 `
+
+export const Relative = styled.div`
+  position: relative;
+`
+
+export const Absolute = styled.div`
+  position: absolute;
+`

@@ -1,11 +1,12 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../../apollo/error'
+import { Absolute as Absolute_, Relative as Relative_ } from '../../components/atoms/Flex'
 import PageHead from '../../components/PageHead'
 import { useLogoutMutation, useUserQuery } from '../../graphql/generated/types-and-hooks'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
@@ -31,7 +32,7 @@ export default function UserPage() {
   const [{ name: currentUsername }, setCurrentUser] = useRecoilState(currentUser)
 
   // 라우팅
-  useNeedToLogin(currentUsername === null)
+  // useNeedToLogin(currentUsername === null)
 
   useEffect(() => {
     if (currentUsername === undefined) {
@@ -86,20 +87,25 @@ export default function UserPage() {
         <MinWidth>
           {user ? (
             <>
-              <StickyOuter>
+              <Sticky>
                 <CoverImage
                   src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
                   alt="user cover"
                   fill
                 />
-              </StickyOuter>
-              <RelativeSquare>
-                <ProfileImage
-                  src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
-                  alt="user profile"
-                  fill
-                />
-              </RelativeSquare>
+              </Sticky>
+
+              <Relative>
+                <Absolute>
+                  <RelativeSquare>
+                    <ProfileImage
+                      src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
+                      alt="user profile"
+                      fill
+                    />
+                  </RelativeSquare>
+                </Absolute>
+              </Relative>
 
               {username}
               <button disabled={logoutLoading} onClick={logout}>
@@ -192,17 +198,12 @@ const MinWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
 `
 
-const HEADER_MAX_HEIGHT = '250px'
-const HEADER_MIN_HEIGHT = '3rem'
-
-const StickyOuter = styled.div`
+const Sticky = styled.div`
   position: sticky;
-  top: calc(${HEADER_MIN_HEIGHT} - ${HEADER_MAX_HEIGHT});
+  top: -200px;
+  z-index: 1;
 
-  height: ${HEADER_MAX_HEIGHT};
-
-  display: flex;
-  align-items: center;
+  height: 250px;
 `
 
 const CoverImage = styled(Image)`
@@ -210,24 +211,71 @@ const CoverImage = styled(Image)`
 
   inset: auto !important;
   bottom: 0 !important;
-  height: calc(100% - var(--scroll)) !important;
-  min-height: ${HEADER_MIN_HEIGHT};
+  min-height: 50px;
+
+  animation: 200s linear calc(min(var(--scroll), 200) * -1s) 1 normal forwards paused shink-cover;
+
+  @keyframes shink-cover {
+    from {
+      height: 250px;
+    }
+    to {
+      height: 50px;
+      filter: brightness(75%);
+    }
+  }
 `
 
-const RelativeSquare = styled.div`
-  position: relative;
-  width: 10rem;
-  height: 10rem;
+const Relative = styled(Relative_)`
+  width: 100%;
+  height: 75px;
 
-  margin: 0 auto;
-  z-index: 1;
+  animation: 200s linear calc(min(var(--scroll), 200) * -1s) 1 normal forwards paused hide;
+
+  @keyframes hide {
+    0% {
+      z-index: 1;
+    }
+    99% {
+      z-index: 1;
+    }
+    100% {
+      z-index: 0;
+    }
+  }
+`
+
+const Absolute = styled(Absolute_)`
+  left: 50%;
+  transform: translateX(-50%);
+`
+
+const RelativeSquare = styled(Relative_)`
+  left: 50%;
+
+  border: 2px solid #fff;
+  border-radius: 50%;
+
+  animation: 200s linear calc(var(--scroll) * -1s) 1 normal forwards paused shrink-profile;
+
+  @keyframes shrink-profile {
+    from {
+      width: 150px;
+      height: 150px;
+      transform: translate(-50%, -50%);
+    }
+    to {
+      width: 75px;
+      height: 75px;
+      transform: translate(-50%, 0);
+    }
+  }
 `
 
 const ProfileImage = styled(Image)`
+  border: 2px solid #000;
   border-radius: 50%;
   object-fit: cover;
-  left: 50% !important;
-  transform: translate(-50%, -50%);
 `
 
 function goToKakaoLoginPage() {

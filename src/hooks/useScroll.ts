@@ -2,14 +2,17 @@ import { useLayoutEffect } from 'react'
 
 export default function useScroll() {
   useLayoutEffect(() => {
-    function setScrollY() {
+    const bodyStyle = document.body.style
+
+    window.addEventListener('scroll', setScrollPosition, { passive: true })
+
+    function setScrollPosition() {
       const scrollY = ~~window.scrollY
-      if (scrollY < 500) document.body.style.setProperty('--scroll', `${scrollY}px`)
+      if (scrollY < 500) bodyStyle.setProperty('--scroll', `${scrollY}`)
     }
-    window.addEventListener('scroll', setScrollY, { passive: true })
 
-    return () => window.removeEventListener('scroll', setScrollY)
+    return () => {
+      window.removeEventListener('scroll', setScrollPosition)
+    }
   }, [])
-
-  return
 }
