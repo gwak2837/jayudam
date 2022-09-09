@@ -63,7 +63,7 @@ export default function CommentCreationButton({ parentPost }: Props) {
     skip: !name,
   })
 
-  const me = data?.user
+  const me = data?.myProfile
 
   // 댓글 생성하기
   const [createCommentMutation, { loading: createLoading }] = useCreatePostMutation({

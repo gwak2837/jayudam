@@ -45,7 +45,7 @@ export default function PostCreationButton({ show }: Props) {
     skip: !name,
   })
 
-  const me = data?.user
+  const me = data?.myProfile
 
   // 이야기 생성하기
   const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({

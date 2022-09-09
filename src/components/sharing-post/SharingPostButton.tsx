@@ -63,7 +63,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
     skip: !name,
   })
 
-  const me = data?.user
+  const me = data?.myProfile
 
   // 이야기 공유
   const [sharePostMutation, { loading: shareLoading }] = useSharePostMutation({
