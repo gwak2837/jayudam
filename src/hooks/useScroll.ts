@@ -8,7 +8,7 @@ export default function useScroll() {
 
     function setScrollPosition() {
       const scrollY = ~~window.scrollY
-      if (scrollY < 500) bodyStyle.setProperty('--scroll', `${scrollY}`)
+      if (scrollY < 400) bodyStyle.setProperty('--scroll', `${scrollY}`)
     }
 
     return () => {

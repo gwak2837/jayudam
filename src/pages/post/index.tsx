@@ -58,7 +58,7 @@ export default function PostsPage() {
     skip: !name,
   })
 
-  const me = data2?.user
+  const me = data2?.myProfile
 
   // 이야기 생성 Intersection Observer
   const postCreationRef = useRef<HTMLFormElement>(null)

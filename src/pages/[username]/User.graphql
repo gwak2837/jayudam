@@ -3,8 +3,8 @@ query User($name: NonEmptyString) {
     id
     creationTime
     bio
-    birthyear
     birthday
+    birthyear
     blockingStartTime
     blockingEndTime
     cherry
@@ -15,11 +15,12 @@ query User($name: NonEmptyString) {
     imageUrls
     isPrivate
     isSleeping
-    isVerifiedBirthyear
     isVerifiedBirthday
+    isVerifiedBirthyear
     isVerifiedSex
     name
     nickname
+    postCount
     sex
     towns {
       count

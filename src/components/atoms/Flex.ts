@@ -16,6 +16,10 @@ export const FlexCenter = styled(Flex)`
   align-items: center;
 `
 
+export const FlexCenterSmallGap = styled(FlexCenter)`
+  gap: 0.4rem;
+`
+
 export const FlexCenterCenter = styled(FlexCenter)`
   justify-content: center;
 `

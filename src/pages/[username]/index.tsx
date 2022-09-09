@@ -8,6 +8,8 @@ import styled from 'styled-components'
 import { toastApolloError } from '../../apollo/error'
 import {
   Absolute as Absolute_,
+  FlexCenterSmallGap,
+  FlexColumn as FlexColumn_,
   Relative as Relative_,
   TextOverflow as TextOverflow_,
 } from '../../components/atoms/Flex'
@@ -16,9 +18,12 @@ import { useLogoutMutation, useUserQuery } from '../../graphql/generated/types-a
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import useScroll from '../../hooks/useScroll'
 import Navigation from '../../layouts/Navigation'
+import CakeIcon from '../../svgs/cake.svg'
 import GoogleLogo from '../../svgs/google-logo.svg'
 import KakaoLogo from '../../svgs/kakao-logo.svg'
+import MailIcon from '../../svgs/mail.svg'
 import NaverLogo from '../../svgs/naver-logo.svg'
+import SexIcon from '../../svgs/sex.svg'
 import { getUsername } from '../../utils'
 import {
   MOBILE_MIN_HEIGHT,
@@ -29,6 +34,7 @@ import {
   TABLET_MIN_WIDTH,
   TABLET_MIN_WIDTH_1,
 } from '../../utils/constants'
+import { formatBirthday, formatSimpleDate } from '../../utils/date'
 import { currentUser } from '../../utils/recoil'
 import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
@@ -96,19 +102,23 @@ export default function UserPage() {
               <Sticky>
                 <CoverRelative>
                   <CoverImage
-                    src={user.coverImageUrls?.[0] ?? '/images/cover.png'}
+                    src={user.coverImageUrls?.[0] ?? '/images/no-post.jpg'}
                     alt="user cover"
                     fill
                   />
                 </CoverRelative>
-                <AnimatedH3 as="h3">{user.nickname}</AnimatedH3>
+                <AnimatedH3 as="h3">
+                  {user.nickname}
+                  <br />
+                  <SmallText>이야기 {user.postCount ?? 0}개</SmallText>
+                </AnimatedH3>
               </Sticky>
 
               <RelativeZIndex>
                 <Absolute>
                   <RelativeTransform>
                     <ProfileImage
-                      src={user.imageUrls?.[0] ?? '/images/profile.jpeg'}
+                      src={user.imageUrls?.[0] ?? '/images/shortcut-icon.webp'}
                       alt="user profile"
                       fill
                     />
@@ -121,7 +131,33 @@ export default function UserPage() {
                 <H4 as="h4">@{username}</H4>
               </Width>
 
-              <p>{user.bio}</p>
+              <P>{user.bio}</P>
+
+              <FlexColumn>
+                <FlexCenterSmallGap>
+                  <MailIcon width="1.3rem" />
+                  <DisabableText>
+                    {' '}
+                    {formatSimpleDate(new Date(user.creationTime))} 가입
+                  </DisabableText>
+                </FlexCenterSmallGap>
+                <FlexCenterSmallGap>
+                  <SexIcon width="1.3rem" />
+                  <DisabableText disabled={!user.isVerifiedSex}>성별: {user.sex}</DisabableText>
+                </FlexCenterSmallGap>
+                <FlexCenterSmallGap>
+                  <CakeIcon width="1.3rem" />
+                  <DisabableText disabled={!user.isVerifiedBirthyear || !user.isVerifiedBirthday}>
+                    생일:{' '}
+                    <DisabableText disabled={!user.isVerifiedBirthyear}>
+                      {user.birthyear ?? 1900}년
+                    </DisabableText>{' '}
+                    <DisabableText disabled={!user.isVerifiedBirthday}>
+                      {formatBirthday(user.birthday) ?? '0월 0일'}
+                    </DisabableText>
+                  </DisabableText>
+                </FlexCenterSmallGap>
+              </FlexColumn>
 
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
@@ -148,55 +184,8 @@ export default function UserPage() {
               <div>내 인증기록</div>
 
               <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
-              <div>내 문서</div>
 
-              {/* <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre> */}
+              <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
             </>
           ) : (
             <div>해당 사용자는 존재하지 않아요</div>
@@ -207,6 +196,37 @@ export default function UserPage() {
       </Navigation>
     </PageHead>
   )
+}
+
+function goToKakaoLoginPage() {
+  const querystring = new URLSearchParams({
+    response_type: 'code',
+    client_id: NEXT_PUBLIC_KAKAO_REST_API_KEY,
+    redirect_uri: `${NEXT_PUBLIC_BACKEND_URL}/oauth/kakao/register`,
+    state: sessionStorage.getItem('jwt') ?? localStorage.getItem('jwt') ?? '',
+  })
+  window.location.replace(`https://kauth.kakao.com/oauth/authorize?${querystring}`)
+}
+
+function goToNaverLoginPage() {
+  const querystring = new URLSearchParams({
+    response_type: 'code',
+    client_id: NEXT_PUBLIC_NAVER_CLIENT_ID,
+    redirect_uri: `${NEXT_PUBLIC_BACKEND_URL}/oauth/naver/register`,
+    state: sessionStorage.getItem('jwt') ?? localStorage.getItem('jwt') ?? '',
+  })
+  window.location.replace(`https://nid.naver.com/oauth2.0/authorize?${querystring}`)
+}
+
+function goToGoogleLoginPage() {
+  const querystring = new URLSearchParams({
+    response_type: 'code',
+    client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    redirect_uri: `${NEXT_PUBLIC_BACKEND_URL}/oauth/google/register`,
+    scope: 'email+profile+openid',
+    state: sessionStorage.getItem('jwt') ?? localStorage.getItem('jwt') ?? '',
+  })
+  window.location.replace(`https://accounts.google.com/o/oauth2/v2/auth?${querystring}`)
 }
 
 const MinWidth = styled.main`
@@ -231,11 +251,12 @@ const Sticky = styled.div`
 const CoverRelative = styled(Relative_)`
   height: 100%;
   animation: 200s linear calc(min(var(--scroll), 200) * -1s) 1 normal forwards paused shink-cover;
+  will-change: transform;
 
   @keyframes shink-cover {
     to {
       transform: translateY(50%);
-      filter: brightness(66%);
+      filter: brightness(60%);
     }
   }
 `
@@ -274,7 +295,7 @@ const RelativeTransform = styled(Relative_)`
   height: 150px;
 
   animation: 200s linear calc(var(--scroll) * -1s) 1 normal forwards paused shrink;
-  /* will-change: transform; */
+  will-change: transform;
 
   @keyframes shrink {
     to {
@@ -311,19 +332,18 @@ const AnimatedH3 = styled(H3)`
   position: absolute;
   bottom: 0;
   z-index: 3;
+  transform: translateY(110%);
 
   color: #fff;
+  line-height: 1.2rem;
   padding: 0 1rem;
 
   animation: 50s linear calc(max(0, calc(var(--scroll) - 290)) * -1s) 1 normal forwards paused show;
-  /* will-change: transform; */
+  will-change: transform;
 
   @keyframes show {
-    from {
-      transform: translateY(100%);
-    }
     to {
-      transform: translateY(-50%);
+      transform: translateY(-10%);
     }
   }
 
@@ -336,33 +356,22 @@ const AnimatedH3 = styled(H3)`
   }
 `
 
-function goToKakaoLoginPage() {
-  const querystring = new URLSearchParams({
-    response_type: 'code',
-    client_id: NEXT_PUBLIC_KAKAO_REST_API_KEY,
-    redirect_uri: `${NEXT_PUBLIC_BACKEND_URL}/oauth/kakao/register`,
-    state: sessionStorage.getItem('jwt') ?? localStorage.getItem('jwt') ?? '',
-  })
-  window.location.replace(`https://kauth.kakao.com/oauth/authorize?${querystring}`)
-}
+const SmallText = styled.span`
+  font-size: 0.75rem;
+`
 
-function goToNaverLoginPage() {
-  const querystring = new URLSearchParams({
-    response_type: 'code',
-    client_id: NEXT_PUBLIC_NAVER_CLIENT_ID,
-    redirect_uri: `${NEXT_PUBLIC_BACKEND_URL}/oauth/naver/register`,
-    state: sessionStorage.getItem('jwt') ?? localStorage.getItem('jwt') ?? '',
-  })
-  window.location.replace(`https://nid.naver.com/oauth2.0/authorize?${querystring}`)
-}
+const P = styled.p`
+  max-width: ${MOBILE_MIN_HEIGHT};
+  min-height: 1rem;
+  margin: 1rem auto;
+  padding: 0 1rem;
+`
 
-function goToGoogleLoginPage() {
-  const querystring = new URLSearchParams({
-    response_type: 'code',
-    client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-    redirect_uri: `${NEXT_PUBLIC_BACKEND_URL}/oauth/google/register`,
-    scope: 'email+profile+openid',
-    state: sessionStorage.getItem('jwt') ?? localStorage.getItem('jwt') ?? '',
-  })
-  window.location.replace(`https://accounts.google.com/o/oauth2/v2/auth?${querystring}`)
-}
+const FlexColumn = styled(FlexColumn_)`
+  gap: 0.5rem;
+  margin: 1rem;
+`
+
+const DisabableText = styled.span<{ disabled?: boolean }>`
+  color: ${(p) => (p.disabled ? p.theme.primaryTextAchromatic : p.theme.primaryText)};
+`

@@ -297,7 +297,7 @@ function Comments({ postCreationRef }: any) {
     skip: !name,
   })
 
-  const me = data2?.user
+  const me = data2?.myProfile
 
   // 댓글 생성
   const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)

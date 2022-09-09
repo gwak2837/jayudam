@@ -1,5 +1,5 @@
 query MyProfile {
-  user {
+  myProfile {
     id
     imageUrl
   }

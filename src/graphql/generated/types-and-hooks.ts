@@ -233,6 +233,7 @@ export type Query = {
   comments?: Maybe<Array<Post>>
   isUniqueUsername: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
+  myProfile?: Maybe<User>
   pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
@@ -504,8 +505,8 @@ export type UserQuery = {
     id: any
     creationTime?: any | null
     bio?: string | null
-    birthyear?: number | null
     birthday?: string | null
+    birthyear?: number | null
     blockingStartTime?: any | null
     blockingEndTime?: any | null
     cherry?: number | null
@@ -516,11 +517,12 @@ export type UserQuery = {
     imageUrls?: Array<string> | null
     isPrivate?: boolean | null
     isSleeping?: boolean | null
-    isVerifiedBirthyear?: boolean | null
     isVerifiedBirthday?: boolean | null
+    isVerifiedBirthyear?: boolean | null
     isVerifiedSex?: boolean | null
     name?: string | null
     nickname?: string | null
+    postCount?: number | null
     sex?: Sex | null
     towns?: Array<{ __typename?: 'Town'; count: number; name?: string | null }> | null
   } | null
@@ -530,7 +532,7 @@ export type MyProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type MyProfileQuery = {
   __typename?: 'Query'
-  user?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
+  myProfile?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
 }
 
 export type PostsQueryVariables = Exact<{
@@ -1139,8 +1141,8 @@ export const UserDocument = gql`
       id
       creationTime
       bio
-      birthyear
       birthday
+      birthyear
       blockingStartTime
       blockingEndTime
       cherry
@@ -1151,11 +1153,12 @@ export const UserDocument = gql`
       imageUrls
       isPrivate
       isSleeping
-      isVerifiedBirthyear
       isVerifiedBirthday
+      isVerifiedBirthyear
       isVerifiedSex
       name
       nickname
+      postCount
       sex
       towns {
         count
@@ -1196,7 +1199,7 @@ export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
 export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
 export const MyProfileDocument = gql`
   query MyProfile {
-    user {
+    myProfile {
       id
       imageUrl
     }
@@ -2002,6 +2005,7 @@ export type QueryKeySpecifier = (
   | 'comments'
   | 'isUniqueUsername'
   | 'myCertAgreement'
+  | 'myProfile'
   | 'pendingCerts'
   | 'post'
   | 'posts'
@@ -2016,6 +2020,7 @@ export type QueryFieldPolicy = {
   comments?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueUsername?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
+  myProfile?: FieldPolicy<any> | FieldReadFunction<any>
   pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
