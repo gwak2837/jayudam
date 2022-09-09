@@ -44,7 +44,7 @@ export const GridBigGap = styled.div`
 `
 
 export const GrayText = styled.span`
-  color: #888;
+  color: ${(p) => p.theme.primaryTextAchromatic};
 `
 
 export const Relative = styled.div`

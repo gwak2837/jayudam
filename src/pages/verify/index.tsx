@@ -13,6 +13,7 @@ import {
   useSampleCertJwtLazyQuery,
   useVerifyCertJwtMutation,
 } from '../../graphql/generated/types-and-hooks'
+import { formatSex } from '../../graphql/utils'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
 import FlipIcon from '../../svgs/flip.svg'
@@ -173,8 +174,8 @@ export default function VerificationPage() {
   }
 
   function closeSTDTestModal(i: number) {
-    return (newValue: boolean) => {
-      openSTDTest[i] = newValue
+    return () => {
+      openSTDTest[i] = false
       setOpenSTDTest([...openSTDTest])
     }
   }
@@ -551,21 +552,6 @@ const DangerText = styled.h4`
 const Button = styled.button`
   color: ${(p) => p.theme.primaryText};
 `
-
-function formatSex(sex?: Sex) {
-  switch (sex) {
-    case Sex.Unknown:
-      return '알 수 없음'
-    case Sex.Male:
-      return '남'
-    case Sex.Female:
-      return '여'
-    case Sex.Other:
-      return '기타'
-    default:
-      return sex
-  }
-}
 
 function formatSTDTestResult(content?: string | null) {
   if (!content) return ''

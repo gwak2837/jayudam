@@ -10,18 +10,22 @@ import {
   Absolute as Absolute_,
   FlexCenterSmallGap,
   FlexColumn as FlexColumn_,
+  GrayText,
   Relative as Relative_,
   TextOverflow as TextOverflow_,
 } from '../../components/atoms/Flex'
 import PageHead from '../../components/PageHead'
 import { useLogoutMutation, useUserQuery } from '../../graphql/generated/types-and-hooks'
+import { formatSex } from '../../graphql/utils'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import useScroll from '../../hooks/useScroll'
 import Navigation from '../../layouts/Navigation'
+import ActiveIcon from '../../svgs/active.svg'
 import CakeIcon from '../../svgs/cake.svg'
 import GoogleLogo from '../../svgs/google-logo.svg'
 import KakaoLogo from '../../svgs/kakao-logo.svg'
 import MailIcon from '../../svgs/mail.svg'
+import MapIcon from '../../svgs/map.svg'
 import NaverLogo from '../../svgs/naver-logo.svg'
 import SexIcon from '../../svgs/sex.svg'
 import { getUsername } from '../../utils'
@@ -40,7 +44,7 @@ import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
 export default function UserPage() {
   const router = useRouter()
-  const username = getUsername(router)
+  const pageUsername = getUsername(router)
   const [{ name: currentUsername }, setCurrentUser] = useRecoilState(currentUser)
 
   // 라우팅
@@ -61,13 +65,14 @@ export default function UserPage() {
     error,
   } = useUserQuery({
     onError: toastApolloError,
-    skip: !username || username === 'null' || username === 'undefined',
+    skip: !pageUsername || pageUsername === 'null' || pageUsername === 'undefined',
     variables: {
-      name: username === currentUsername ? null : username,
+      name: pageUsername === currentUsername ? null : pageUsername,
     },
   })
 
   const user = data?.user
+  const towns = user?.towns
 
   // Logout
   const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
@@ -94,7 +99,7 @@ export default function UserPage() {
   useScroll()
 
   return (
-    <PageHead title={`@${username} - 자유담`} description="">
+    <PageHead title={`@${pageUsername} - 자유담`} description="">
       <Navigation>
         <MinWidth>
           {user ? (
@@ -128,36 +133,54 @@ export default function UserPage() {
 
               <Width>
                 <H3 as="h3">{user.nickname}</H3>
-                <H4 as="h4">@{username}</H4>
+                <H4 as="h4">@{pageUsername}</H4>
               </Width>
 
               <P>{user.bio}</P>
 
-              <FlexColumn>
-                <FlexCenterSmallGap>
-                  <MailIcon width="1.3rem" />
-                  <DisabableText>
-                    {' '}
-                    {formatSimpleDate(new Date(user.creationTime))} 가입
-                  </DisabableText>
-                </FlexCenterSmallGap>
-                <FlexCenterSmallGap>
-                  <SexIcon width="1.3rem" />
-                  <DisabableText disabled={!user.isVerifiedSex}>성별: {user.sex}</DisabableText>
-                </FlexCenterSmallGap>
-                <FlexCenterSmallGap>
-                  <CakeIcon width="1.3rem" />
-                  <DisabableText disabled={!user.isVerifiedBirthyear || !user.isVerifiedBirthday}>
-                    생일:{' '}
-                    <DisabableText disabled={!user.isVerifiedBirthyear}>
-                      {user.birthyear ?? 1900}년
-                    </DisabableText>{' '}
-                    <DisabableText disabled={!user.isVerifiedBirthday}>
-                      {formatBirthday(user.birthday) ?? '0월 0일'}
-                    </DisabableText>
-                  </DisabableText>
-                </FlexCenterSmallGap>
-              </FlexColumn>
+              {user.isPrivate ? (
+                <div>비공개 계정입니다</div>
+              ) : (
+                <FlexColumn>
+                  <FlexCenterSmallGap>
+                    <SexIcon width="1.3rem" />
+                    <GrayText>성별: {formatSex(user.sex)}</GrayText>
+                  </FlexCenterSmallGap>
+                  <FlexCenterSmallGap>
+                    <CakeIcon width="1.3rem" />
+                    <GrayText>
+                      생일:{' '}
+                      <GrayText>
+                        {user.birthyear ?? 1900}년 {formatBirthday(user.birthday) ?? '0월 0일'}
+                      </GrayText>
+                    </GrayText>
+                  </FlexCenterSmallGap>
+                  <FlexCenterSmallGap>
+                    <MapIcon width="1.3rem" />
+                    {towns ? (
+                      <GrayText>
+                        서울특별시 동작구 {towns[0].count}회 인증
+                        {towns[1] && (
+                          <>
+                            <br />
+                            서울특별시 강동구 {towns[1].count}회 인증 {/* (최근 30일) */}
+                          </>
+                        )}
+                      </GrayText>
+                    ) : (
+                      <GrayText>활동 지역 미인증</GrayText>
+                    )}
+                  </FlexCenterSmallGap>
+                  <FlexCenterSmallGap>
+                    <ActiveIcon width="1.3rem" />
+                    <GrayText>최근 3일 이내 활동</GrayText>
+                  </FlexCenterSmallGap>
+                  <FlexCenterSmallGap>
+                    <MailIcon width="1.3rem" />
+                    <GrayText> {formatSimpleDate(new Date(user.creationTime))} 가입</GrayText>
+                  </FlexCenterSmallGap>
+                </FlexColumn>
+              )}
 
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
@@ -188,7 +211,7 @@ export default function UserPage() {
               <pre style={{ overflow: 'scroll', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
             </>
           ) : (
-            <div>해당 사용자는 존재하지 않아요</div>
+            error && <div>해당 사용자는 존재하지 않아요</div>
           )}
 
           {userLoading && <div>사용자 정보를 불러오고 있습니다</div>}
@@ -370,8 +393,4 @@ const P = styled.p`
 const FlexColumn = styled(FlexColumn_)`
   gap: 0.5rem;
   margin: 1rem;
-`
-
-const DisabableText = styled.span<{ disabled?: boolean }>`
-  color: ${(p) => (p.disabled ? p.theme.primaryTextAchromatic : p.theme.primaryText)};
 `

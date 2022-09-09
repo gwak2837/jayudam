@@ -1,6 +1,6 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import { MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
+import { MouseEvent, ReactNode, memo, useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
@@ -18,6 +18,7 @@ import ThreeDotsIcon from '../svgs/three-dots.svg'
 import { stopPropagation } from '../utils'
 import { applyLineBreak } from '../utils/react'
 import { currentUser } from '../utils/recoil'
+import Drawer from './atoms/Drawer'
 import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
@@ -122,6 +123,18 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
     }
   }
 
+  // 더보기 메뉴
+  const [isDrawerOpened, setIsDrawerOpened] = useState(false)
+
+  function openDrawer(e: MouseEvent<HTMLElement>) {
+    e.stopPropagation()
+    setIsDrawerOpened(true)
+  }
+
+  function closeDrawer() {
+    setIsDrawerOpened(false)
+  }
+
   return (
     <>
       <FlexColumnGap onClick={goToPostPage}>
@@ -156,7 +169,17 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
               <GrayText>{post.updateTime && '(수정됨)'}</GrayText>
             </TextOverflow>
           </FlexCenterGap>
-          <ThreeDotsIcon width="1rem" />
+          <button onClick={openDrawer}>
+            <ThreeDotsIcon width="1rem" />
+          </button>
+          <Drawer lazy open={isDrawerOpened} onClose={closeDrawer}>
+            <div>asdf</div>
+            <div>asdf</div>
+            <div>asdf</div>
+            <div>asdf</div>
+            <div>asdf</div>
+            <div>asdf</div>
+          </Drawer>
         </FlexBetweenGap>
 
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (

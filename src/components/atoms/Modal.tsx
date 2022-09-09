@@ -8,20 +8,20 @@ type Props = {
   children: ReactNode
   lazy?: boolean
   open: boolean
-  onClose: (open: boolean) => void
+  onClose: () => void
   showCloseButton?: boolean
 }
 
 export default function Modal({ children, lazy, open, onClose, showCloseButton = true }: Props) {
   function closeModal(e: any) {
     e.stopPropagation()
-    onClose(false)
+    onClose()
   }
 
   useEffect(() => {
     function closeOnEscapeKey(e: KeyboardEvent) {
       if (e.code === 'Escape') {
-        onClose(false)
+        onClose()
       }
     }
 
