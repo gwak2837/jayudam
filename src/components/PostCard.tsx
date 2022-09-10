@@ -1,12 +1,16 @@
 import Image from 'next/future/image'
 import { useRouter } from 'next/router'
-import { MouseEvent, ReactNode, memo, useEffect, useRef, useState } from 'react'
+import { MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../apollo/error'
-import { Post, useToggleLikingPostMutation } from '../graphql/generated/types-and-hooks'
+import {
+  Post,
+  useDeletePostMutation,
+  useToggleLikingPostMutation,
+} from '../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../pages/post'
 import { Bold, Button, GridColumn4, LineLink } from '../pages/post/[id]'
 import { Skeleton } from '../styles'
@@ -18,15 +22,17 @@ import ThreeDotsIcon from '../svgs/three-dots.svg'
 import { stopPropagation } from '../utils'
 import { applyLineBreak } from '../utils/react'
 import { currentUser } from '../utils/recoil'
-import Drawer from './atoms/Drawer'
 import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
 import SharingPostButton from './sharing-post/SharingPostButton'
+import DrawerPostContent from './delete-post/DrawerPostContent'
 import SharedPostCard, { GreyH5, OverflowAuto, TextOverflow } from './sharing-post/SharingPostCard'
 
 type Props2 = {
   haveToScroll?: boolean
+  onCloseDrawer: () => void
+  onOpenDrawer: (e: MouseEvent<HTMLElement>, content: ReactNode) => void
   post: Post
   showButtons?: boolean
   showSharedPost?: boolean
@@ -37,6 +43,8 @@ export default memo(PostCard)
 
 function PostCard({
   haveToScroll,
+  onCloseDrawer,
+  onOpenDrawer,
   post,
   showButtons = true,
   showSharedPost,
@@ -55,6 +63,8 @@ function PostCard({
   return (
     <Card as="li" ref={postRef}>
       <PostContent
+        onCloseDrawer={onCloseDrawer}
+        onOpenDrawer={onOpenDrawer}
         post={post}
         showParentAuthor
         showButtons={showButtons}
@@ -63,7 +73,12 @@ function PostCard({
         {showVerticalLine && <VerticalLine />}
         {comments && <VerticalLine />}
         {comments?.map((comment, i) => (
-          <PostContent key={comment.id} post={comment}>
+          <PostContent
+            key={comment.id}
+            onCloseDrawer={onCloseDrawer}
+            onOpenDrawer={onOpenDrawer}
+            post={comment}
+          >
             {[comments?.length - 1 !== i && <VerticalLine key={i} />]}
           </PostContent>
         ))}
@@ -74,13 +89,23 @@ function PostCard({
 
 type Props = {
   children?: ReactNode[]
+  onCloseDrawer: () => void
+  onOpenDrawer: (e: MouseEvent<HTMLElement>, content: ReactNode) => void
   post: Post
   showButtons?: boolean
   showParentAuthor?: boolean
   showSharedPost?: boolean
 }
 
-function PostContent({ children, post, showButtons, showParentAuthor, showSharedPost }: Props) {
+function PostContent({
+  children,
+  onCloseDrawer,
+  onOpenDrawer,
+  post,
+  showButtons,
+  showParentAuthor,
+  showSharedPost,
+}: Props) {
   const author = post.author
   const parentAuthor = post.parentPost?.author
   const sharedPost = post.sharingPost
@@ -123,16 +148,23 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
     }
   }
 
-  // 더보기 메뉴
-  const [isDrawerOpened, setIsDrawerOpened] = useState(false)
+  // 삭제
+  const [deletePostMutation, { loading: deleteLoading }] = useDeletePostMutation({
+    onCompleted: () => {
+      onCloseDrawer()
+      toast.success('이야기 삭제 완료')
+    },
+    onError: toastApolloError,
+    update: (cache, { data }) =>
+      data?.deletePost?.deletionTime === null && cache.evict({ id: `Post:${data.deletePost.id}` }),
+    variables: { id: post.id },
+  })
 
-  function openDrawer(e: MouseEvent<HTMLElement>) {
-    e.stopPropagation()
-    setIsDrawerOpened(true)
-  }
-
-  function closeDrawer() {
-    setIsDrawerOpened(false)
+  function openDrawer(e: any) {
+    onOpenDrawer(
+      e,
+      <DrawerPostContent loading={deleteLoading} onDelete={deletePostMutation} post={post} />
+    )
   }
 
   return (
@@ -172,14 +204,6 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
           <button onClick={openDrawer}>
             <ThreeDotsIcon width="1rem" />
           </button>
-          <Drawer lazy open={isDrawerOpened} onClose={closeDrawer}>
-            <div>asdf</div>
-            <div>asdf</div>
-            <div>asdf</div>
-            <div>asdf</div>
-            <div>asdf</div>
-            <div>asdf</div>
-          </Drawer>
         </FlexBetweenGap>
 
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (

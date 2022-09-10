@@ -4,7 +4,7 @@ export default function useScroll() {
   useLayoutEffect(() => {
     const bodyStyle = document.body.style
 
-    window.addEventListener('scroll', setScrollPosition, { passive: true })
+    window.addEventListener('scroll', setScrollPosition)
 
     function setScrollPosition() {
       const scrollY = ~~window.scrollY

@@ -1,0 +1,14 @@
+mutation DeletePost($id: ID!) {
+  deletePost(id: $id) {
+    id
+    deletionTime
+    content
+    imageUrls
+    sharingPost {
+      id
+    }
+    parentPost {
+      id
+    }
+  }
+}

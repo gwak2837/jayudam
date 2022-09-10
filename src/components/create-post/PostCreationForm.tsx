@@ -9,7 +9,7 @@ import { currentUser } from '../../utils/recoil'
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
 import { FlexBetweenCenter } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
-import { Card } from '../CommentCard'
+import { Card } from '../PostCard'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
 
 type Props = {

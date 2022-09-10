@@ -1,27 +1,108 @@
-import { ReactNode, useEffect, useRef, MouseEventHandler } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, TouchEvent, MouseEvent, useState } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 
 import { stopPropagation } from '../../utils'
 
-import { TABLET_MIN_WIDTH } from '../../utils/constants'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../../utils/constants'
+import { FlexCenterCenter as FlexCenterCenter_ } from './Flex'
+
+let moveListener: any
+let endListener: any
 
 type Props = {
-  children: ReactNode
+  children?: ReactNode
   lazy?: boolean
   open: boolean
   onClose: () => void
 }
 
 export default function Drawer({ children, lazy, open, onClose }: Props) {
-  function closeDrawer() {
-    onClose()
+  // Drag & Drop으로 Drawer 닫기
+  const topRef = useRef<HTMLDivElement>(null)
+  const backgroundRef = useRef<HTMLDivElement>(null)
+  const drawerRef = useRef<HTMLElement>(null)
+  const firstClickPosition = useRef({ clientY: 0, offsetHeight: 0 })
+
+  function prepareMovingDrawer(e: MouseEvent<HTMLDivElement> & TouchEvent<HTMLDivElement>) {
+    e.stopPropagation()
+
+    if (topRef.current && drawerRef.current) {
+      firstClickPosition.current.clientY = e.clientY ?? e.changedTouches[0].clientY
+      firstClickPosition.current.offsetHeight = drawerRef.current.offsetHeight
+
+      if (e.clientY !== undefined) {
+        topRef.current.addEventListener('mousemove', moveDrawer)
+        topRef.current.addEventListener('mouseup', stopMovingDrawer)
+      } else {
+        topRef.current.addEventListener('touchmove', moveDrawer)
+        topRef.current.addEventListener('touchend', stopMovingDrawer)
+      }
+
+      moveListener = moveDrawer
+      endListener = stopMovingDrawer
+    }
   }
 
+  function moveDrawer(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (drawerRef.current) {
+      const movingOffsetY =
+        firstClickPosition.current.clientY - (e.clientY ?? e.changedTouches[0].clientY)
+      const height = firstClickPosition.current.offsetHeight + movingOffsetY
+      drawerRef.current.style.height = `${height}px`
+    }
+  }
+
+  function stopMovingDrawer(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (topRef.current && backgroundRef.current && drawerRef.current) {
+      const percent = ~~(
+        ((e.clientY ?? e.changedTouches[0].clientY) * 100) /
+        backgroundRef.current.clientHeight
+      )
+
+      if (percent < 30) {
+        removeEventListener()
+        drawerRef.current.style.height = '100%'
+      } else if (percent < 70) {
+        removeEventListener()
+        drawerRef.current.removeAttribute('style')
+      } else {
+        closeDrawer()
+      }
+    }
+  }
+
+  function removeEventListener() {
+    if (topRef.current) {
+      topRef.current.removeEventListener('mousemove', moveListener)
+      topRef.current.removeEventListener('touchmove', moveListener)
+      topRef.current.removeEventListener('mouseup', endListener)
+      topRef.current.removeEventListener('touchend', endListener)
+      moveListener = undefined
+      endListener = undefined
+    }
+  }
+
+  const closeDrawer = useCallback(() => {
+    if (topRef.current && drawerRef.current) {
+      onClose()
+      drawerRef.current.removeAttribute('style')
+      firstClickPosition.current = { clientY: 0, offsetHeight: 0 }
+      removeEventListener()
+    }
+  }, [onClose])
+
+  // 배경 스크롤 방지
   useEffect(() => {
     function closeOnEscapeKey(e: KeyboardEvent) {
       if (e.code === 'Escape') {
-        onClose()
+        closeDrawer()
       }
     }
 
@@ -36,75 +117,40 @@ export default function Drawer({ children, lazy, open, onClose }: Props) {
         bodyStyle.overflow = ''
       }
     }
-  }, [open, onClose])
+  }, [open, onClose, closeDrawer])
 
-  const barPosition = useRef([
-    { originalX: null, originalY: null },
-    { currentX: null, currentY: null },
-  ])
+  // SSR 대응
+  const [show, setShow] = useState(false)
 
-  const dragStartHandler: MouseEventHandler<HTMLDivElement> = (e) => {
-    e.target.removeEventListener('mousemove', dragHandler)
-
-    // e.dataTransfer.setDragImage(new Image(), 0, 0)
-
-    console.log(e.pageX, e.pageY)
-
-    // barPosition.current[0].originalX = e.target.offsetLeft
-    // barPosition.current[0].originalY = e.target.offsetTop
-
-    // barPosition.current[1].currentX = e.clientX
-    // barPosition.current[1].currentY = e.clientY
-    e.target.addEventListener('mousemove', dragHandler)
-  }
-
-  function dragHandler(e) {
-    console.log(e.pageX, e.pageY)
-
-    const currentPosition = barPosition.current[1]
-
-    // e.target.style.left = `${e.target.offsetLeft + e.clientX - (currentPosition.currentX ?? 0)}px`
-    // e.target.style.top = `${e.target.offsetTop + e.clientY - (currentPosition.currentY ?? 0)}px`
-
-    // currentPosition.currentX = e.clientX
-    // currentPosition.currentY = e.clientY
-  }
-
-  function dragEnd(e: any) {
-    e.target.removeEventListener('mousemove', dragHandler)
-
-    console.log(e.pageX, e.pageY)
-
-    e.target.style.left = 0
-    e.target.style.top = 0
-  }
+  useEffect(() => {
+    setShow(true)
+  }, [])
 
   const drawer = (
-    <Transition onClick={stopPropagation}>
+    <Transition onClick={stopPropagation} ref={topRef}>
       <DrawerInput checked={open} readOnly type="checkbox" />
-      <DrawerBackground onClick={closeDrawer} />
-      <DrawerSection>
-        <GrayBar
-          onMouseDown={dragStartHandler}
-          onDragStart={() => false}
-          // onMouseMove={dragHandler}
-          onMouseUp={dragEnd}
-        />
+      <DrawerBackground onClick={closeDrawer} ref={backgroundRef} />
+      <DrawerSection ref={drawerRef}>
+        <FlexCenterCenter onMouseDown={prepareMovingDrawer} onTouchStart={prepareMovingDrawer}>
+          <GrayBar />
+        </FlexCenterCenter>
         {children}
       </DrawerSection>
     </Transition>
   )
 
-  return createPortal(drawer, document.body)
+  return show
+    ? lazy
+      ? open
+        ? createPortal(drawer, document.body)
+        : null
+      : createPortal(drawer, document.body)
+    : null
 }
 
 const Transition = styled.div`
-  > div {
-    transition: background 0.3s ease-out;
-  }
-
   > section {
-    transition: 0.3s ease-in-out;
+    transition: transform 0.3s ease-out, height 0.1s ease-out;
   }
 `
 
@@ -112,50 +158,52 @@ const DrawerInput = styled.input`
   display: none;
 
   :checked ~ div {
-    position: fixed;
-    inset: 0 0 0 50%;
-    width: 100%;
-    max-width: ${TABLET_MIN_WIDTH};
-    transform: translateX(-50%);
-    background: #00000080;
+    z-index: 10;
+    opacity: 0.5;
   }
 
   :checked ~ section {
-    bottom: 0;
+    transform: translate(-50%, 0%);
   }
 `
 
 const DrawerBackground = styled.div`
-  background: #00000000;
-  z-index: 8;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background: #000;
+  opacity: 0;
 `
 
 const DrawerSection = styled.section`
   position: fixed;
-  bottom: -33vh;
+  bottom: 0;
   left: 50%;
+  transform: translate(-50%, 100%);
   z-index: 10;
-  transform: translateX(-50%);
 
   width: 100%;
-  max-width: ${TABLET_MIN_WIDTH};
-  height: fit-content;
-  max-height: 33vh;
+  max-width: ${MOBILE_MIN_HEIGHT};
+  height: 50%;
 
   background: #fff;
-  border-radius: 20px 20px 0px 0px;
+  border: 1px solid #888;
+  border-radius: 1.5rem 1.5rem 0px 0px;
   overflow: auto;
 `
 
-const GrayBar = styled.div`
-  border-radius: 999px;
-  width: 4rem;
-  height: 0.5rem;
-  padding: 10px 0;
-  margin: 0 auto;
-  text-align: center;
-  background: ${(p) => p.theme.primaryBackgroundAchromatic};
+const FlexCenterCenter = styled(FlexCenterCenter_)`
+  position: sticky;
+  top: 0;
 
-  position: relative;
-  /* z-index: 10; */
+  background: #fff;
+  padding: 0.5rem 0;
+`
+
+const GrayBar = styled.div`
+  background: ${(p) => p.theme.primaryBackgroundAchromatic};
+  border-radius: 999px;
+  width: 5rem;
+  height: 0.5rem;
 `

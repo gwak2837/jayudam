@@ -20,7 +20,7 @@ import { currentUser } from '../../utils/recoil'
 import { FlexCenter, FlexColumn, Flex as Flex_, GrayText, GridGap } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
-import { VerticalLine } from '../CommentCard'
+import { VerticalLine } from '../PostCard'
 import { TextOverflow } from '../sharing-post/SharingPostCard'
 import PostCreationModalForm from './PostCreationModalForm'
 

@@ -1,12 +1,13 @@
 import { ApolloCache } from '@apollo/client'
 import Image from 'next/future/image'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, MouseEvent, ReactNode } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../../apollo/error'
-import PostCard, { PostLoadingCard } from '../../components/CommentCard'
+import Drawer from '../../components/atoms/Drawer'
+import PostCard, { PostLoadingCard } from '../../components/PostCard'
 import PostCreationButton from '../../components/create-post/PostCreationButton'
 import { PostCreationForm } from '../../components/create-post/PostCreationForm'
 import PageHead from '../../components/PageHead'
@@ -99,6 +100,21 @@ export default function PostsPage() {
     })
   }
 
+  // Drawer
+  const [isDrawerOpened, setIsDrawerOpened] = useState(false)
+
+  const [drawerContent, setDrawerContent] = useState<ReactNode>()
+
+  function openDrawer(e: MouseEvent<HTMLElement>, content: ReactNode) {
+    e.stopPropagation()
+    setIsDrawerOpened(true)
+    setDrawerContent(content)
+  }
+
+  function closeDrawer() {
+    setIsDrawerOpened(false)
+  }
+
   return (
     <PageHead title="이야기 - 자유담" description="">
       <Navigation>
@@ -128,8 +144,20 @@ export default function PostsPage() {
             )}
           </PostCreationForm>
 
+          <Drawer open={isDrawerOpened} onClose={closeDrawer}>
+            {drawerContent}
+          </Drawer>
+
           {posts
-            ? posts.map((post) => <PostCard key={post.id} post={post as Post} showSharedPost />)
+            ? posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  onCloseDrawer={closeDrawer}
+                  onOpenDrawer={openDrawer}
+                  post={post as Post}
+                  showSharedPost
+                />
+              ))
             : !postLoading && <div>posts not found</div>}
 
           {postLoading && (

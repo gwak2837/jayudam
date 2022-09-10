@@ -2,7 +2,7 @@ import { ApolloCache } from '@apollo/client'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState, MouseEvent } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
@@ -17,7 +17,7 @@ import {
   GridSmallGap,
 } from '../../../components/atoms/Flex'
 import LoginLink from '../../../components/atoms/LoginLink'
-import PostCard, { PostLoadingCard, Width } from '../../../components/CommentCard'
+import PostCard, { PostLoadingCard, Width } from '../../../components/PostCard'
 import CommentCreationButton from '../../../components/create-post/CommentCreationButton'
 import PostCreationButton from '../../../components/create-post/PostCreationButton'
 import { PostCreationForm } from '../../../components/create-post/PostCreationForm'
@@ -31,6 +31,7 @@ import {
   Post,
   useCommentsQuery,
   useCreateCommentMutation,
+  useDeletePostMutation,
   useMyProfileQuery,
   usePostQuery,
   useToggleLikingPostMutation,
@@ -47,12 +48,15 @@ import ThreeDotsIcon from '../../../svgs/three-dots.svg'
 import { stopPropagation } from '../../../utils'
 import { currentUser } from '../../../utils/recoil'
 import { borderRadiusCircle } from '..'
+import Drawer from '../../../components/atoms/Drawer'
+import DrawerPostContent from '../../../components/delete-post/DrawerPostContent'
 
-const description = ''
+const description = '자유담에서 이야기해보세요'
 
 export default function PostPage() {
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
+  const didDelete = useRef(false)
 
   function goBack() {
     router.back()
@@ -64,7 +68,7 @@ export default function PostPage() {
   const { data, loading } = usePostQuery({
     fetchPolicy: 'cache-and-network',
     onError: toastApolloError,
-    skip: !postId,
+    skip: !postId || didDelete.current,
     variables: { id: postId },
   })
 
@@ -114,6 +118,42 @@ export default function PostPage() {
     }
   }, [])
 
+  // Drawer
+  const [isDrawerOpened, setIsDrawerOpened] = useState(false)
+
+  const [drawerContent, setDrawerContent] = useState<ReactNode>()
+
+  function openDrawer(e: MouseEvent<HTMLElement>, content: ReactNode) {
+    e.stopPropagation()
+    setIsDrawerOpened(true)
+    setDrawerContent(content)
+  }
+
+  function closeDrawer() {
+    setIsDrawerOpened(false)
+  }
+
+  // 삭제
+  const [deletePostMutation, { loading: deleteLoading }] = useDeletePostMutation({
+    onCompleted: () => {
+      setIsDrawerOpened(false)
+      toast.success('이야기 삭제 완료')
+      didDelete.current = true
+      router.back()
+    },
+    onError: toastApolloError,
+    update: (cache, { data }) =>
+      data?.deletePost?.deletionTime === null && cache.evict({ id: `Post:${data.deletePost.id}` }),
+    variables: { id: post?.id },
+  })
+
+  function startOpeningDrawer(e: any) {
+    openDrawer(
+      e,
+      <DrawerPostContent loading={deleteLoading} onDelete={deletePostMutation} post={post} />
+    )
+  }
+
   // 기타
   const title = `${author?.nickname ?? '글쓴이'}: ${
     post?.content?.substring(0, 20) ?? '내용'
@@ -131,9 +171,20 @@ export default function PostPage() {
             <PostCreationButton show={showButton} />
           </Sticky>
 
+          <Drawer open={isDrawerOpened} onClose={closeDrawer}>
+            {drawerContent}
+          </Drawer>
+
           {parentPost && (
             <>
-              <PostCard haveToScroll post={parentPost} showButtons={false} showVerticalLine />
+              <PostCard
+                haveToScroll
+                onCloseDrawer={closeDrawer}
+                onOpenDrawer={openDrawer}
+                post={parentPost}
+                showButtons={false}
+                showVerticalLine
+              />
               <Padding />
             </>
           )}
@@ -196,7 +247,9 @@ export default function PostPage() {
                         </LineLink>
                       )}
                     </FlexColumnSmallGap>
-                    <ThreeDotsIcon width="1.5rem" />
+                    <button onClick={startOpeningDrawer}>
+                      <ThreeDotsIcon width="1.5rem" />
+                    </button>
                   </FlexBetweenGap>
                 </FlexCenterSamllGap>
 
@@ -252,14 +305,18 @@ export default function PostPage() {
             </Relative>
           )}
 
-          <Comments postCreationRef={postCreationRef} />
+          <Comments
+            onCloseDrawer={closeDrawer}
+            onOpenDrawer={openDrawer}
+            postCreationRef={postCreationRef}
+          />
         </main>
       </Navigation>
     </PageHead>
   )
 }
 
-function Comments({ postCreationRef }: any) {
+function Comments({ onCloseDrawer, onOpenDrawer, postCreationRef }: any) {
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
   const { name } = useRecoilValue(currentUser)
@@ -347,7 +404,12 @@ function Comments({ postCreationRef }: any) {
 
       <MinHeight>
         {comments?.map((comment) => (
-          <PostCard key={comment.id} post={comment as Post} />
+          <PostCard
+            key={comment.id}
+            onCloseDrawer={onCloseDrawer}
+            onOpenDrawer={onOpenDrawer}
+            post={comment as Post}
+          />
         ))}
 
         {(!postId || loading) && (
