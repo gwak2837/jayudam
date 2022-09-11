@@ -2,12 +2,13 @@ import { ApolloCache } from '@apollo/client'
 import Image from 'next/future/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ReactNode, useEffect, useRef, useState, MouseEvent } from 'react'
+import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../../../apollo/error'
+
 import {
   FlexBetween,
   FlexCenter,
@@ -17,11 +18,11 @@ import {
   GridSmallGap,
 } from '../../../components/atoms/Flex'
 import LoginLink from '../../../components/atoms/LoginLink'
-import PostCard, { PostLoadingCard, Width } from '../../../components/PostCard'
 import CommentCreationButton from '../../../components/create-post/CommentCreationButton'
 import PostCreationButton from '../../../components/create-post/PostCreationButton'
 import { PostCreationForm } from '../../../components/create-post/PostCreationForm'
 import PageHead from '../../../components/PageHead'
+import PostCard, { PostLoadingCard, Width } from '../../../components/PostCard'
 import SharingPostButton from '../../../components/sharing-post/SharingPostButton'
 import SharedPostCard, {
   GreyH5,
@@ -31,7 +32,6 @@ import {
   Post,
   useCommentsQuery,
   useCreateCommentMutation,
-  useDeletePostMutation,
   useMyProfileQuery,
   usePostQuery,
   useToggleLikingPostMutation,
@@ -48,15 +48,13 @@ import ThreeDotsIcon from '../../../svgs/three-dots.svg'
 import { stopPropagation } from '../../../utils'
 import { currentUser } from '../../../utils/recoil'
 import { borderRadiusCircle } from '..'
-import Drawer from '../../../components/atoms/Drawer'
-import DrawerPostContent from '../../../components/delete-post/DrawerPostContent'
+import PostDrawer, { postDrawer } from '../../../components/PostDrawer'
 
 const description = '자유담에서 이야기해보세요'
 
 export default function PostPage() {
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
-  const didDelete = useRef(false)
 
   function goBack() {
     router.back()
@@ -66,9 +64,9 @@ export default function PostPage() {
 
   // Post 불러오기
   const { data, loading } = usePostQuery({
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'no-cache',
     onError: toastApolloError,
-    skip: !postId || didDelete.current,
+    skip: !postId,
     variables: { id: postId },
   })
 
@@ -118,40 +116,12 @@ export default function PostPage() {
     }
   }, [])
 
-  // Drawer
-  const [isDrawerOpened, setIsDrawerOpened] = useState(false)
+  // 이야기 Drawer
+  const setPostDrawer = useSetRecoilState(postDrawer)
 
-  const [drawerContent, setDrawerContent] = useState<ReactNode>()
-
-  function openDrawer(e: MouseEvent<HTMLElement>, content: ReactNode) {
+  function openDrawer_setPostDrawerContent(e: MouseEvent<HTMLElement>) {
     e.stopPropagation()
-    setIsDrawerOpened(true)
-    setDrawerContent(content)
-  }
-
-  function closeDrawer() {
-    setIsDrawerOpened(false)
-  }
-
-  // 삭제
-  const [deletePostMutation, { loading: deleteLoading }] = useDeletePostMutation({
-    onCompleted: () => {
-      setIsDrawerOpened(false)
-      toast.success('이야기 삭제 완료')
-      didDelete.current = true
-      router.back()
-    },
-    onError: toastApolloError,
-    update: (cache, { data }) =>
-      data?.deletePost?.deletionTime === null && cache.evict({ id: `Post:${data.deletePost.id}` }),
-    variables: { id: post?.id },
-  })
-
-  function startOpeningDrawer(e: any) {
-    openDrawer(
-      e,
-      <DrawerPostContent loading={deleteLoading} onDelete={deletePostMutation} post={post} />
-    )
+    setPostDrawer({ isOpened: true, onDelete: goBack, post })
   }
 
   // 기타
@@ -171,20 +141,11 @@ export default function PostPage() {
             <PostCreationButton show={showButton} />
           </Sticky>
 
-          <Drawer open={isDrawerOpened} onClose={closeDrawer}>
-            {drawerContent}
-          </Drawer>
+          <PostDrawer />
 
           {parentPost && (
             <>
-              <PostCard
-                haveToScroll
-                onCloseDrawer={closeDrawer}
-                onOpenDrawer={openDrawer}
-                post={parentPost}
-                showButtons={false}
-                showVerticalLine
-              />
+              <PostCard haveToScroll post={parentPost} showButtons={false} showVerticalLine />
               <Padding />
             </>
           )}
@@ -247,7 +208,7 @@ export default function PostPage() {
                         </LineLink>
                       )}
                     </FlexColumnSmallGap>
-                    <button onClick={startOpeningDrawer}>
+                    <button onClick={openDrawer_setPostDrawerContent}>
                       <ThreeDotsIcon width="1.5rem" />
                     </button>
                   </FlexBetweenGap>
@@ -305,18 +266,18 @@ export default function PostPage() {
             </Relative>
           )}
 
-          <Comments
-            onCloseDrawer={closeDrawer}
-            onOpenDrawer={openDrawer}
-            postCreationRef={postCreationRef}
-          />
+          <Comments postCreationRef={postCreationRef} />
         </main>
       </Navigation>
     </PageHead>
   )
 }
 
-function Comments({ onCloseDrawer, onOpenDrawer, postCreationRef }: any) {
+type Props2 = {
+  postCreationRef: RefObject<HTMLFormElement>
+}
+
+function Comments({ postCreationRef }: Props2) {
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
   const { name } = useRecoilValue(currentUser)
@@ -404,12 +365,7 @@ function Comments({ onCloseDrawer, onOpenDrawer, postCreationRef }: any) {
 
       <MinHeight>
         {comments?.map((comment) => (
-          <PostCard
-            key={comment.id}
-            onCloseDrawer={onCloseDrawer}
-            onOpenDrawer={onOpenDrawer}
-            post={comment as Post}
-          />
+          <PostCard key={comment.id} post={comment as Post} />
         ))}
 
         {(!postId || loading) && (

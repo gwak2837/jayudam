@@ -26,7 +26,7 @@ export default function Navigation({ children }: Props) {
   const isQRCodeSelected = asPath.startsWith('/qrcode')
   const isHomeSelected = asPath === '/'
   const isPostSelected = asPath.startsWith('/post')
-  const isMySelected = asPath.startsWith('/@')
+  const isMySelected = asPath === `/@${name}`
 
   return (
     <Flex>

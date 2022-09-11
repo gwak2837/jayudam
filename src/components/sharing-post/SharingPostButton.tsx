@@ -19,6 +19,7 @@ import ShareIcon from '../../svgs/ShareIcon'
 import { stopPropagation } from '../../utils'
 import { TABLET_MIN_WIDTH } from '../../utils/constants'
 import { currentUser } from '../../utils/recoil'
+import { FlexColumn, GridCenterCenter } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import PostCreationModalForm from '../create-post/PostCreationModalForm'
@@ -134,7 +135,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
         onClose={closeDeletingSharingPost}
         showCloseButton={false}
       >
-        <SmallForm onClick={stopPropagation}>
+        <SmallForm as="form" onClick={stopPropagation}>
           <h3>공유했던 글을 삭제할까요?</h3>
           <Grid1to1>
             <button disabled={deleteLoading} onClick={closeDeletingSharingPost}>
@@ -168,28 +169,13 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
   )
 }
 
-const SmallForm = styled.form`
+export const SmallForm = styled(FlexColumn)`
+  gap: 1rem;
+
   background: ${(p) => p.theme.backgroud};
   border-radius: 0.5rem;
   padding: 1rem;
   overflow-y: auto;
-
-  display: flex;
-  flex-flow: column;
-  gap: 1rem;
-`
-
-export const FullscreenForm = styled(SmallForm)`
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    border-radius: 0.5rem;
-    width: auto;
-    height: auto;
-    max-height: 90vh;
-  }
 `
 
 export const Button0 = styled.button`
@@ -204,11 +190,8 @@ export const PrimaryButton = styled(SubmitButton)`
   width: auto;
 `
 
-const Grid1to1 = styled.div`
-  display: grid;
+export const Grid1to1 = styled(GridCenterCenter)`
   grid-template-columns: 1fr 1fr;
-  text-align: center;
-  align-items: center;
 
   > button:last-child {
     color: ${(p) => p.theme.error};

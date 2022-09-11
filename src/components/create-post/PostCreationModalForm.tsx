@@ -8,7 +8,7 @@ import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../../utils/constants'
 import { resizeTextareaHeight, submitWhenCmdEnter } from '../../utils/react'
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
 import { FlexBetweenCenter, Flex as Flex_ } from '../atoms/Flex'
-import { Button0, FullscreenForm, PrimaryButton } from '../sharing-post/SharingPostButton'
+import { Button0, PrimaryButton, SmallForm } from '../sharing-post/SharingPostButton'
 import { PrimaryOrError } from './PostCreationForm'
 
 type Props = {
@@ -50,7 +50,7 @@ export default function PostCreationModalForm({
   }, [haveToReset, onReset, reset])
 
   return (
-    <FullscreenForm onClick={stopPropagation} onSubmit={handleSubmit(onSubmit)}>
+    <FullscreenForm as="form" onClick={stopPropagation} onSubmit={handleSubmit(onSubmit)}>
       <FlexBetweenCenter>
         <Button0>
           <XIcon width="40px" onClick={onClose} />
@@ -90,4 +90,17 @@ const AutoTextarea = styled(AutoTextarea_)`
 
 const Flex = styled(Flex_)`
   gap: 0.5rem;
+`
+
+const FullscreenForm = styled(SmallForm)`
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+
+  @media (min-width: ${TABLET_MIN_WIDTH}) {
+    border-radius: 0.5rem;
+    width: auto;
+    height: auto;
+    max-height: 90vh;
+  }
 `

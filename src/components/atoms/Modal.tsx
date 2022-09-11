@@ -55,7 +55,7 @@ export default function Modal({ children, lazy, open, onClose, showCloseButton =
 const FixedFullscreen = styled.div<{ open: boolean }>`
   position: fixed;
   inset: 0 0 0 0;
-  z-index: ${(p) => (p.open ? 10 : -1)};
+  z-index: ${(p) => (p.open ? 20 : -1)};
 
   display: flex;
   justify-content: center;

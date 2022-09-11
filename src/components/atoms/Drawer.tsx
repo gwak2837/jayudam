@@ -1,23 +1,22 @@
-import { ReactNode, useCallback, useEffect, useRef, TouchEvent, MouseEvent, useState } from 'react'
+import { MouseEvent, ReactNode, TouchEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 
 import { stopPropagation } from '../../utils'
-
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../../utils/constants'
+import { MOBILE_MIN_HEIGHT } from '../../utils/constants'
 import { FlexCenterCenter as FlexCenterCenter_ } from './Flex'
 
 let moveListener: any
 let endListener: any
+let move: boolean
 
 type Props = {
   children?: ReactNode
-  lazy?: boolean
   open: boolean
   onClose: () => void
 }
 
-export default function Drawer({ children, lazy, open, onClose }: Props) {
+export default function Drawer({ children, open, onClose }: Props) {
   // Drag & Drop으로 Drawer 닫기
   const topRef = useRef<HTMLDivElement>(null)
   const backgroundRef = useRef<HTMLDivElement>(null)
@@ -41,6 +40,7 @@ export default function Drawer({ children, lazy, open, onClose }: Props) {
 
       moveListener = moveDrawer
       endListener = stopMovingDrawer
+      move = true
     }
   }
 
@@ -48,12 +48,22 @@ export default function Drawer({ children, lazy, open, onClose }: Props) {
     e.preventDefault()
     e.stopPropagation()
 
-    if (drawerRef.current) {
-      const movingOffsetY =
-        firstClickPosition.current.clientY - (e.clientY ?? e.changedTouches[0].clientY)
-      const height = firstClickPosition.current.offsetHeight + movingOffsetY
-      drawerRef.current.style.height = `${height}px`
-    }
+    requestAnimationFrame(() => {
+      if (backgroundRef.current && drawerRef.current && move) {
+        const percent = ~~(
+          ((e.clientY ?? e.changedTouches[0].clientY) * 100) /
+          backgroundRef.current.clientHeight
+        )
+
+        if (percent < 50) {
+          drawerRef.current.style.height = `${100 - percent}%`
+          drawerRef.current.style.transform = ''
+        } else {
+          drawerRef.current.style.transform = `translate(-50%, ${(percent - 50) * 2}%)`
+          drawerRef.current.style.height = ''
+        }
+      }
+    })
   }
 
   function stopMovingDrawer(e: any) {
@@ -67,14 +77,16 @@ export default function Drawer({ children, lazy, open, onClose }: Props) {
       )
 
       if (percent < 30) {
+        drawerRef.current.style.height = '90%'
         removeEventListener()
-        drawerRef.current.style.height = '100%'
       } else if (percent < 70) {
-        removeEventListener()
         drawerRef.current.removeAttribute('style')
+        removeEventListener()
       } else {
         closeDrawer()
       }
+
+      move = false
     }
   }
 
@@ -91,10 +103,10 @@ export default function Drawer({ children, lazy, open, onClose }: Props) {
 
   const closeDrawer = useCallback(() => {
     if (topRef.current && drawerRef.current) {
-      onClose()
       drawerRef.current.removeAttribute('style')
-      firstClickPosition.current = { clientY: 0, offsetHeight: 0 }
       removeEventListener()
+      onClose()
+      firstClickPosition.current = { clientY: 0, offsetHeight: 0 }
     }
   }, [onClose])
 
@@ -139,18 +151,12 @@ export default function Drawer({ children, lazy, open, onClose }: Props) {
     </Transition>
   )
 
-  return show
-    ? lazy
-      ? open
-        ? createPortal(drawer, document.body)
-        : null
-      : createPortal(drawer, document.body)
-    : null
+  return show ? createPortal(drawer, document.body) : null
 }
 
 const Transition = styled.div`
   > section {
-    transition: transform 0.3s ease-out, height 0.1s ease-out;
+    transition: transform 0.3s linear, height 0.3s linear;
   }
 `
 

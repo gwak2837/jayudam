@@ -28,18 +28,24 @@ export const FlexColumn = styled(Flex)`
   flex-flow: column;
 `
 
-export const GridSmallGap = styled.div`
+export const Grid = styled.div`
   display: grid;
+`
+
+export const GridCenterCenter = styled(Grid)`
+  justify-content: center;
+  align-items: center;
+`
+
+export const GridSmallGap = styled(Grid)`
   gap: 0.5rem;
 `
 
-export const GridGap = styled.div`
-  display: grid;
+export const GridGap = styled(Grid)`
   gap: 0.75rem;
 `
 
-export const GridBigGap = styled.div`
-  display: grid;
+export const GridBigGap = styled(Grid)`
   gap: 1rem;
 `
 
