@@ -8,8 +8,10 @@ import styled from 'styled-components'
 import { toastApolloError } from '../../apollo/error'
 import {
   Absolute as Absolute_,
+  FlexBigGap as FlexBigGap_,
   FlexCenterSmallGap,
   FlexColumn as FlexColumn_,
+  FlexSmallGap,
   GrayText,
   Relative as Relative_,
   TextOverflow as TextOverflow_,
@@ -48,7 +50,7 @@ export default function UserPage() {
   const [{ name: currentUsername }, setCurrentUser] = useRecoilState(currentUser)
 
   // 라우팅
-  // useNeedToLogin(currentUsername === null)
+  useNeedToLogin(currentUsername === null)
 
   useEffect(() => {
     if (currentUsername === undefined) {
@@ -182,11 +184,20 @@ export default function UserPage() {
                 </FlexColumn>
               )}
 
+              <FlexBigGap>
+                <FlexSmallGap>
+                  <GrayText>뒤서니</GrayText> <h4>{user.followerCount}</h4>
+                </FlexSmallGap>
+                <FlexSmallGap>
+                  <GrayText>앞서니</GrayText> <h4>{user.followingCount}</h4>
+                </FlexSmallGap>
+              </FlexBigGap>
+
               <button disabled={logoutLoading} onClick={logout}>
                 로그아웃
               </button>
 
-              <button>팔로우</button>
+              <button>따르기</button>
               <button>선물하기</button>
 
               <KakaoButton disabled={logoutLoading} onClick={goToKakaoLoginPage}>
@@ -267,7 +278,7 @@ const Sticky = styled.div`
   top: -200px;
   z-index: 2;
 
-  height: 250px;
+  height: calc(200px + 3rem);
   overflow: hidden;
 `
 
@@ -392,5 +403,9 @@ const P = styled.p`
 
 const FlexColumn = styled(FlexColumn_)`
   gap: 0.5rem;
+  margin: 1rem;
+`
+
+const FlexBigGap = styled(FlexBigGap_)`
   margin: 1rem;
 `

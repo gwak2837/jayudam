@@ -156,7 +156,7 @@ export default function Drawer({ children, open, onClose }: Props) {
 
 const Transition = styled.div`
   > section {
-    transition: transform 0.3s linear, height 0.3s linear;
+    transition: 0.2s linear;
   }
 `
 

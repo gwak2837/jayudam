@@ -541,6 +541,7 @@ export type UserQuery = {
     nickname?: string | null
     postCount?: number | null
     sex?: Sex | null
+    sleepingTime?: any | null
     towns?: Array<{ __typename?: 'Town'; count: number; name?: string | null }> | null
   } | null
 }
@@ -1230,6 +1231,7 @@ export const UserDocument = gql`
       nickname
       postCount
       sex
+      sleepingTime
       towns {
         count
         name

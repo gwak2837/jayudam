@@ -20,6 +20,14 @@ export const FlexCenterSmallGap = styled(FlexCenter)`
   gap: 0.4rem;
 `
 
+export const FlexBigGap = styled(Flex)`
+  gap: 1rem;
+`
+
+export const FlexSmallGap = styled(Flex)`
+  gap: 0.3rem;
+`
+
 export const FlexCenterCenter = styled(FlexCenter)`
   justify-content: center;
 `

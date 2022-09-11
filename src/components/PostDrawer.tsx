@@ -1,21 +1,26 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { toast } from 'react-toastify'
-import { atom, useRecoilValue, useRecoilState } from 'recoil'
+import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../apollo/error'
-import { useDeletePostMutation, Post } from '../graphql/generated/types-and-hooks'
+import { Post, useDeletePostMutation } from '../graphql/generated/types-and-hooks'
+import BlockIcon from '../svgs/block.svg'
 import DeleteIcon from '../svgs/delete.svg'
+import SirenIcon from '../svgs/siren.svg'
 import { stopPropagation } from '../utils'
 import { currentUser } from '../utils/recoil'
 import Drawer from './atoms/Drawer'
-import { GridCenterCenter } from './atoms/Flex'
+import { FlexCenterSmallGap, GridCenterCenter } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import Modal from './atoms/Modal'
 
-export default function PostDrawer() {
+export default memo(PostDrawer_)
+
+function PostDrawer_() {
   const { name } = useRecoilValue(currentUser)
   const [{ isOpened, onDelete, post }, setPostDrawer] = useRecoilState(postDrawer)
+  const author = post?.author
 
   function closeDrawer() {
     setPostDrawer({ isOpened: false })
@@ -31,16 +36,14 @@ export default function PostDrawer() {
     },
     onError: toastApolloError,
     update: (cache, { data }) =>
-      data?.deletePost?.deletionTime === null &&
-      cache.evict({ id: `Post:${data.deletePost.id}` }) &&
-      cache.gc(),
+      data?.deletePost?.deletionTime === null && cache.evict({ id: `Post:${data.deletePost.id}` }),
   })
 
   async function deletePost() {
     if (post) {
-      if (!post.author) {
+      if (!author) {
         toast.warn('이미 글쓴이가 탈퇴했습니다')
-      } else if (name === post.author.name) {
+      } else if (name === author.name) {
         deletePostMutation({ variables: { id: post.id } })
       } else if (name) {
         toast.warn('내가 쓴 글이 아닙니다')
@@ -68,24 +71,55 @@ export default function PostDrawer() {
   return (
     <Drawer open={isOpened} onClose={closeDrawer}>
       <ul>
-        <BorderLi>
-          <FlexRedButton disabled={deleteLoading} onClick={openModal}>
-            <DeleteIcon width="1.5rem" /> 이야기 삭제하기
-          </FlexRedButton>
-          <Modal open={isModalOpened} onClose={closeModal} showCloseButton={false}>
-            <Form onClick={stopPropagation}>
-              <H3>이야기를 삭제할까요?</H3>
-              <Grid1to1>
-                <Button disabled={deleteLoading} onClick={closeModal} type="button">
-                  취소
-                </Button>
-                <RedButton disabled={deleteLoading} onClick={deletePost} type="button">
-                  삭제
-                </RedButton>
-              </Grid1to1>
-            </Form>
-          </Modal>
-        </BorderLi>
+        {author?.name === name ? (
+          <BorderLi>
+            <FlexRedButton disabled={deleteLoading} onClick={openModal}>
+              <DeleteIcon width="1.2rem" /> 이야기 삭제하기
+            </FlexRedButton>
+            <Modal open={isModalOpened} onClose={closeModal} showCloseButton={false}>
+              <Form onClick={stopPropagation}>
+                <H3>이야기를 삭제할까요?</H3>
+                <Grid1to1>
+                  <Button disabled={deleteLoading} onClick={closeModal} type="button">
+                    취소
+                  </Button>
+                  <RedButton disabled={deleteLoading} onClick={deletePost} type="button">
+                    삭제
+                  </RedButton>
+                </Grid1to1>
+              </Form>
+            </Modal>
+          </BorderLi>
+        ) : author ? (
+          <>
+            <BorderLi>
+              <Button100p>이 게시글에 관심이 없어요</Button100p>
+            </BorderLi>
+            <BorderLi>
+              <Button100p>@{author.name} 팔로우</Button100p>
+            </BorderLi>
+            <BorderLi>
+              <Button100p>
+                <BlockIcon width="1.2rem" />@{author.name} 차단
+              </Button100p>
+            </BorderLi>
+            <BorderLi>
+              <Button100p>
+                <SirenIcon width="1.2rem" />
+                게시글 신고
+              </Button100p>
+            </BorderLi>
+          </>
+        ) : (
+          <>
+            <BorderLi>
+              <Button100p>이 게시글에 관심이 없어요</Button100p>
+            </BorderLi>
+            <BorderLi>
+              <Button100p>게시글 신고</Button100p>
+            </BorderLi>
+          </>
+        )}
       </ul>
     </Drawer>
   )
@@ -129,6 +163,10 @@ const FlexRedButton = styled(RedButton)`
   path {
     fill: ${(p) => (p.disabled ? p.theme.primaryAchromatic : p.theme.error)};
   }
+`
+
+const Button100p = styled(FlexCenterSmallGap)`
+  padding: 1rem;
 `
 
 const Form = styled.form`
