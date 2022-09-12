@@ -231,6 +231,7 @@ export type Query = {
   auth?: Maybe<User>
   certs?: Maybe<Certs>
   comments?: Maybe<Array<Post>>
+  hello: Scalars['String']
   isUniqueUsername: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
   myProfile?: Maybe<User>
@@ -246,6 +247,10 @@ export type QueryCommentsArgs = {
   lastId?: InputMaybe<Scalars['ID']>
   limit?: InputMaybe<Scalars['PositiveInt']>
   parentId: Scalars['ID']
+}
+
+export type QueryHelloArgs = {
+  name: Scalars['String']
 }
 
 export type QueryIsUniqueUsernameArgs = {
@@ -2075,6 +2080,7 @@ export type QueryKeySpecifier = (
   | 'auth'
   | 'certs'
   | 'comments'
+  | 'hello'
   | 'isUniqueUsername'
   | 'myCertAgreement'
   | 'myProfile'
@@ -2090,6 +2096,7 @@ export type QueryFieldPolicy = {
   auth?: FieldPolicy<any> | FieldReadFunction<any>
   certs?: FieldPolicy<any> | FieldReadFunction<any>
   comments?: FieldPolicy<any> | FieldReadFunction<any>
+  hello?: FieldPolicy<any> | FieldReadFunction<any>
   isUniqueUsername?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   myProfile?: FieldPolicy<any> | FieldReadFunction<any>

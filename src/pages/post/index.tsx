@@ -129,6 +129,31 @@ export default function PostsPage() {
             )}
           </PostCreationForm>
 
+          {/* <Slider padding={imageInfos.length === 0 ? '0 1rem' : '0'}>
+            {imageInfos.map((imageInfo) => (
+              <PreviewSlide key={imageInfo.id} flexBasis="96%">
+                <Frame16to11>
+                  <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
+                </Frame16to11>
+                <XButtonIcon onClick={() => deletePreviewImage(imageInfo.id)} />
+              </PreviewSlide>
+            ))}
+            <Slide flexBasis={imageInfos.length === 0 ? '100%' : '96%'}>
+              <FileInputLabel disabled={postCreationLoading} htmlFor="images">
+                <FileUploadIcon />
+                <GreyH3>사진을 추가해주세요</GreyH3>
+              </FileInputLabel>
+              <FileInput
+                accept="image/*"
+                disabled={postCreationLoading}
+                id="images"
+                multiple
+                onChange={createPreviewImages}
+                type="file"
+              />
+            </Slide>
+          </Slider> */}
+
           <PostDrawer />
 
           {posts

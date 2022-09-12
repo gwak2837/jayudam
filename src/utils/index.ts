@@ -100,3 +100,13 @@ export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
   }
   return true
 }
+
+export async function sha256(message: string) {
+  // hash the message
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message))
+
+  // convert bytes to hex string
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}

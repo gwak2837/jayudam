@@ -1,6 +1,8 @@
 import { ApolloClient, NormalizedCacheObject, createHttpLink } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+import { createPersistedQueryLink } from '@apollo/client/link/persisted-queries'
 
+import { sha256 } from '../utils'
 import { NEXT_PUBLIC_BACKEND_URL } from '../utils/constants'
 import cache from './cache'
 
@@ -23,5 +25,5 @@ const authLink = setContext((_, { headers }) => {
 
 export const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   cache,
-  link: authLink.concat(httpLink),
+  link: createPersistedQueryLink({ sha256 }).concat(authLink.concat(httpLink)),
 })

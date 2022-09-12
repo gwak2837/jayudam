@@ -186,10 +186,10 @@ export default function UserPage() {
 
               <FlexBigGap>
                 <FlexSmallGap>
-                  <GrayText>뒤서니</GrayText> <h4>{user.followerCount}</h4>
+                  <h4>{user.followingCount}</h4> <GrayText>앞서니</GrayText>
                 </FlexSmallGap>
                 <FlexSmallGap>
-                  <GrayText>앞서니</GrayText> <h4>{user.followingCount}</h4>
+                  <h4>{user.followerCount}</h4> <GrayText>뒤서니</GrayText>
                 </FlexSmallGap>
               </FlexBigGap>
 

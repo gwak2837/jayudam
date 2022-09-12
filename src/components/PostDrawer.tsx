@@ -93,18 +93,18 @@ function PostDrawer_() {
         ) : author ? (
           <>
             <BorderLi>
-              <Button100p>이 게시글에 관심이 없어요</Button100p>
+              <Button100p as="button">이 게시글에 관심이 없어요</Button100p>
             </BorderLi>
             <BorderLi>
-              <Button100p>@{author.name} 팔로우</Button100p>
+              <Button100p as="button">@{author.name} 팔로우</Button100p>
             </BorderLi>
             <BorderLi>
-              <Button100p>
+              <Button100p as="button">
                 <BlockIcon width="1.2rem" />@{author.name} 차단
               </Button100p>
             </BorderLi>
             <BorderLi>
-              <Button100p>
+              <Button100p as="button">
                 <SirenIcon width="1.2rem" />
                 게시글 신고
               </Button100p>
@@ -167,6 +167,7 @@ const FlexRedButton = styled(RedButton)`
 
 const Button100p = styled(FlexCenterSmallGap)`
   padding: 1rem;
+  width: 100%;
 `
 
 const Form = styled.form`

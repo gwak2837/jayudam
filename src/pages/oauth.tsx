@@ -59,7 +59,7 @@ export default function OAuthPage() {
 
     client
       .refetchQueries({
-        include: ['Me'],
+        include: ['Auth'],
       })
       .then(() => {
         setDoRedirect(true)
