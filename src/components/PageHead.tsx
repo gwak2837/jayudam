@@ -1,7 +1,8 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
-import { APPLICATION_NAME, CANONICAL_URL, SUBJECT } from 'src/utils/constants'
+
+import { APPLICATION_NAME, CANONICAL_URL, SUBJECT } from '../utils/constants'
 
 type Props = {
   children: ReactNode

@@ -44,7 +44,7 @@ export type CertAgreement = {
   sexualCrimeSince?: Maybe<Scalars['DateTime']>
   showBirthdate: Scalars['Boolean']
   showImmunization: Scalars['Boolean']
-  showName: Scalars['Boolean']
+  showLegalName: Scalars['Boolean']
   showSTDTest: Scalars['Boolean']
   showSex: Scalars['Boolean']
   showSexualCrime: Scalars['Boolean']
@@ -56,7 +56,7 @@ export type CertAgreementInput = {
   sexualCrimeSince?: InputMaybe<Scalars['DateTime']>
   showBirthdate?: InputMaybe<Scalars['Boolean']>
   showImmunization?: InputMaybe<Scalars['Boolean']>
-  showName?: InputMaybe<Scalars['Boolean']>
+  showLegalName?: InputMaybe<Scalars['Boolean']>
   showSTDTest?: InputMaybe<Scalars['Boolean']>
   showSex?: InputMaybe<Scalars['Boolean']>
   showSexualCrime?: InputMaybe<Scalars['Boolean']>
@@ -66,7 +66,7 @@ export type CertAgreementInput = {
 export type CertCreation = {
   birthdate: Scalars['DateTime']
   issueDate: Scalars['DateTime']
-  name: Scalars['NonEmptyString']
+  legalName: Scalars['NonEmptyString']
   sex: Sex
   verificationCode: Scalars['NonEmptyString']
 }
@@ -84,7 +84,7 @@ export type Certs = {
   creationTime: Scalars['DateTime']
   id: Scalars['ID']
   immunizationCerts?: Maybe<Array<Cert>>
-  name?: Maybe<Scalars['String']>
+  legalName?: Maybe<Scalars['String']>
   sex?: Maybe<Sex>
   sexualCrimeCerts?: Maybe<Array<Cert>>
   stdTestCerts?: Maybe<Array<Cert>>
@@ -98,22 +98,28 @@ export enum Grade {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  createPost?: Maybe<Post>
+  certJWT: Scalars['JWT']
+  createPost?: Maybe<PostCreationResult>
   deletePost?: Maybe<Post>
+  deleteSharingPost?: Maybe<PostDeletionResult>
   disconnectFromGoogleOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromKakaoOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromNaverOAuth?: Maybe<Scalars['Boolean']>
   logout?: Maybe<User>
   submitCert?: Maybe<Cert>
   takeAttendance?: Maybe<User>
+  toggleLikingPost?: Maybe<Post>
   unregister?: Maybe<User>
-  updateCertAgreement: Scalars['JWT']
   updateMyCertAgreement?: Maybe<CertAgreement>
   updatePost?: Maybe<Post>
   updateUser?: Maybe<User>
   verifyCertJWT?: Maybe<Certs>
   verifyTown?: Maybe<User>
   wakeUser?: Maybe<User>
+}
+
+export type MutationCertJwtArgs = {
+  input: CertAgreementInput
 }
 
 export type MutationCreatePostArgs = {
@@ -124,12 +130,16 @@ export type MutationDeletePostArgs = {
   id: Scalars['ID']
 }
 
+export type MutationDeleteSharingPostArgs = {
+  sharedPostId: Scalars['ID']
+}
+
 export type MutationSubmitCertArgs = {
   input: CertCreation
 }
 
-export type MutationUpdateCertAgreementArgs = {
-  input: CertAgreementInput
+export type MutationToggleLikingPostArgs = {
+  id: Scalars['ID']
 }
 
 export type MutationUpdateMyCertAgreementArgs = {
@@ -173,19 +183,41 @@ export type Pagination = {
 export type Post = {
   __typename?: 'Post'
   author?: Maybe<User>
-  content?: Maybe<Scalars['NonEmptyString']>
+  commentCount?: Maybe<Scalars['Int']>
+  comments?: Maybe<Array<Post>>
+  content?: Maybe<Scalars['String']>
   creationTime?: Maybe<Scalars['DateTime']>
   deletionTime?: Maybe<Scalars['DateTime']>
+  doIComment: Scalars['Boolean']
+  doIShare: Scalars['Boolean']
   id: Scalars['ID']
   imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
-  likeCount?: Maybe<Scalars['NonNegativeInt']>
-  modificationTime?: Maybe<Scalars['DateTime']>
+  isLiked: Scalars['Boolean']
+  likeCount?: Maybe<Scalars['Int']>
+  parentPost?: Maybe<Post>
+  sharedCount?: Maybe<Scalars['Int']>
+  sharingPost?: Maybe<Post>
+  updateTime?: Maybe<Scalars['DateTime']>
 }
 
 export type PostCreationInput = {
-  content: Scalars['NonEmptyString']
+  content?: InputMaybe<Scalars['String']>
   imageUrls?: InputMaybe<Array<Scalars['URL']>>
   parentPostId?: InputMaybe<Scalars['ID']>
+  sharingPostId?: InputMaybe<Scalars['ID']>
+}
+
+export type PostCreationResult = {
+  __typename?: 'PostCreationResult'
+  newPost: Post
+  parentPost?: Maybe<Post>
+  sharedPost?: Maybe<Post>
+}
+
+export type PostDeletionResult = {
+  __typename?: 'PostDeletionResult'
+  deletedPost?: Maybe<Post>
+  sharedPost?: Maybe<Post>
 }
 
 export type PostUpdateInput = {
@@ -198,9 +230,11 @@ export type Query = {
   __typename?: 'Query'
   auth?: Maybe<User>
   certs?: Maybe<Certs>
-  isUniqueNickname: Scalars['Boolean']
+  comments?: Maybe<Array<Post>>
+  hello: Scalars['String']
+  isUniqueUsername: Scalars['Boolean']
   myCertAgreement?: Maybe<CertAgreement>
-  myVerificationHistories?: Maybe<Array<VerificationHistory>>
+  myProfile?: Maybe<User>
   pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
   posts?: Maybe<Array<Post>>
@@ -209,16 +243,31 @@ export type Query = {
   verificationHistories?: Maybe<Array<Certs>>
 }
 
-export type QueryIsUniqueNicknameArgs = {
-  nickname: Scalars['NonEmptyString']
+export type QueryCommentsArgs = {
+  lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
+  parentId: Scalars['ID']
+}
+
+export type QueryHelloArgs = {
+  name: Scalars['String']
+}
+
+export type QueryIsUniqueUsernameArgs = {
+  username: Scalars['NonEmptyString']
 }
 
 export type QueryPostArgs = {
   id: Scalars['ID']
 }
 
+export type QueryPostsArgs = {
+  lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
+}
+
 export type QueryUserArgs = {
-  nickname?: InputMaybe<Scalars['NonEmptyString']>
+  name?: InputMaybe<Scalars['NonEmptyString']>
 }
 
 export type ServiceAgreement = {
@@ -227,7 +276,7 @@ export type ServiceAgreement = {
   adAgreementTime?: Maybe<Scalars['DateTime']>
   locationAgreement: Scalars['Boolean']
   locationAgreementTime?: Maybe<Scalars['DateTime']>
-  personalDataStoringYear: Scalars['NonNegativeInt']
+  personalDataStoringYear: Scalars['Int']
   privacyAgreement: Scalars['Boolean']
   privacyAgreementTime?: Maybe<Scalars['DateTime']>
   termsAgreement: Scalars['Boolean']
@@ -251,34 +300,45 @@ export enum Sex {
 
 export type Town = {
   __typename?: 'Town'
-  count: Scalars['NonNegativeInt']
+  count: Scalars['Int']
   name?: Maybe<Scalars['String']>
 }
 
 export type User = {
   __typename?: 'User'
   bio?: Maybe<Scalars['String']>
+  birthday?: Maybe<Scalars['String']>
   birthyear?: Maybe<Scalars['Int']>
   blockingEndTime?: Maybe<Scalars['DateTime']>
   blockingStartTime?: Maybe<Scalars['DateTime']>
   certAgreement?: Maybe<CertAgreement>
-  cherry: Scalars['NonNegativeInt']
-  creationTime: Scalars['DateTime']
-  email?: Maybe<Scalars['EmailAddress']>
+  cherry?: Maybe<Scalars['Int']>
+  coverImageUrls?: Maybe<Array<Scalars['String']>>
+  creationTime?: Maybe<Scalars['DateTime']>
+  email?: Maybe<Scalars['String']>
+  followerCount?: Maybe<Scalars['Int']>
+  followingCount?: Maybe<Scalars['Int']>
   grade?: Maybe<Grade>
   id: Scalars['UUID']
-  imageUrls?: Maybe<Array<Scalars['URL']>>
-  isVerifiedBirthday: Scalars['Boolean']
-  isVerifiedBirthyear: Scalars['Boolean']
-  isVerifiedEmail: Scalars['Boolean']
-  isVerifiedName: Scalars['Boolean']
-  isVerifiedPhoneNumber: Scalars['Boolean']
-  isVerifiedSex: Scalars['Boolean']
+  imageUrl?: Maybe<Scalars['String']>
+  imageUrls?: Maybe<Array<Scalars['String']>>
+  isPrivate?: Maybe<Scalars['Boolean']>
+  isSleeping?: Maybe<Scalars['Boolean']>
+  isVerifiedBirthday?: Maybe<Scalars['Boolean']>
+  isVerifiedBirthyear?: Maybe<Scalars['Boolean']>
+  isVerifiedEmail?: Maybe<Scalars['Boolean']>
+  isVerifiedName?: Maybe<Scalars['Boolean']>
+  isVerifiedPhoneNumber?: Maybe<Scalars['Boolean']>
+  isVerifiedSex?: Maybe<Scalars['Boolean']>
+  legalName?: Maybe<Scalars['String']>
   logoutTime?: Maybe<Scalars['DateTime']>
+  name?: Maybe<Scalars['String']>
   nickname?: Maybe<Scalars['String']>
   oAuthProviders?: Maybe<Array<OAuthProvider>>
+  postCount?: Maybe<Scalars['Int']>
   serviceAgreement?: Maybe<ServiceAgreement>
   sex?: Maybe<Sex>
+  sleepingTime?: Maybe<Scalars['DateTime']>
   towns?: Maybe<Array<Town>>
 }
 
@@ -287,24 +347,166 @@ export type UserUpdate = {
   certAgreement?: InputMaybe<CertAgreementInput>
   email?: InputMaybe<Scalars['EmailAddress']>
   imageUrls?: InputMaybe<Array<Scalars['URL']>>
+  name?: InputMaybe<Scalars['NonEmptyString']>
   nickname?: InputMaybe<Scalars['NonEmptyString']>
   serviceAgreement?: InputMaybe<ServiceAgreementInput>
   town1Name?: InputMaybe<Scalars['NonEmptyString']>
   town2Name?: InputMaybe<Scalars['NonEmptyString']>
 }
 
-export type VerificationHistory = {
-  __typename?: 'VerificationHistory'
-  content: Scalars['NonEmptyString']
-  creationTime: Scalars['DateTime']
-  id: Scalars['Int']
+export type CreatePostMutationVariables = Exact<{
+  input: PostCreationInput
+}>
+
+export type CreatePostMutation = {
+  __typename?: 'Mutation'
+  createPost?: {
+    __typename?: 'PostCreationResult'
+    newPost: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
+      author?: { __typename?: 'User'; id: any } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
+    }
+  } | null
+}
+
+export type DeletePostMutationVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type DeletePostMutation = {
+  __typename?: 'Mutation'
+  deletePost?: {
+    __typename?: 'Post'
+    id: string
+    deletionTime?: any | null
+    content?: string | null
+    imageUrls?: Array<any | null> | null
+    sharingPost?: { __typename?: 'Post'; id: string } | null
+    parentPost?: { __typename?: 'Post'; id: string } | null
+  } | null
+}
+
+export type DeleteSharingPostMutationVariables = Exact<{
+  sharedPostId: Scalars['ID']
+}>
+
+export type DeleteSharingPostMutation = {
+  __typename?: 'Mutation'
+  deleteSharingPost?: {
+    __typename?: 'PostDeletionResult'
+    deletedPost?: {
+      __typename?: 'Post'
+      id: string
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      sharingPost?: { __typename?: 'Post'; id: string } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
+    } | null
+    sharedPost?: {
+      __typename?: 'Post'
+      id: string
+      sharedCount?: number | null
+      doIShare: boolean
+    } | null
+  } | null
+}
+
+export type SharePostMutationVariables = Exact<{
+  input: PostCreationInput
+}>
+
+export type SharePostMutation = {
+  __typename?: 'Mutation'
+  createPost?: {
+    __typename?: 'PostCreationResult'
+    newPost: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
+      sharingPost?: { __typename?: 'Post'; id: string } | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
+    }
+    sharedPost?: {
+      __typename?: 'Post'
+      id: string
+      doIShare: boolean
+      sharedCount?: number | null
+    } | null
+  } | null
+}
+
+export type PostCardFragment = {
+  __typename?: 'Post'
+  id: string
+  creationTime?: any | null
+  updateTime?: any | null
+  deletionTime?: any | null
+  content?: string | null
+  imageUrls?: Array<any | null> | null
+  isLiked: boolean
+  doIComment: boolean
+  doIShare: boolean
+  likeCount?: number | null
+  commentCount?: number | null
+  sharedCount?: number | null
+  author?: {
+    __typename?: 'User'
+    id: any
+    name?: string | null
+    nickname?: string | null
+    imageUrl?: string | null
+  } | null
+  parentPost?: {
+    __typename?: 'Post'
+    author?: { __typename?: 'User'; id: any; name?: string | null } | null
+  } | null
 }
 
 export type AuthQueryVariables = Exact<{ [key: string]: never }>
 
 export type AuthQuery = {
   __typename?: 'Query'
-  auth?: { __typename?: 'User'; id: any; nickname?: string | null } | null
+  auth?: { __typename?: 'User'; id: any; name?: string | null } | null
 }
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
@@ -315,7 +517,7 @@ export type LogoutMutation = {
 }
 
 export type UserQueryVariables = Exact<{
-  nickname?: InputMaybe<Scalars['NonEmptyString']>
+  name?: InputMaybe<Scalars['NonEmptyString']>
 }>
 
 export type UserQuery = {
@@ -323,18 +525,270 @@ export type UserQuery = {
   user?: {
     __typename?: 'User'
     id: any
+    creationTime?: any | null
     bio?: string | null
+    birthday?: string | null
+    birthyear?: number | null
     blockingStartTime?: any | null
     blockingEndTime?: any | null
-    cherry: any
+    cherry?: number | null
+    coverImageUrls?: Array<string> | null
+    followerCount?: number | null
+    followingCount?: number | null
     grade?: Grade | null
-    imageUrls?: Array<any> | null
-    isVerifiedSex: boolean
+    imageUrls?: Array<string> | null
+    isPrivate?: boolean | null
+    isSleeping?: boolean | null
+    isVerifiedBirthday?: boolean | null
+    isVerifiedBirthyear?: boolean | null
+    isVerifiedSex?: boolean | null
+    name?: string | null
     nickname?: string | null
+    postCount?: number | null
     sex?: Sex | null
-    towns?: Array<{ __typename?: 'Town'; count: any; name?: string | null }> | null
+    sleepingTime?: any | null
+    towns?: Array<{ __typename?: 'Town'; count: number; name?: string | null }> | null
   } | null
 }
+
+export type MyProfileQueryVariables = Exact<{ [key: string]: never }>
+
+export type MyProfileQuery = {
+  __typename?: 'Query'
+  myProfile?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
+}
+
+export type PostsQueryVariables = Exact<{
+  lastId?: InputMaybe<Scalars['ID']>
+}>
+
+export type PostsQuery = {
+  __typename?: 'Query'
+  posts?: Array<{
+    __typename?: 'Post'
+    id: string
+    creationTime?: any | null
+    updateTime?: any | null
+    deletionTime?: any | null
+    content?: string | null
+    imageUrls?: Array<any | null> | null
+    isLiked: boolean
+    doIComment: boolean
+    doIShare: boolean
+    likeCount?: number | null
+    commentCount?: number | null
+    sharedCount?: number | null
+    sharingPost?: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+    } | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: string | null
+      nickname?: string | null
+      imageUrl?: string | null
+    } | null
+    parentPost?: {
+      __typename?: 'Post'
+      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+    } | null
+  }> | null
+}
+
+export type CommentsQueryVariables = Exact<{
+  parentId: Scalars['ID']
+  lastId?: InputMaybe<Scalars['ID']>
+  limit?: InputMaybe<Scalars['PositiveInt']>
+}>
+
+export type CommentsQuery = {
+  __typename?: 'Query'
+  comments?: Array<{
+    __typename?: 'Post'
+    id: string
+    creationTime?: any | null
+    updateTime?: any | null
+    deletionTime?: any | null
+    content?: string | null
+    imageUrls?: Array<any | null> | null
+    isLiked: boolean
+    doIComment: boolean
+    doIShare: boolean
+    likeCount?: number | null
+    commentCount?: number | null
+    sharedCount?: number | null
+    comments?: Array<{
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
+    }> | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: string | null
+      nickname?: string | null
+      imageUrl?: string | null
+    } | null
+    parentPost?: {
+      __typename?: 'Post'
+      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+    } | null
+  }> | null
+}
+
+export type CreateCommentMutationVariables = Exact<{
+  input: PostCreationInput
+}>
+
+export type CreateCommentMutation = {
+  __typename?: 'Mutation'
+  createPost?: {
+    __typename?: 'PostCreationResult'
+    newPost: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      isLiked: boolean
+      doIComment: boolean
+      doIShare: boolean
+      likeCount?: number | null
+      commentCount?: number | null
+      sharedCount?: number | null
+      author?: { __typename?: 'User'; id: any } | null
+      parentPost?: {
+        __typename?: 'Post'
+        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      } | null
+      comments?: Array<{ __typename?: 'Post'; id: string }> | null
+    }
+    parentPost?: {
+      __typename?: 'Post'
+      id: string
+      doIComment: boolean
+      commentCount?: number | null
+    } | null
+  } | null
+}
+
+export type PostQueryVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type PostQuery = {
+  __typename?: 'Query'
+  post?: {
+    __typename?: 'Post'
+    id: string
+    creationTime?: any | null
+    updateTime?: any | null
+    deletionTime?: any | null
+    content?: string | null
+    imageUrls?: Array<any | null> | null
+    isLiked: boolean
+    doIComment: boolean
+    doIShare: boolean
+    likeCount?: number | null
+    commentCount?: number | null
+    sharedCount?: number | null
+    author?: {
+      __typename?: 'User'
+      id: any
+      name?: string | null
+      nickname?: string | null
+      imageUrl?: string | null
+    } | null
+    parentPost?: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+    } | null
+    sharingPost?: {
+      __typename?: 'Post'
+      id: string
+      creationTime?: any | null
+      updateTime?: any | null
+      deletionTime?: any | null
+      content?: string | null
+      imageUrls?: Array<any | null> | null
+      author?: {
+        __typename?: 'User'
+        id: any
+        name?: string | null
+        nickname?: string | null
+        imageUrl?: string | null
+      } | null
+    } | null
+  } | null
+}
+
+export type ToggleLikingPostMutationVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type ToggleLikingPostMutation = {
+  __typename?: 'Mutation'
+  toggleLikingPost?: {
+    __typename?: 'Post'
+    id: string
+    isLiked: boolean
+    likeCount?: number | null
+  } | null
+}
+
+export type CertJwtMutationVariables = Exact<{
+  input: CertAgreementInput
+}>
+
+export type CertJwtMutation = { __typename?: 'Mutation'; certJWT: any }
 
 export type MyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
 
@@ -343,7 +797,7 @@ export type MyCertAgreementQuery = {
   myCertAgreement?: {
     __typename?: 'CertAgreement'
     showBirthdate: boolean
-    showName: boolean
+    showLegalName: boolean
     showSex: boolean
     showSTDTest: boolean
     stdTestSince?: any | null
@@ -354,17 +808,11 @@ export type MyCertAgreementQuery = {
   } | null
 }
 
-export type UpdateCertAgreementMutationVariables = Exact<{
-  input: CertAgreementInput
+export type IsUniqueUsernameQueryVariables = Exact<{
+  username: Scalars['NonEmptyString']
 }>
 
-export type UpdateCertAgreementMutation = { __typename?: 'Mutation'; updateCertAgreement: any }
-
-export type IsUniqueNicknameQueryVariables = Exact<{
-  nickname: Scalars['NonEmptyString']
-}>
-
-export type IsUniqueNicknameQuery = { __typename?: 'Query'; isUniqueNickname: boolean }
+export type IsUniqueUsernameQuery = { __typename?: 'Query'; isUniqueUsername: boolean }
 
 export type UpdateUserMutationVariables = Exact<{
   input: UserUpdate
@@ -372,7 +820,7 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser?: { __typename?: 'User'; id: any; nickname?: string | null } | null
+  updateUser?: { __typename?: 'User'; id: any; name?: string | null } | null
 }
 
 export type SampleCertJwtQueryVariables = Exact<{ [key: string]: never }>
@@ -389,7 +837,7 @@ export type VerifyCertJwtMutation = {
     __typename?: 'Certs'
     id: string
     birthdate?: any | null
-    name?: string | null
+    legalName?: string | null
     sex?: Sex | null
     stdTestCerts?: Array<{
       __typename?: 'Cert'
@@ -421,11 +869,279 @@ export type VerifyCertJwtMutation = {
   } | null
 }
 
+export const PostCardFragmentDoc = gql`
+  fragment postCard on Post {
+    id
+    creationTime
+    updateTime
+    deletionTime
+    content
+    imageUrls
+    isLiked
+    doIComment
+    doIShare
+    likeCount
+    commentCount
+    sharedCount
+    author {
+      id
+      name
+      nickname
+      imageUrl
+    }
+    parentPost {
+      author {
+        id
+        name
+      }
+    }
+  }
+`
+export const CreatePostDocument = gql`
+  mutation CreatePost($input: PostCreationInput!) {
+    createPost(input: $input) {
+      newPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        isLiked
+        doIComment
+        doIShare
+        likeCount
+        commentCount
+        sharedCount
+        author {
+          id
+        }
+        parentPost {
+          author {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+`
+export type CreatePostMutationFn = Apollo.MutationFunction<
+  CreatePostMutation,
+  CreatePostMutationVariables
+>
+
+/**
+ * __useCreatePostMutation__
+ *
+ * To run a mutation, you first call `useCreatePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(
+    CreatePostDocument,
+    options
+  )
+}
+export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>
+export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>
+export type CreatePostMutationOptions = Apollo.BaseMutationOptions<
+  CreatePostMutation,
+  CreatePostMutationVariables
+>
+export const DeletePostDocument = gql`
+  mutation DeletePost($id: ID!) {
+    deletePost(id: $id) {
+      id
+      deletionTime
+      content
+      imageUrls
+      sharingPost {
+        id
+      }
+      parentPost {
+        id
+      }
+    }
+  }
+`
+export type DeletePostMutationFn = Apollo.MutationFunction<
+  DeletePostMutation,
+  DeletePostMutationVariables
+>
+
+/**
+ * __useDeletePostMutation__
+ *
+ * To run a mutation, you first call `useDeletePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePostMutation, { data, loading, error }] = useDeletePostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<DeletePostMutation, DeletePostMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(
+    DeletePostDocument,
+    options
+  )
+}
+export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>
+export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>
+export type DeletePostMutationOptions = Apollo.BaseMutationOptions<
+  DeletePostMutation,
+  DeletePostMutationVariables
+>
+export const DeleteSharingPostDocument = gql`
+  mutation DeleteSharingPost($sharedPostId: ID!) {
+    deleteSharingPost(sharedPostId: $sharedPostId) {
+      deletedPost {
+        id
+        deletionTime
+        content
+        imageUrls
+        sharingPost {
+          id
+        }
+        parentPost {
+          author {
+            id
+            name
+          }
+        }
+      }
+      sharedPost {
+        id
+        sharedCount
+        doIShare
+      }
+    }
+  }
+`
+export type DeleteSharingPostMutationFn = Apollo.MutationFunction<
+  DeleteSharingPostMutation,
+  DeleteSharingPostMutationVariables
+>
+
+/**
+ * __useDeleteSharingPostMutation__
+ *
+ * To run a mutation, you first call `useDeleteSharingPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSharingPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSharingPostMutation, { data, loading, error }] = useDeleteSharingPostMutation({
+ *   variables: {
+ *      sharedPostId: // value for 'sharedPostId'
+ *   },
+ * });
+ */
+export function useDeleteSharingPostMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteSharingPostMutation,
+    DeleteSharingPostMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<DeleteSharingPostMutation, DeleteSharingPostMutationVariables>(
+    DeleteSharingPostDocument,
+    options
+  )
+}
+export type DeleteSharingPostMutationHookResult = ReturnType<typeof useDeleteSharingPostMutation>
+export type DeleteSharingPostMutationResult = Apollo.MutationResult<DeleteSharingPostMutation>
+export type DeleteSharingPostMutationOptions = Apollo.BaseMutationOptions<
+  DeleteSharingPostMutation,
+  DeleteSharingPostMutationVariables
+>
+export const SharePostDocument = gql`
+  mutation SharePost($input: PostCreationInput!) {
+    createPost(input: $input) {
+      newPost {
+        ...postCard
+        sharingPost {
+          id
+        }
+      }
+      sharedPost {
+        id
+        doIShare
+        sharedCount
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+export type SharePostMutationFn = Apollo.MutationFunction<
+  SharePostMutation,
+  SharePostMutationVariables
+>
+
+/**
+ * __useSharePostMutation__
+ *
+ * To run a mutation, you first call `useSharePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSharePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sharePostMutation, { data, loading, error }] = useSharePostMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSharePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<SharePostMutation, SharePostMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<SharePostMutation, SharePostMutationVariables>(
+    SharePostDocument,
+    options
+  )
+}
+export type SharePostMutationHookResult = ReturnType<typeof useSharePostMutation>
+export type SharePostMutationResult = Apollo.MutationResult<SharePostMutation>
+export type SharePostMutationOptions = Apollo.BaseMutationOptions<
+  SharePostMutation,
+  SharePostMutationVariables
+>
 export const AuthDocument = gql`
   query Auth {
     auth {
       id
-      nickname
+      name
     }
   }
 `
@@ -496,18 +1212,31 @@ export type LogoutMutationOptions = Apollo.BaseMutationOptions<
   LogoutMutationVariables
 >
 export const UserDocument = gql`
-  query User($nickname: NonEmptyString) {
-    user(nickname: $nickname) {
+  query User($name: NonEmptyString) {
+    user(name: $name) {
       id
+      creationTime
       bio
+      birthday
+      birthyear
       blockingStartTime
       blockingEndTime
       cherry
+      coverImageUrls
+      followerCount
+      followingCount
       grade
       imageUrls
+      isPrivate
+      isSleeping
+      isVerifiedBirthday
+      isVerifiedBirthyear
       isVerifiedSex
+      name
       nickname
+      postCount
       sex
+      sleepingTime
       towns {
         count
         name
@@ -528,7 +1257,7 @@ export const UserDocument = gql`
  * @example
  * const { data, loading, error } = useUserQuery({
  *   variables: {
- *      nickname: // value for 'nickname'
+ *      name: // value for 'name'
  *   },
  * });
  */
@@ -545,11 +1274,390 @@ export function useUserLazyQuery(
 export type UserQueryHookResult = ReturnType<typeof useUserQuery>
 export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>
 export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>
+export const MyProfileDocument = gql`
+  query MyProfile {
+    myProfile {
+      id
+      imageUrl
+    }
+  }
+`
+
+/**
+ * __useMyProfileQuery__
+ *
+ * To run a query within a React component, call `useMyProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyProfileQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyProfileQuery(
+  baseOptions?: Apollo.QueryHookOptions<MyProfileQuery, MyProfileQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<MyProfileQuery, MyProfileQueryVariables>(MyProfileDocument, options)
+}
+export function useMyProfileLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<MyProfileQuery, MyProfileQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<MyProfileQuery, MyProfileQueryVariables>(MyProfileDocument, options)
+}
+export type MyProfileQueryHookResult = ReturnType<typeof useMyProfileQuery>
+export type MyProfileLazyQueryHookResult = ReturnType<typeof useMyProfileLazyQuery>
+export type MyProfileQueryResult = Apollo.QueryResult<MyProfileQuery, MyProfileQueryVariables>
+export const PostsDocument = gql`
+  query Posts($lastId: ID) {
+    posts(lastId: $lastId) {
+      ...postCard
+      sharingPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        author {
+          id
+          name
+          nickname
+          imageUrl
+        }
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+
+/**
+ * __usePostsQuery__
+ *
+ * To run a query within a React component, call `usePostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostsQuery({
+ *   variables: {
+ *      lastId: // value for 'lastId'
+ *   },
+ * });
+ */
+export function usePostsQuery(
+  baseOptions?: Apollo.QueryHookOptions<PostsQuery, PostsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options)
+}
+export function usePostsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<PostsQuery, PostsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options)
+}
+export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
+export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
+export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
+export const CommentsDocument = gql`
+  query Comments($parentId: ID!, $lastId: ID, $limit: PositiveInt) {
+    comments(parentId: $parentId, lastId: $lastId, limit: $limit) {
+      ...postCard
+      comments {
+        ...postCard
+      }
+    }
+  }
+  ${PostCardFragmentDoc}
+`
+
+/**
+ * __useCommentsQuery__
+ *
+ * To run a query within a React component, call `useCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommentsQuery({
+ *   variables: {
+ *      parentId: // value for 'parentId'
+ *      lastId: // value for 'lastId'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useCommentsQuery(
+  baseOptions: Apollo.QueryHookOptions<CommentsQuery, CommentsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<CommentsQuery, CommentsQueryVariables>(CommentsDocument, options)
+}
+export function useCommentsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<CommentsQuery, CommentsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<CommentsQuery, CommentsQueryVariables>(CommentsDocument, options)
+}
+export type CommentsQueryHookResult = ReturnType<typeof useCommentsQuery>
+export type CommentsLazyQueryHookResult = ReturnType<typeof useCommentsLazyQuery>
+export type CommentsQueryResult = Apollo.QueryResult<CommentsQuery, CommentsQueryVariables>
+export const CreateCommentDocument = gql`
+  mutation CreateComment($input: PostCreationInput!) {
+    createPost(input: $input) {
+      newPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        isLiked
+        doIComment
+        doIShare
+        likeCount
+        commentCount
+        sharedCount
+        author {
+          id
+        }
+        parentPost {
+          author {
+            id
+            name
+          }
+        }
+        comments {
+          id
+        }
+      }
+      parentPost {
+        id
+        doIComment
+        commentCount
+      }
+    }
+  }
+`
+export type CreateCommentMutationFn = Apollo.MutationFunction<
+  CreateCommentMutation,
+  CreateCommentMutationVariables
+>
+
+/**
+ * __useCreateCommentMutation__
+ *
+ * To run a mutation, you first call `useCreateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommentMutation, { data, loading, error }] = useCreateCommentMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateCommentMutation, CreateCommentMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+    CreateCommentDocument,
+    options
+  )
+}
+export type CreateCommentMutationHookResult = ReturnType<typeof useCreateCommentMutation>
+export type CreateCommentMutationResult = Apollo.MutationResult<CreateCommentMutation>
+export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<
+  CreateCommentMutation,
+  CreateCommentMutationVariables
+>
+export const PostDocument = gql`
+  query Post($id: ID!) {
+    post(id: $id) {
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      isLiked
+      doIComment
+      doIShare
+      likeCount
+      commentCount
+      sharedCount
+      author {
+        id
+        name
+        nickname
+        imageUrl
+      }
+      parentPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        author {
+          id
+          name
+          nickname
+          imageUrl
+        }
+      }
+      sharingPost {
+        id
+        creationTime
+        updateTime
+        deletionTime
+        content
+        imageUrls
+        author {
+          id
+          name
+          nickname
+          imageUrl
+        }
+      }
+    }
+  }
+`
+
+/**
+ * __usePostQuery__
+ *
+ * To run a query within a React component, call `usePostQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePostQuery(baseOptions: Apollo.QueryHookOptions<PostQuery, PostQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<PostQuery, PostQueryVariables>(PostDocument, options)
+}
+export function usePostLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<PostQuery, PostQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<PostQuery, PostQueryVariables>(PostDocument, options)
+}
+export type PostQueryHookResult = ReturnType<typeof usePostQuery>
+export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>
+export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>
+export const ToggleLikingPostDocument = gql`
+  mutation ToggleLikingPost($id: ID!) {
+    toggleLikingPost(id: $id) {
+      id
+      isLiked
+      likeCount
+    }
+  }
+`
+export type ToggleLikingPostMutationFn = Apollo.MutationFunction<
+  ToggleLikingPostMutation,
+  ToggleLikingPostMutationVariables
+>
+
+/**
+ * __useToggleLikingPostMutation__
+ *
+ * To run a mutation, you first call `useToggleLikingPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleLikingPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleLikingPostMutation, { data, loading, error }] = useToggleLikingPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useToggleLikingPostMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleLikingPostMutation,
+    ToggleLikingPostMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<ToggleLikingPostMutation, ToggleLikingPostMutationVariables>(
+    ToggleLikingPostDocument,
+    options
+  )
+}
+export type ToggleLikingPostMutationHookResult = ReturnType<typeof useToggleLikingPostMutation>
+export type ToggleLikingPostMutationResult = Apollo.MutationResult<ToggleLikingPostMutation>
+export type ToggleLikingPostMutationOptions = Apollo.BaseMutationOptions<
+  ToggleLikingPostMutation,
+  ToggleLikingPostMutationVariables
+>
+export const CertJwtDocument = gql`
+  mutation CertJWT($input: CertAgreementInput!) {
+    certJWT(input: $input)
+  }
+`
+export type CertJwtMutationFn = Apollo.MutationFunction<CertJwtMutation, CertJwtMutationVariables>
+
+/**
+ * __useCertJwtMutation__
+ *
+ * To run a mutation, you first call `useCertJwtMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCertJwtMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [certJwtMutation, { data, loading, error }] = useCertJwtMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCertJwtMutation(
+  baseOptions?: Apollo.MutationHookOptions<CertJwtMutation, CertJwtMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CertJwtMutation, CertJwtMutationVariables>(CertJwtDocument, options)
+}
+export type CertJwtMutationHookResult = ReturnType<typeof useCertJwtMutation>
+export type CertJwtMutationResult = Apollo.MutationResult<CertJwtMutation>
+export type CertJwtMutationOptions = Apollo.BaseMutationOptions<
+  CertJwtMutation,
+  CertJwtMutationVariables
+>
 export const MyCertAgreementDocument = gql`
   query MyCertAgreement {
     myCertAgreement {
       showBirthdate
-      showName
+      showLegalName
       showSex
       showSTDTest
       stdTestSince
@@ -600,104 +1708,57 @@ export type MyCertAgreementQueryResult = Apollo.QueryResult<
   MyCertAgreementQuery,
   MyCertAgreementQueryVariables
 >
-export const UpdateCertAgreementDocument = gql`
-  mutation UpdateCertAgreement($input: CertAgreementInput!) {
-    updateCertAgreement(input: $input)
-  }
-`
-export type UpdateCertAgreementMutationFn = Apollo.MutationFunction<
-  UpdateCertAgreementMutation,
-  UpdateCertAgreementMutationVariables
->
-
-/**
- * __useUpdateCertAgreementMutation__
- *
- * To run a mutation, you first call `useUpdateCertAgreementMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCertAgreementMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCertAgreementMutation, { data, loading, error }] = useUpdateCertAgreementMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCertAgreementMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateCertAgreementMutation,
-    UpdateCertAgreementMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<UpdateCertAgreementMutation, UpdateCertAgreementMutationVariables>(
-    UpdateCertAgreementDocument,
-    options
-  )
-}
-export type UpdateCertAgreementMutationHookResult = ReturnType<
-  typeof useUpdateCertAgreementMutation
->
-export type UpdateCertAgreementMutationResult = Apollo.MutationResult<UpdateCertAgreementMutation>
-export type UpdateCertAgreementMutationOptions = Apollo.BaseMutationOptions<
-  UpdateCertAgreementMutation,
-  UpdateCertAgreementMutationVariables
->
-export const IsUniqueNicknameDocument = gql`
-  query IsUniqueNickname($nickname: NonEmptyString!) {
-    isUniqueNickname(nickname: $nickname)
+export const IsUniqueUsernameDocument = gql`
+  query isUniqueUsername($username: NonEmptyString!) {
+    isUniqueUsername(username: $username)
   }
 `
 
 /**
- * __useIsUniqueNicknameQuery__
+ * __useIsUniqueUsernameQuery__
  *
- * To run a query within a React component, call `useIsUniqueNicknameQuery` and pass it any options that fit your needs.
- * When your component renders, `useIsUniqueNicknameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useIsUniqueUsernameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsUniqueUsernameQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useIsUniqueNicknameQuery({
+ * const { data, loading, error } = useIsUniqueUsernameQuery({
  *   variables: {
- *      nickname: // value for 'nickname'
+ *      username: // value for 'username'
  *   },
  * });
  */
-export function useIsUniqueNicknameQuery(
-  baseOptions: Apollo.QueryHookOptions<IsUniqueNicknameQuery, IsUniqueNicknameQueryVariables>
+export function useIsUniqueUsernameQuery(
+  baseOptions: Apollo.QueryHookOptions<IsUniqueUsernameQuery, IsUniqueUsernameQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<IsUniqueNicknameQuery, IsUniqueNicknameQueryVariables>(
-    IsUniqueNicknameDocument,
+  return Apollo.useQuery<IsUniqueUsernameQuery, IsUniqueUsernameQueryVariables>(
+    IsUniqueUsernameDocument,
     options
   )
 }
-export function useIsUniqueNicknameLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<IsUniqueNicknameQuery, IsUniqueNicknameQueryVariables>
+export function useIsUniqueUsernameLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<IsUniqueUsernameQuery, IsUniqueUsernameQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<IsUniqueNicknameQuery, IsUniqueNicknameQueryVariables>(
-    IsUniqueNicknameDocument,
+  return Apollo.useLazyQuery<IsUniqueUsernameQuery, IsUniqueUsernameQueryVariables>(
+    IsUniqueUsernameDocument,
     options
   )
 }
-export type IsUniqueNicknameQueryHookResult = ReturnType<typeof useIsUniqueNicknameQuery>
-export type IsUniqueNicknameLazyQueryHookResult = ReturnType<typeof useIsUniqueNicknameLazyQuery>
-export type IsUniqueNicknameQueryResult = Apollo.QueryResult<
-  IsUniqueNicknameQuery,
-  IsUniqueNicknameQueryVariables
+export type IsUniqueUsernameQueryHookResult = ReturnType<typeof useIsUniqueUsernameQuery>
+export type IsUniqueUsernameLazyQueryHookResult = ReturnType<typeof useIsUniqueUsernameLazyQuery>
+export type IsUniqueUsernameQueryResult = Apollo.QueryResult<
+  IsUniqueUsernameQuery,
+  IsUniqueUsernameQueryVariables
 >
 export const UpdateUserDocument = gql`
   mutation UpdateUser($input: UserUpdate!) {
     updateUser(input: $input) {
       id
-      nickname
+      name
     }
   }
 `
@@ -788,7 +1849,7 @@ export const VerifyCertJwtDocument = gql`
     verifyCertJWT(jwt: $jwt) {
       id
       birthdate
-      name
+      legalName
       sex
       stdTestCerts {
         id
@@ -878,7 +1939,7 @@ export type CertAgreementKeySpecifier = (
   | 'sexualCrimeSince'
   | 'showBirthdate'
   | 'showImmunization'
-  | 'showName'
+  | 'showLegalName'
   | 'showSTDTest'
   | 'showSex'
   | 'showSexualCrime'
@@ -890,7 +1951,7 @@ export type CertAgreementFieldPolicy = {
   sexualCrimeSince?: FieldPolicy<any> | FieldReadFunction<any>
   showBirthdate?: FieldPolicy<any> | FieldReadFunction<any>
   showImmunization?: FieldPolicy<any> | FieldReadFunction<any>
-  showName?: FieldPolicy<any> | FieldReadFunction<any>
+  showLegalName?: FieldPolicy<any> | FieldReadFunction<any>
   showSTDTest?: FieldPolicy<any> | FieldReadFunction<any>
   showSex?: FieldPolicy<any> | FieldReadFunction<any>
   showSexualCrime?: FieldPolicy<any> | FieldReadFunction<any>
@@ -901,7 +1962,7 @@ export type CertsKeySpecifier = (
   | 'creationTime'
   | 'id'
   | 'immunizationCerts'
-  | 'name'
+  | 'legalName'
   | 'sex'
   | 'sexualCrimeCerts'
   | 'stdTestCerts'
@@ -912,22 +1973,24 @@ export type CertsFieldPolicy = {
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   immunizationCerts?: FieldPolicy<any> | FieldReadFunction<any>
-  name?: FieldPolicy<any> | FieldReadFunction<any>
+  legalName?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
   sexualCrimeCerts?: FieldPolicy<any> | FieldReadFunction<any>
   stdTestCerts?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type MutationKeySpecifier = (
+  | 'certJWT'
   | 'createPost'
   | 'deletePost'
+  | 'deleteSharingPost'
   | 'disconnectFromGoogleOAuth'
   | 'disconnectFromKakaoOAuth'
   | 'disconnectFromNaverOAuth'
   | 'logout'
   | 'submitCert'
   | 'takeAttendance'
+  | 'toggleLikingPost'
   | 'unregister'
-  | 'updateCertAgreement'
   | 'updateMyCertAgreement'
   | 'updatePost'
   | 'updateUser'
@@ -937,16 +2000,18 @@ export type MutationKeySpecifier = (
   | MutationKeySpecifier
 )[]
 export type MutationFieldPolicy = {
+  certJWT?: FieldPolicy<any> | FieldReadFunction<any>
   createPost?: FieldPolicy<any> | FieldReadFunction<any>
   deletePost?: FieldPolicy<any> | FieldReadFunction<any>
+  deleteSharingPost?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromGoogleOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromKakaoOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromNaverOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   logout?: FieldPolicy<any> | FieldReadFunction<any>
   submitCert?: FieldPolicy<any> | FieldReadFunction<any>
   takeAttendance?: FieldPolicy<any> | FieldReadFunction<any>
+  toggleLikingPost?: FieldPolicy<any> | FieldReadFunction<any>
   unregister?: FieldPolicy<any> | FieldReadFunction<any>
-  updateCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   updateMyCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   updatePost?: FieldPolicy<any> | FieldReadFunction<any>
   updateUser?: FieldPolicy<any> | FieldReadFunction<any>
@@ -956,31 +2021,69 @@ export type MutationFieldPolicy = {
 }
 export type PostKeySpecifier = (
   | 'author'
+  | 'commentCount'
+  | 'comments'
   | 'content'
   | 'creationTime'
   | 'deletionTime'
+  | 'doIComment'
+  | 'doIShare'
   | 'id'
   | 'imageUrls'
+  | 'isLiked'
   | 'likeCount'
-  | 'modificationTime'
+  | 'parentPost'
+  | 'sharedCount'
+  | 'sharingPost'
+  | 'updateTime'
   | PostKeySpecifier
 )[]
 export type PostFieldPolicy = {
   author?: FieldPolicy<any> | FieldReadFunction<any>
+  commentCount?: FieldPolicy<any> | FieldReadFunction<any>
+  comments?: FieldPolicy<any> | FieldReadFunction<any>
   content?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   deletionTime?: FieldPolicy<any> | FieldReadFunction<any>
+  doIComment?: FieldPolicy<any> | FieldReadFunction<any>
+  doIShare?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
+  isLiked?: FieldPolicy<any> | FieldReadFunction<any>
   likeCount?: FieldPolicy<any> | FieldReadFunction<any>
-  modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  parentPost?: FieldPolicy<any> | FieldReadFunction<any>
+  sharedCount?: FieldPolicy<any> | FieldReadFunction<any>
+  sharingPost?: FieldPolicy<any> | FieldReadFunction<any>
+  updateTime?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type PostCreationResultKeySpecifier = (
+  | 'newPost'
+  | 'parentPost'
+  | 'sharedPost'
+  | PostCreationResultKeySpecifier
+)[]
+export type PostCreationResultFieldPolicy = {
+  newPost?: FieldPolicy<any> | FieldReadFunction<any>
+  parentPost?: FieldPolicy<any> | FieldReadFunction<any>
+  sharedPost?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type PostDeletionResultKeySpecifier = (
+  | 'deletedPost'
+  | 'sharedPost'
+  | PostDeletionResultKeySpecifier
+)[]
+export type PostDeletionResultFieldPolicy = {
+  deletedPost?: FieldPolicy<any> | FieldReadFunction<any>
+  sharedPost?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
   | 'auth'
   | 'certs'
-  | 'isUniqueNickname'
+  | 'comments'
+  | 'hello'
+  | 'isUniqueUsername'
   | 'myCertAgreement'
-  | 'myVerificationHistories'
+  | 'myProfile'
   | 'pendingCerts'
   | 'post'
   | 'posts'
@@ -992,9 +2095,11 @@ export type QueryKeySpecifier = (
 export type QueryFieldPolicy = {
   auth?: FieldPolicy<any> | FieldReadFunction<any>
   certs?: FieldPolicy<any> | FieldReadFunction<any>
-  isUniqueNickname?: FieldPolicy<any> | FieldReadFunction<any>
+  comments?: FieldPolicy<any> | FieldReadFunction<any>
+  hello?: FieldPolicy<any> | FieldReadFunction<any>
+  isUniqueUsername?: FieldPolicy<any> | FieldReadFunction<any>
   myCertAgreement?: FieldPolicy<any> | FieldReadFunction<any>
-  myVerificationHistories?: FieldPolicy<any> | FieldReadFunction<any>
+  myProfile?: FieldPolicy<any> | FieldReadFunction<any>
   pendingCerts?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1032,65 +2137,76 @@ export type TownFieldPolicy = {
 }
 export type UserKeySpecifier = (
   | 'bio'
+  | 'birthday'
   | 'birthyear'
   | 'blockingEndTime'
   | 'blockingStartTime'
   | 'certAgreement'
   | 'cherry'
+  | 'coverImageUrls'
   | 'creationTime'
   | 'email'
+  | 'followerCount'
+  | 'followingCount'
   | 'grade'
   | 'id'
+  | 'imageUrl'
   | 'imageUrls'
+  | 'isPrivate'
+  | 'isSleeping'
   | 'isVerifiedBirthday'
   | 'isVerifiedBirthyear'
   | 'isVerifiedEmail'
   | 'isVerifiedName'
   | 'isVerifiedPhoneNumber'
   | 'isVerifiedSex'
+  | 'legalName'
   | 'logoutTime'
+  | 'name'
   | 'nickname'
   | 'oAuthProviders'
+  | 'postCount'
   | 'serviceAgreement'
   | 'sex'
+  | 'sleepingTime'
   | 'towns'
   | UserKeySpecifier
 )[]
 export type UserFieldPolicy = {
   bio?: FieldPolicy<any> | FieldReadFunction<any>
+  birthday?: FieldPolicy<any> | FieldReadFunction<any>
   birthyear?: FieldPolicy<any> | FieldReadFunction<any>
   blockingEndTime?: FieldPolicy<any> | FieldReadFunction<any>
   blockingStartTime?: FieldPolicy<any> | FieldReadFunction<any>
   certAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   cherry?: FieldPolicy<any> | FieldReadFunction<any>
+  coverImageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   email?: FieldPolicy<any> | FieldReadFunction<any>
+  followerCount?: FieldPolicy<any> | FieldReadFunction<any>
+  followingCount?: FieldPolicy<any> | FieldReadFunction<any>
   grade?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
+  imageUrl?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
+  isPrivate?: FieldPolicy<any> | FieldReadFunction<any>
+  isSleeping?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedBirthday?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedBirthyear?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedEmail?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedName?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedPhoneNumber?: FieldPolicy<any> | FieldReadFunction<any>
   isVerifiedSex?: FieldPolicy<any> | FieldReadFunction<any>
+  legalName?: FieldPolicy<any> | FieldReadFunction<any>
   logoutTime?: FieldPolicy<any> | FieldReadFunction<any>
+  name?: FieldPolicy<any> | FieldReadFunction<any>
   nickname?: FieldPolicy<any> | FieldReadFunction<any>
   oAuthProviders?: FieldPolicy<any> | FieldReadFunction<any>
+  postCount?: FieldPolicy<any> | FieldReadFunction<any>
   serviceAgreement?: FieldPolicy<any> | FieldReadFunction<any>
   sex?: FieldPolicy<any> | FieldReadFunction<any>
+  sleepingTime?: FieldPolicy<any> | FieldReadFunction<any>
   towns?: FieldPolicy<any> | FieldReadFunction<any>
-}
-export type VerificationHistoryKeySpecifier = (
-  | 'content'
-  | 'creationTime'
-  | 'id'
-  | VerificationHistoryKeySpecifier
-)[]
-export type VerificationHistoryFieldPolicy = {
-  content?: FieldPolicy<any> | FieldReadFunction<any>
-  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
-  id?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type StrictTypedTypePolicies = {
   Cert?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
@@ -1113,6 +2229,20 @@ export type StrictTypedTypePolicies = {
     keyFields?: false | PostKeySpecifier | (() => undefined | PostKeySpecifier)
     fields?: PostFieldPolicy
   }
+  PostCreationResult?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | PostCreationResultKeySpecifier
+      | (() => undefined | PostCreationResultKeySpecifier)
+    fields?: PostCreationResultFieldPolicy
+  }
+  PostDeletionResult?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | PostDeletionResultKeySpecifier
+      | (() => undefined | PostDeletionResultKeySpecifier)
+    fields?: PostDeletionResultFieldPolicy
+  }
   Query?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | QueryKeySpecifier | (() => undefined | QueryKeySpecifier)
     fields?: QueryFieldPolicy
@@ -1131,13 +2261,6 @@ export type StrictTypedTypePolicies = {
   User?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | UserKeySpecifier | (() => undefined | UserKeySpecifier)
     fields?: UserFieldPolicy
-  }
-  VerificationHistory?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
-    keyFields?:
-      | false
-      | VerificationHistoryKeySpecifier
-      | (() => undefined | VerificationHistoryKeySpecifier)
-    fields?: VerificationHistoryFieldPolicy
   }
 }
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies

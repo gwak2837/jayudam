@@ -1,0 +1,19 @@
+query Posts($lastId: ID) {
+  posts(lastId: $lastId) {
+    ...postCard
+    sharingPost {
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      author {
+        id
+        name
+        nickname
+        imageUrl
+      }
+    }
+  }
+}

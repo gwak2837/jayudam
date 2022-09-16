@@ -1,3 +1,0 @@
-mutation UpdateCertAgreement($input: CertAgreementInput!) {
-  updateCertAgreement(input: $input)
-}

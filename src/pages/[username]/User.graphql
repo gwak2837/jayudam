@@ -1,0 +1,31 @@
+query User($name: NonEmptyString) {
+  user(name: $name) {
+    id
+    creationTime
+    bio
+    birthday
+    birthyear
+    blockingStartTime
+    blockingEndTime
+    cherry
+    coverImageUrls
+    followerCount
+    followingCount
+    grade
+    imageUrls
+    isPrivate
+    isSleeping
+    isVerifiedBirthday
+    isVerifiedBirthyear
+    isVerifiedSex
+    name
+    nickname
+    postCount
+    sex
+    sleepingTime
+    towns {
+      count
+      name
+    }
+  }
+}

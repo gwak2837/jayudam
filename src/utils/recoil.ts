@@ -1,13 +1,14 @@
 import { atom } from 'recoil'
+import { Post } from '../graphql/generated/types-and-hooks'
 
 type CurrentUser = {
-  nickname: string | null | undefined
+  name: string | null | undefined
 }
 
 export const currentUser = atom<CurrentUser>({
   key: 'currentUser',
   default: {
-    nickname: null,
+    name: null,
   },
 })
 

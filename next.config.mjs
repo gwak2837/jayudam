@@ -1,9 +1,11 @@
-/** @type {import('next').NextConfig} */
+import withPWA from 'next-pwa'
 
-const withPWA = require('next-pwa')
 const NODE_ENV = process.env.NODE_ENV
 
-module.exports = withPWA({
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
   compiler: {
     styledComponents: true,
   },
@@ -12,8 +14,8 @@ module.exports = withPWA({
       allowFutureImage: true,
     },
     newNextLinkBehavior: true,
-    output: 'standalone',
     runtime: 'experimental-edge',
+    scrollRestoration: true,
   },
   i18n: {
     locales: ['ko-KR', 'en'],
@@ -22,11 +24,8 @@ module.exports = withPWA({
   images: {
     domains: ['storage.googleapis.com', 'k.kakaocdn.net'],
   },
+  output: 'standalone',
   poweredByHeader: NODE_ENV === 'development',
-  pwa: {
-    dest: 'public',
-    disable: NODE_ENV === 'development',
-  },
   reactStrictMode: NODE_ENV === 'development',
   swcMinify: true,
   webpack: (config) => {
@@ -36,4 +35,9 @@ module.exports = withPWA({
     })
     return config
   },
-})
+}
+
+export default withPWA({
+  dest: 'public',
+  disable: NODE_ENV === 'development',
+})(nextConfig)

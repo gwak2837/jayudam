@@ -1,0 +1,6 @@
+query MyProfile {
+  myProfile {
+    id
+    imageUrl
+  }
+}

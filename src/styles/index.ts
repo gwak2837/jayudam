@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 export const Slider = styled.ul<{ padding?: string }>`
   overflow-x: scroll;
@@ -7,11 +7,6 @@ export const Slider = styled.ul<{ padding?: string }>`
 
   display: flex;
   padding: ${(p) => p.padding ?? 0};
-`
-
-export const FlexContainerBetween = styled.div`
-  display: flex;
-  justify-content: space-between;
 `
 
 export const focusInExpandFwd = keyframes`
@@ -26,15 +21,6 @@ export const focusInExpandFwd = keyframes`
     filter: blur(0);
     opacity: 1;
   }
-`
-
-export const NoMarginH2 = styled.h2`
-  margin: 0;
-`
-
-export const SquareFrame = styled.div`
-  padding-top: 100%;
-  position: relative;
 `
 
 const skeletonLoading = keyframes`
@@ -62,4 +48,14 @@ export const Skeleton = styled.div<{
   border-radius: ${(p) => p.borderRadius ?? '4px'};
   animation: ${skeletonLoading} 3s ease infinite;
   display: ${(p) => (p.inlineBlock ? 'inline-block' : 'block')};
+`
+
+export const flexBetween = css`
+  display: flex;
+  justify-content: space-between;
+`
+
+export const flexCenter = css`
+  display: flex;
+  align-items: center;
 `

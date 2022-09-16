@@ -4,7 +4,13 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import PageHead from '../components/PageHead'
+import CheckBoxIcon from '../svgs/CheckBoxIcon'
+import GoogleLogo from '../svgs/google-logo.svg'
+import KakaoLogo from '../svgs/kakao-logo.svg'
+import NaverLogo from '../svgs/naver-logo.svg'
 import {
   MOBILE_MIN_HEIGHT,
   NEXT_PUBLIC_BACKEND_URL,
@@ -12,35 +18,29 @@ import {
   NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   NEXT_PUBLIC_KAKAO_REST_API_KEY,
   NEXT_PUBLIC_NAVER_CLIENT_ID,
-} from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
-import styled from 'styled-components'
-
-import CheckBoxIcon from '../svgs/CheckBoxIcon'
-import GoogleLogo from '../svgs/google-logo.svg'
-import KakaoLogo from '../svgs/kakao-logo.svg'
-import NaverLogo from '../svgs/naver-logo.svg'
+} from '../utils/constants'
+import { currentUser } from '../utils/recoil'
 
 export default function LoginPage() {
-  const { nickname } = useRecoilValue(currentUser)
+  const { name } = useRecoilValue(currentUser)
   const router = useRouter()
 
   useEffect(() => {
-    if (nickname) {
+    if (name) {
       toast.warn(
         <div>
           이미 로그인했어요 <Link href="/">홈으로 가기</Link>
         </div>
       )
     }
-  }, [nickname, router])
+  }, [name, router])
 
   return (
     <PageHead title="로그인 - 자유담" description="자유담에 로그인하세요">
       <FlexCenter>
         <GridPadding>
           <Link href="/">
-            <MarginImage src="/images/logo.webp" alt="jayudam logo" />
+            <ResponsiveImage src="/images/logo.webp" alt="jayudam logo" width="280" height="68" />
           </Link>
 
           <Text>
@@ -105,10 +105,12 @@ const FlexCenter = styled.div`
   }
 `
 
-const MarginImage = styled(Image)`
+const ResponsiveImage = styled(Image)`
+  min-width: 140px;
+  max-width: 280px;
+  width: 75%;
+  height: auto;
   padding: 2rem 1rem;
-  min-width: 200px;
-  height: 7rem;
 `
 
 const H5 = styled.h5`
@@ -218,7 +220,7 @@ const PrimaryColorText = styled.span`
 `
 
 const Text = styled.div`
-  background: ${(p) => p.theme.background};
+  background: ${(p) => p.theme.shadow};
   border-radius: 10px;
   line-height: 2rem;
   padding: 1.5rem;

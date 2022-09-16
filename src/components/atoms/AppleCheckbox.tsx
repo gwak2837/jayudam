@@ -1,26 +1,45 @@
-import { useState } from 'react'
+import { ChangeEventHandler, FocusEventHandler, Ref, forwardRef } from 'react'
 import styled from 'styled-components'
 
 type Props = {
   background?: string
   checked?: boolean
+  defaultChecked?: boolean
   disabled?: boolean
-  onChange: (value: any) => any
+  name?: string
+  onBlur?: FocusEventHandler<HTMLInputElement>
+  onChange?: ChangeEventHandler<HTMLInputElement>
+  ref: Ref<HTMLInputElement>
   width?: string
 }
 
-export default AppleCheckbox
+export default forwardRef(AppleCheckbox)
 
-function AppleCheckbox({
-  background = '#26ade3',
-  checked,
-  disabled = false,
-  onChange,
-  width = '50px',
-}: Props) {
+function AppleCheckbox(
+  {
+    background = '#26ade3',
+    checked,
+    disabled = false,
+    defaultChecked,
+    name,
+    onBlur,
+    onChange,
+    width = '50px',
+  }: Props,
+  forwardedRef: Ref<HTMLInputElement>
+) {
   return (
     <Label disabled={disabled} background={background} width={width}>
-      <Input checked={checked} disabled={disabled} onChange={onChange} type="checkbox" />
+      <Input
+        checked={checked}
+        defaultChecked={defaultChecked}
+        disabled={disabled}
+        name={name}
+        onBlur={onBlur}
+        onChange={onChange}
+        ref={forwardedRef}
+        type="checkbox"
+      />
       <Span width={width} />
     </Label>
   )

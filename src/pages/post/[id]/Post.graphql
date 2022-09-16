@@ -1,0 +1,50 @@
+query Post($id: ID!) {
+  post(id: $id) {
+    id
+    creationTime
+    updateTime
+    deletionTime
+    content
+    imageUrls
+    isLiked
+    doIComment
+    doIShare
+    likeCount
+    commentCount
+    sharedCount
+    author {
+      id
+      name
+      nickname
+      imageUrl
+    }
+    parentPost {
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      author {
+        id
+        name
+        nickname
+        imageUrl
+      }
+    }
+    sharingPost {
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      author {
+        id
+        name
+        nickname
+        imageUrl
+      }
+    }
+  }
+}

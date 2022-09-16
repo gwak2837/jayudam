@@ -9,18 +9,19 @@ import Script from 'next/script'
 import React, { ReactNode, useEffect } from 'react'
 import { ToastContainer, cssTransition } from 'react-toastify'
 import { RecoilRoot, useRecoilState } from 'recoil'
-import { client } from 'src/apollo/client'
-import { toastApolloError } from 'src/apollo/error'
-import { useAuthQuery } from 'src/graphql/generated/types-and-hooks'
-import { GlobalStyle } from 'src/styles/global'
-import { theme } from 'src/styles/global'
+import { ThemeProvider } from 'styled-components'
+
+import { client } from '../apollo/client'
+import { toastApolloError } from '../apollo/error'
+import { useAuthQuery } from '../graphql/generated/types-and-hooks'
+import { GlobalStyle } from '../styles/global'
+import { theme } from '../styles/global'
 import {
   NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
   NEXT_PUBLIC_GOOGLE_ANALYTICS_ID,
-} from 'src/utils/constants'
-import { pageview } from 'src/utils/google-analytics'
-import { currentUser } from 'src/utils/recoil'
-import { ThemeProvider } from 'styled-components'
+} from '../utils/constants'
+import { pageview } from '../utils/google-analytics'
+import { currentUser } from '../utils/recoil'
 
 // https://github.com/styled-components/styled-components/issues/3738
 const ThemeProvider2: any = ThemeProvider
@@ -31,7 +32,7 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
 
   // Google Analytics 설정
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') {
+    if (NEXT_PUBLIC_GOOGLE_ANALYTICS_ID) {
       const handleRouteChange = (url: string) => pageview(url)
       router.events.on('routeChangeComplete', handleRouteChange)
       return () => {
@@ -51,13 +52,17 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
       </Head>
 
       {/* Global site tag (gtag.js) https://nextjs.org/docs/messages/next-script-for-ga */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {gaScript}
-      </Script>
+      {NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {gaScript}
+          </Script>
+        </>
+      )}
 
       <Script id="channel-talk" strategy="afterInteractive">
         {channelTalkScript}
@@ -68,7 +73,8 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
         <ApolloProvider client={client}>
           <RecoilRoot>
             <Authentication>
-              <Component {...pageProps} />
+              {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
+              <Component key={router.asPath} {...pageProps} />
             </Authentication>
           </RecoilRoot>
         </ApolloProvider>
@@ -84,21 +90,21 @@ type Props = {
 }
 
 function Authentication({ children }: Props) {
-  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
+  const [{ name }, setCurrentUser] = useRecoilState(currentUser)
 
   useAuthQuery({
     onCompleted: ({ auth: user }) => {
-      if (user?.nickname) {
-        setCurrentUser({ nickname: user.nickname })
+      if (user?.name) {
+        setCurrentUser({ name: user.name })
         bootChanneltalk({
           pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
           // memberId: myNickname.id, // 채널톡-자유담 회원 정보 연동 필요
           profile: {
-            name: user.nickname,
+            name: user.name,
           },
         })
       } else if (user) {
-        setCurrentUser({ nickname: undefined })
+        setCurrentUser({ name: undefined })
         bootChanneltalk({
           pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
           // memberId: myNickname.id, // 채널톡-자유담 회원 정보 연동 필요
@@ -109,12 +115,12 @@ function Authentication({ children }: Props) {
       toastApolloError(error)
       globalThis.sessionStorage?.removeItem('jwt')
       globalThis.localStorage?.removeItem('jwt')
-      setCurrentUser({ nickname: null })
+      setCurrentUser({ name: null })
       bootChanneltalk({ pluginKey: NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY })
     },
     // Storage에 jwt가 존재하는데 nickname이 없을 때만
     skip: Boolean(
-      nickname ||
+      name ||
         (!globalThis.sessionStorage?.getItem('jwt') && !globalThis.localStorage?.getItem('jwt'))
     ),
   })

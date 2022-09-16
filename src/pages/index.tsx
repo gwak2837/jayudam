@@ -1,9 +1,10 @@
 import Image from 'next/future/image'
 import Link from 'next/link'
-import PageHead from 'src/components/PageHead'
-import Navigation from 'src/layouts/Navigation'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
+
+import PageHead from '../components/PageHead'
+import Navigation from '../layouts/Navigation'
+import { TABLET_MIN_WIDTH } from '../utils/constants'
 
 export default function HomePage() {
   return (
@@ -71,7 +72,7 @@ export default function HomePage() {
               <a href="http://naver.me/GVMFMiF6" target="_blank" rel="noreferrer">
                 06982 서울특별시 동작구 현충로12길 20
               </a>{' '}
-              | 이메일: <a href="mailto:gwak2837@kakao.com">gwak2837@kakao.com</a> | 고객센터:{' '}
+              | 이메일: <a href="mailto:jayudam2022@gmail.com">jayudam2022@gmail.com</a> | 고객센터:{' '}
               <a href="tel:010-0000-0000">010-0000-0000</a>
             </GreySmallText>
           </Footer>
@@ -103,6 +104,6 @@ const Footer = styled.footer`
   display: grid;
   gap: 1rem;
 
-  background: ${(p) => p.theme.background};
+  background: ${(p) => p.theme.shadow};
   padding: 1rem;
 `

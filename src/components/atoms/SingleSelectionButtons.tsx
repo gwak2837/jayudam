@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 type Props = {
@@ -45,7 +45,7 @@ const Ul = styled.ul<{ disabled?: boolean }>`
 
 const Button = styled.button<{ selected: boolean }>`
   background: ${(p) =>
-    p.disabled ? p.theme.background : p.selected ? p.theme.primaryBackground : '#fff'};
+    p.disabled ? p.theme.shadow : p.selected ? p.theme.primaryBackground : '#fff'};
   color: ${(p) =>
     p.disabled ? p.theme.primaryAchromatic : p.selected ? '#000' : p.theme.primaryTextAchromatic};
   cursor: ${(p) => (p.disabled || p.selected ? 'not-allowed' : 'pointer')};
@@ -58,7 +58,7 @@ const Button = styled.button<{ selected: boolean }>`
   :focus {
     background: ${(p) =>
       p.disabled
-        ? p.theme.background
+        ? p.theme.shadow
         : p.selected
         ? p.theme.primaryBackground
         : p.theme.primaryBackgroundAchromatic};

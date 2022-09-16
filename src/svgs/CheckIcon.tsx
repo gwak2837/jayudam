@@ -1,4 +1,4 @@
-import { theme } from 'src/styles/global'
+import { theme } from '../styles/global'
 
 function CheckIcon() {
   return (

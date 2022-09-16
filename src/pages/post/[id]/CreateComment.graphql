@@ -1,0 +1,35 @@
+mutation CreateComment($input: PostCreationInput!) {
+  createPost(input: $input) {
+    newPost {
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      isLiked
+      doIComment
+      doIShare
+      likeCount
+      commentCount
+      sharedCount
+      author {
+        id
+      }
+      parentPost {
+        author {
+          id
+          name
+        }
+      }
+      comments {
+        id
+      }
+    }
+    parentPost {
+      id
+      doIComment
+      commentCount
+    }
+  }
+}

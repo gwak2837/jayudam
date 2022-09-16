@@ -1,7 +1,8 @@
-import PageHead from 'src/components/PageHead'
-import Navigation from 'src/layouts/Navigation'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
+
+import PageHead from '../../components/PageHead'
+import Navigation from '../../layouts/Navigation'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../../utils/constants'
 
 export default function SubmitPage() {
   return (

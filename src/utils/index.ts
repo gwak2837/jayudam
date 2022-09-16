@@ -1,7 +1,23 @@
 import { NextRouter } from 'next/router'
-import { KeyboardEvent, MouseEvent } from 'react'
+import { MouseEvent } from 'react'
 
 import { NEXT_PUBLIC_BACKEND_URL } from './constants'
+
+export function parseJWT(token: string) {
+  var base64Url = token.split('.')[1]
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  var jsonPayload = decodeURIComponent(
+    globalThis.window
+      ?.atob(base64)
+      .split('')
+      .map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      })
+      .join('')
+  )
+
+  return JSON.parse(jsonPayload)
+}
 
 export function getViewportWidth() {
   return Math.max(
@@ -17,24 +33,6 @@ export function getViewportHeight() {
   )
 }
 
-export function mulberry32(a: number) {
-  return function () {
-    let t = (a += 0x6d2b79f5)
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-export function shuffleArray(array: unknown[], getRandomNumber: () => number) {
-  const newArray = [...array]
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(getRandomNumber() * (i + 1))
-    ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-  }
-  return newArray
-}
-
 export function stopPropagation(e: MouseEvent<HTMLElement>) {
   e.stopPropagation()
 }
@@ -43,8 +41,8 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export function getUserNickname(router: NextRouter) {
-  return ((router.query.userNickname ?? '') as string).slice(1)
+export function getUsername(router: NextRouter) {
+  return ((router.query.username ?? '') as string).slice(1)
 }
 
 const urlPattern = new RegExp(
@@ -92,15 +90,6 @@ export async function uploadImageFiles(formData: FormData) {
   return response.json()
 }
 
-export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
-  if (e.code === 'Enter' && e.shiftKey) {
-    e.preventDefault() // To prevent adding line break when shift+enter pressed
-    const submitEvent = new Event('submit', { bubbles: true })
-    const parentForm = (e.target as any).form as HTMLFormElement
-    parentForm.dispatchEvent(submitEvent)
-  }
-}
-
 export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
   if (a === b) return true
   if (a == null || b == null) return false
@@ -110,4 +99,14 @@ export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
     if (a[i] !== b[i]) return false
   }
   return true
+}
+
+export async function sha256(message: string) {
+  // hash the message
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message))
+
+  // convert bytes to hex string
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }

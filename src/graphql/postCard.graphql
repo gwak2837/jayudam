@@ -1,0 +1,26 @@
+fragment postCard on Post {
+  id
+  creationTime
+  updateTime
+  deletionTime
+  content
+  imageUrls
+  isLiked
+  doIComment
+  doIShare
+  likeCount
+  commentCount
+  sharedCount
+  author {
+    id
+    name
+    nickname
+    imageUrl
+  }
+  parentPost {
+    author {
+      id
+      name
+    }
+  }
+}

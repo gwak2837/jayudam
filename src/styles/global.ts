@@ -1,6 +1,7 @@
-import { Theme } from 'src/styled-components'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import { createGlobalStyle } from 'styled-components'
+
+import { Theme } from '../styled-components'
+import { TABLET_MIN_WIDTH } from '../utils/constants'
 
 export const GlobalStyle = createGlobalStyle`
   * {
@@ -90,6 +91,10 @@ export const GlobalStyle = createGlobalStyle`
     line-height: 1.6rem;
   }
 
+  b {
+    font-weight: 500;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -131,7 +136,9 @@ export const theme = {
   primaryTextAchromatic: '#747474',
   primaryBackground: '#93d6f1',
   primaryBackgroundAchromatic: '#ccc',
-  background: '#f6f6f6',
+  secondary: '#03c75a',
+  backgroud: '#fff',
+  shadow: '#f6f6f6',
   warn: '#800000',
   error: '#D70F0F',
 }
@@ -143,7 +150,9 @@ export const darkTheme: Theme = {
   primaryTextAchromatic: '#',
   primaryBackground: '#',
   primaryBackgroundAchromatic: '#',
-  background: '',
+  secondary: '#',
+  backgroud: '#000',
+  shadow: '#111',
   warn: '#',
   error: '#',
 }

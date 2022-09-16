@@ -1,4 +1,4 @@
-import { theme } from 'src/styles/global'
+import { theme } from '../styles/global'
 
 type Props = {
   isChecked: boolean

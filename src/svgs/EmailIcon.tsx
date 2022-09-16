@@ -1,5 +1,6 @@
-import { theme } from 'src/styles/global'
 import styled from 'styled-components'
+
+import { theme } from '../styles/global'
 
 type Props = {
   colored?: boolean

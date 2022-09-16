@@ -1,9 +1,11 @@
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { client } from 'src/apollo/client'
-import PageHead from 'src/components/PageHead'
-import Navigation from 'src/layouts/Navigation'
+
+import { client } from '../apollo/client'
+import LoginLink from '../components/atoms/LoginLink'
+import PageHead from '../components/PageHead'
+import Navigation from '../layouts/Navigation'
 
 const description = ''
 
@@ -22,7 +24,11 @@ export default function OAuthPage() {
 
       if (doesJWTExpired) {
         url.current = '/login'
-        toast.warn('로그인이 만료됐어요. 다시 로그인해주세요')
+        toast.warn(
+          <div>
+            로그인이 만료됐어요. 다시 <LoginLink />
+          </div>
+        )
         return
       }
 
@@ -37,15 +43,15 @@ export default function OAuthPage() {
       sessionStorage.setItem('jwt', jwt)
     }
 
-    const nickname = queryString.current.get('nickname')
+    const username = queryString.current.get('username')
 
-    if (!nickname) {
+    if (!username) {
       url.current = '/register'
     } else {
       const redirectToAfterLogin = sessionStorage.getItem('redirectToAfterLogin') ?? '/'
 
       if (redirectToAfterLogin === '/@null' || redirectToAfterLogin === '/@undefined') {
-        url.current = `/@${nickname}`
+        url.current = `/@${username}`
       } else {
         url.current = redirectToAfterLogin
       }
@@ -53,7 +59,7 @@ export default function OAuthPage() {
 
     client
       .refetchQueries({
-        include: ['Me'],
+        include: ['Auth'],
       })
       .then(() => {
         setDoRedirect(true)

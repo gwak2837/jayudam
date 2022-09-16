@@ -8,7 +8,7 @@ export const parseDate = (dateFormat: string) => (str: string) => parse(str, dat
 export const formatFullDate = formatDate('y. M. d. (E) a h:mm')
 export const parseFullDate = parseDate('y. M. d. (E) a h:mm')
 
-export const formatSimpleDate = formatDate('y. M. d. H:mm')
+export const formatSimpleDate = formatDate('y년 M월 d일')
 export const parseSimpleDate = parseDate('y. M. d. H:mm')
 
 export function getNMonthBefore(n: number) {
@@ -25,9 +25,19 @@ export function getNYearBefore(n: number) {
   return before.getTime()
 }
 
-export function formatISOLocalDate(date2: Date | string) {
-  const date = typeof date2 === 'string' ? new Date(date2) : date2
+export function formatISOLocalDate(date2: Date | string | number | null | undefined) {
+  if (date2 == null) return ''
+  const date = typeof date2 === 'string' || typeof date2 === 'number' ? new Date(date2) : date2
   const localMonth = `${date.getMonth() + 1}`.padStart(2, '0')
   const localDate = `${date.getDate()}`.padStart(2, '0')
   return `${date.getFullYear()}-${localMonth}-${localDate}`
+}
+
+export function getTimeFromDateString(date: string | null | undefined) {
+  return date ? new Date(date).getTime() : null
+}
+
+export function formatBirthday(date: string | null | undefined) {
+  if (!date) return
+  return `${+date.slice(0, 2)}월 ${date.slice(2)}일`
 }

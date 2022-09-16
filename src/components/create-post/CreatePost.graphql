@@ -1,0 +1,27 @@
+mutation CreatePost($input: PostCreationInput!) {
+  createPost(input: $input) {
+    newPost {
+      id
+      creationTime
+      updateTime
+      deletionTime
+      content
+      imageUrls
+      isLiked
+      doIComment
+      doIShare
+      likeCount
+      commentCount
+      sharedCount
+      author {
+        id
+      }
+      parentPost {
+        author {
+          id
+          name
+        }
+      }
+    }
+  }
+}

@@ -1,32 +1,23 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode } from 'react'
 import { useRecoilValue } from 'recoil'
-import CommunityIcon from 'src/svgs/CommunityIcon'
-import MyIcon from 'src/svgs/MyIcon'
-import PaperPlaneIcon from 'src/svgs/PaperPlaneIcon'
-import QRCodeIcon from 'src/svgs/QRCodeIcon'
-import VerifyIcon from 'src/svgs/VerifyIcon'
-import { TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
-import { currentUser } from 'src/utils/recoil'
 import styled from 'styled-components'
+
+import CommunityIcon from '../svgs/CommunityIcon'
+import MyIcon from '../svgs/MyIcon'
+import PaperPlaneIcon from '../svgs/PaperPlaneIcon'
+import QRCodeIcon from '../svgs/QRCodeIcon'
+import VerifyIcon from '../svgs/VerifyIcon'
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../utils/constants'
+import { currentUser } from '../utils/recoil'
 
 type Props = {
   children: ReactNode
 }
 
 export default function Navigation({ children }: Props) {
-  const { nickname } = useRecoilValue(currentUser)
-
-  // nav height 계산하기
-  const [navHeight, setNavHeight] = useState(0)
-  const ref = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    if (ref.current) {
-      setNavHeight(ref.current.clientHeight)
-    }
-  }, [])
+  const { name } = useRecoilValue(currentUser)
 
   // Color
   const { asPath } = useRouter()
@@ -35,12 +26,12 @@ export default function Navigation({ children }: Props) {
   const isQRCodeSelected = asPath.startsWith('/qrcode')
   const isHomeSelected = asPath === '/'
   const isPostSelected = asPath.startsWith('/post')
-  const isMySelected = asPath.startsWith('/@')
+  const isMySelected = asPath === `/@${name}`
 
   return (
     <Flex>
-      <MinHeight navHeight={navHeight}>{children}</MinHeight>
-      <StickyNav ref={ref}>
+      <MinHeight>{children}</MinHeight>
+      <StickyNav>
         <BlockLink href="/verify">
           <VerifyIcon selected={isVerifySelected} />
           <PrimaryText selected={isVerifySelected}>인증</PrimaryText>
@@ -57,7 +48,7 @@ export default function Navigation({ children }: Props) {
           <CommunityIcon selected={isPostSelected} />
           <PrimaryText selected={isPostSelected}>이야기</PrimaryText>
         </BlockLink>
-        <BlockLink href={`/@${nickname}`}>
+        <BlockLink href={`/@${name}`}>
           <MyIcon selected={isMySelected} />
           <PrimaryText selected={isMySelected}>내 자유담</PrimaryText>
         </BlockLink>
@@ -67,19 +58,30 @@ export default function Navigation({ children }: Props) {
 }
 
 const Flex = styled.div`
+  display: flex;
+  flex-flow: column;
+
   @media (min-width: ${TABLET_MIN_WIDTH}) {
-    display: flex;
     flex-flow: row-reverse nowrap;
     justify-content: center;
     gap: 1rem;
   }
+
+  min-height: 100vh;
+
+  @media (hover: none) and (pointer: coarse) {
+    min-height: fill-available;
+  }
 `
 
-const MinHeight = styled.div<{ navHeight: number }>`
-  min-height: calc(100vh - ${(p) => p.navHeight + 1}px - env(safe-area-inset-bottom));
+const MinHeight = styled.div`
+  flex: 1 1 auto;
+  display: grid;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
+    min-width: ${MOBILE_MIN_HEIGHT};
     min-height: 100vh;
+    flex: 0;
   }
 `
 
@@ -91,6 +93,7 @@ const StickyNav = styled.nav`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
+  flex: 0 1 auto;
 
   background: #fff;
   border-top: 1px solid #26ade3;
@@ -129,7 +132,7 @@ const BlockLink = styled(Link)`
   }
 
   :hover {
-    background: ${(p) => p.theme.background};
+    background: ${(p) => p.theme.shadow};
   }
 `
 

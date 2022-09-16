@@ -1,0 +1,8 @@
+query Comments($parentId: ID!, $lastId: ID, $limit: PositiveInt) {
+  comments(parentId: $parentId, lastId: $lastId, limit: $limit) {
+    ...postCard
+    comments {
+      ...postCard
+    }
+  }
+}

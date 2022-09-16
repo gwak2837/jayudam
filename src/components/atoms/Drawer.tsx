@@ -1,15 +1,162 @@
-import { ReactNode, useEffect } from 'react'
+import { MouseEvent, ReactNode, TouchEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { TABLET_MIN_WIDTH } from 'src/utils/constants'
 import styled from 'styled-components'
 
-const Transition = styled.div`
-  > div {
-    transition: background 0.3s ease-out;
+import { stopPropagation } from '../../utils'
+import { MOBILE_MIN_HEIGHT } from '../../utils/constants'
+import { FlexCenterCenter as FlexCenterCenter_ } from './Flex'
+
+let moveListener: any
+let endListener: any
+let move: boolean
+
+type Props = {
+  children?: ReactNode
+  open: boolean
+  onClose: () => void
+}
+
+export default function Drawer({ children, open, onClose }: Props) {
+  // Drag & Drop으로 Drawer 닫기
+  const topRef = useRef<HTMLDivElement>(null)
+  const backgroundRef = useRef<HTMLDivElement>(null)
+  const drawerRef = useRef<HTMLElement>(null)
+  const firstClickPosition = useRef({ clientY: 0, offsetHeight: 0 })
+
+  function prepareMovingDrawer(e: MouseEvent<HTMLDivElement> & TouchEvent<HTMLDivElement>) {
+    e.stopPropagation()
+
+    if (topRef.current && drawerRef.current) {
+      firstClickPosition.current.clientY = e.clientY ?? e.changedTouches[0].clientY
+      firstClickPosition.current.offsetHeight = drawerRef.current.offsetHeight
+
+      if (e.clientY !== undefined) {
+        topRef.current.addEventListener('mousemove', moveDrawer)
+        topRef.current.addEventListener('mouseup', stopMovingDrawer)
+      } else {
+        topRef.current.addEventListener('touchmove', moveDrawer)
+        topRef.current.addEventListener('touchend', stopMovingDrawer)
+      }
+
+      moveListener = moveDrawer
+      endListener = stopMovingDrawer
+      move = true
+    }
   }
 
+  function moveDrawer(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    requestAnimationFrame(() => {
+      if (backgroundRef.current && drawerRef.current && move) {
+        const percent = ~~(
+          ((e.clientY ?? e.changedTouches[0].clientY) * 100) /
+          backgroundRef.current.clientHeight
+        )
+
+        if (percent < 50) {
+          drawerRef.current.style.height = `${100 - percent}%`
+          drawerRef.current.style.transform = ''
+        } else {
+          drawerRef.current.style.transform = `translate(-50%, ${(percent - 50) * 2}%)`
+          drawerRef.current.style.height = ''
+        }
+      }
+    })
+  }
+
+  function stopMovingDrawer(e: any) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (topRef.current && backgroundRef.current && drawerRef.current) {
+      const percent = ~~(
+        ((e.clientY ?? e.changedTouches[0].clientY) * 100) /
+        backgroundRef.current.clientHeight
+      )
+
+      if (percent < 30) {
+        drawerRef.current.style.height = '90%'
+        removeEventListener()
+      } else if (percent < 70) {
+        drawerRef.current.removeAttribute('style')
+        removeEventListener()
+      } else {
+        closeDrawer()
+      }
+
+      move = false
+    }
+  }
+
+  function removeEventListener() {
+    if (topRef.current) {
+      topRef.current.removeEventListener('mousemove', moveListener)
+      topRef.current.removeEventListener('touchmove', moveListener)
+      topRef.current.removeEventListener('mouseup', endListener)
+      topRef.current.removeEventListener('touchend', endListener)
+      moveListener = undefined
+      endListener = undefined
+    }
+  }
+
+  const closeDrawer = useCallback(() => {
+    if (topRef.current && drawerRef.current) {
+      drawerRef.current.removeAttribute('style')
+      removeEventListener()
+      onClose()
+      firstClickPosition.current = { clientY: 0, offsetHeight: 0 }
+    }
+  }, [onClose])
+
+  // 배경 스크롤 방지
+  useEffect(() => {
+    function closeOnEscapeKey(e: KeyboardEvent) {
+      if (e.code === 'Escape') {
+        closeDrawer()
+      }
+    }
+
+    if (open) {
+      const bodyStyle = document.body.style
+
+      document.addEventListener('keydown', closeOnEscapeKey, false)
+      bodyStyle.overflow = 'hidden'
+
+      return () => {
+        document.removeEventListener('keydown', closeOnEscapeKey, false)
+        bodyStyle.overflow = ''
+      }
+    }
+  }, [open, onClose, closeDrawer])
+
+  // SSR 대응
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    setShow(true)
+  }, [])
+
+  const drawer = (
+    <Transition onClick={stopPropagation} ref={topRef}>
+      <DrawerInput checked={open} readOnly type="checkbox" />
+      <DrawerBackground onClick={closeDrawer} ref={backgroundRef} />
+      <DrawerSection ref={drawerRef}>
+        <FlexCenterCenter onMouseDown={prepareMovingDrawer} onTouchStart={prepareMovingDrawer}>
+          <GrayBar />
+        </FlexCenterCenter>
+        {children}
+      </DrawerSection>
+    </Transition>
+  )
+
+  return show ? createPortal(drawer, document.body) : null
+}
+
+const Transition = styled.div`
   > section {
-    transition: 0.3s ease-in-out;
+    transition: 0.2s linear;
   }
 `
 
@@ -17,85 +164,52 @@ const DrawerInput = styled.input`
   display: none;
 
   :checked ~ div {
-    position: fixed;
-    inset: 0 0 0 50%;
-    width: 100%;
-    max-width: ${TABLET_MIN_WIDTH};
-    transform: translateX(-50%);
-    background: #00000080;
+    z-index: 10;
+    opacity: 0.5;
   }
 
   :checked ~ section {
-    bottom: 0;
+    transform: translate(-50%, 0%);
   }
 `
 
 const DrawerBackground = styled.div`
-  background: #00000000;
-  z-index: 8;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background: #000;
+  opacity: 0;
 `
 
 const DrawerSection = styled.section`
   position: fixed;
-  bottom: -33vh;
+  bottom: 0;
   left: 50%;
-  z-index: 9;
-  transform: translateX(-50%);
+  transform: translate(-50%, 100%);
+  z-index: 10;
 
   width: 100%;
-  max-width: ${TABLET_MIN_WIDTH};
-  height: fit-content;
-  max-height: 33vh;
+  max-width: ${MOBILE_MIN_HEIGHT};
+  height: 50%;
 
   background: #fff;
-  border-radius: 20px 20px 0px 0px;
+  border: 1px solid #888;
+  border-radius: 1.5rem 1.5rem 0px 0px;
   overflow: auto;
-  padding: 20px 0 0;
 `
 
-type Props = {
-  children: ReactNode
-  open: boolean
-  setOpen: (e: boolean) => void
-}
+const FlexCenterCenter = styled(FlexCenterCenter_)`
+  position: sticky;
+  top: 0;
 
-function Drawer({ children, open, setOpen }: Props) {
-  function closeDrawer() {
-    setOpen(false)
-  }
+  background: #fff;
+  padding: 0.5rem 0;
+`
 
-  useEffect(() => {
-    function closeOnEscapeKey(e: KeyboardEvent) {
-      if (e.code === 'Escape') {
-        setOpen(false)
-      }
-    }
-
-    if (open) {
-      const bodyStyle = document.body.style
-      const scrollY = window.scrollY
-
-      document.addEventListener('keydown', closeOnEscapeKey, false)
-      bodyStyle.overflow = 'hidden'
-
-      return () => {
-        document.removeEventListener('keydown', closeOnEscapeKey, false)
-        document.body.removeAttribute('style')
-        window.scrollTo(0, scrollY) // For Safari 15
-      }
-    }
-  }, [open, setOpen])
-
-  return globalThis.document
-    ? createPortal(
-        <Transition>
-          <DrawerInput checked={open} readOnly type="checkbox" />
-          <DrawerBackground onClick={closeDrawer} />
-          <DrawerSection>{children}</DrawerSection>
-        </Transition>,
-        document.body
-      )
-    : null
-}
-
-export default Drawer
+const GrayBar = styled.div`
+  background: ${(p) => p.theme.primaryBackgroundAchromatic};
+  border-radius: 999px;
+  width: 5rem;
+  height: 0.5rem;
+`

@@ -1,5 +1,6 @@
 import Script from 'next/script'
-import { NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY } from 'src/utils/constants'
+
+import { NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY } from '../utils/constants'
 
 function KakaoScript() {
   return (

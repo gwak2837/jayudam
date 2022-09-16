@@ -2,27 +2,28 @@ import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode'
 import { CameraDevice } from 'html5-qrcode/esm/core'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { toastApolloError } from 'src/apollo/error'
-import Modal from 'src/components/atoms/Modal'
-import SingleSelectionButtons from 'src/components/atoms/SingleSelectionButtons'
-import PageHead from 'src/components/PageHead'
+import styled from 'styled-components'
+
+import { toastApolloError } from '../../apollo/error'
+import Modal from '../../components/atoms/Modal'
+import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
+import PageHead from '../../components/PageHead'
 import {
   Sex,
   useSampleCertJwtLazyQuery,
   useVerifyCertJwtMutation,
-} from 'src/graphql/generated/types-and-hooks'
-import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import Navigation from 'src/layouts/Navigation'
-import VerifyIcon from 'src/svgs/VerifyIcon'
-import { getViewportWidth } from 'src/utils'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH, TABLET_MIN_WIDTH_1 } from 'src/utils/constants'
-import { formatISOLocalDate } from 'src/utils/date'
-import styled from 'styled-components'
-
+} from '../../graphql/generated/types-and-hooks'
+import { formatSex } from '../../graphql/utils'
+import useNeedToLogin from '../../hooks/useNeedToLogin'
+import Navigation from '../../layouts/Navigation'
 import FlipIcon from '../../svgs/flip.svg'
 import SettingIcon from '../../svgs/setting.svg'
 import TestTubeIcon from '../../svgs/test-tube.svg'
+import VerifyIcon from '../../svgs/VerifyIcon'
 import XIcon from '../../svgs/x-button.svg'
+import { getViewportWidth, parseJWT } from '../../utils'
+import { TABLET_MIN_WIDTH_1 } from '../../utils/constants'
+import { formatISOLocalDate } from '../../utils/date'
 
 export default function VerificationPage() {
   useNeedToLogin()
@@ -128,12 +129,18 @@ export default function VerificationPage() {
   const sexualCrimeCerts = allCerts?.sexualCrimeCerts
 
   function verifyJwt(jwt: string) {
-    toast.success('QR code 인식 완료')
-    resumeScanningQRCode()
-    setShowResult(true)
-    setShowSetting(false)
-    setShowSettingIcon(false)
-    verifyCertJwtMutation({ variables: { jwt } })
+    if (jwt === 'jayudam') {
+      toast.info('테스트용 QR Code 입니다')
+    } else if (parseJWT(jwt).exp * 1000 < Date.now()) {
+      toast.warn('만료된 QR Code 입니다')
+    } else {
+      toast.success('QR code 인식 완료')
+      resumeScanningQRCode()
+      setShowResult(true)
+      setShowSetting(false)
+      setShowSettingIcon(false)
+      verifyCertJwtMutation({ variables: { jwt } })
+    }
   }
 
   // 테스트용 QR code
@@ -167,8 +174,8 @@ export default function VerificationPage() {
   }
 
   function closeSTDTestModal(i: number) {
-    return (newValue: boolean) => {
-      openSTDTest[i] = newValue
+    return () => {
+      openSTDTest[i] = false
       setOpenSTDTest([...openSTDTest])
     }
   }
@@ -176,10 +183,10 @@ export default function VerificationPage() {
   return (
     <PageHead title="인증하기 - 자유담" description="">
       <Navigation>
-        <MaxWidth>
+        <GridMain>
           <AbsoluteFullFlex show={showStartButton}>
             <h3>카메라 스캔을 시작해주세요</h3>
-            <button onClick={startScanningQRCode}>시작하기</button>
+            <Button onClick={startScanningQRCode}>시작하기</Button>
           </AbsoluteFullFlex>
 
           <AbsoluteTop show={showSettingIcon}>
@@ -195,6 +202,8 @@ export default function VerificationPage() {
               </button>
             </FlexBetween>
           </AbsoluteTop>
+
+          <div id="reader" />
 
           <AbsoluteFull show={showSetting}>
             <FlexReverseRow>
@@ -256,7 +265,7 @@ export default function VerificationPage() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{allCerts.name ?? '미동의'}</td>
+                        <td>{allCerts.legalName ?? '미동의'}</td>
                         <td>
                           {allCerts.birthdate ? formatISOLocalDate(allCerts.birthdate) : '미동의'}
                         </td>
@@ -389,9 +398,7 @@ export default function VerificationPage() {
 
             {loading}
           </AbsoluteFull>
-
-          <div id="reader" />
-        </MaxWidth>
+        </GridMain>
       </Navigation>
     </PageHead>
   )
@@ -405,18 +412,12 @@ const scannerConfig = {
   },
 }
 
-const MaxWidth = styled.main`
-  max-width: ${TABLET_MIN_WIDTH};
-  min-height: inherit;
-  position: relative;
-
+const GridMain = styled.main`
   display: grid;
   grid-template-rows: 1fr;
   align-items: center;
 
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    min-width: ${MOBILE_MIN_HEIGHT};
-  }
+  position: relative;
 `
 
 const FlexReverseRow = styled.div`
@@ -434,6 +435,7 @@ const AbsoluteFullFlex = styled.div<{ show: boolean }>`
   flex-flow: column;
   justify-content: center;
   align-items: center;
+  gap: 0.3rem;
 
   @media (max-width: ${TABLET_MIN_WIDTH_1}) {
     position: absolute;
@@ -444,7 +446,7 @@ const AbsoluteFullFlex = styled.div<{ show: boolean }>`
 const AbsoluteFull = styled.div<{ show: boolean }>`
   position: absolute;
   inset: 0 0 0 0;
-  z-index: 2;
+  z-index: 20;
 
   background: #fff;
   display: ${(p) => (p.show ? 'block' : 'none')};
@@ -520,7 +522,7 @@ const CursorTable = styled(CenterTable)`
   td {
     cursor: pointer;
     :hover {
-      background: ${(p) => p.theme.background};
+      background: ${(p) => p.theme.shadow};
     }
   }
 `
@@ -547,20 +549,9 @@ const DangerText = styled.h4`
   color: ${(p) => p.theme.error};
 `
 
-function formatSex(sex?: Sex) {
-  switch (sex) {
-    case Sex.Unknown:
-      return '알 수 없음'
-    case Sex.Male:
-      return '남'
-    case Sex.Female:
-      return '여'
-    case Sex.Other:
-      return '기타'
-    default:
-      return sex
-  }
-}
+const Button = styled.button`
+  color: ${(p) => p.theme.primaryText};
+`
 
 function formatSTDTestResult(content?: string | null) {
   if (!content) return ''
