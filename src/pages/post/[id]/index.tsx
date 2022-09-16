@@ -8,7 +8,6 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
 import { toastApolloError } from '../../../apollo/error'
-
 import {
   FlexBetween,
   FlexCenter,
@@ -23,6 +22,7 @@ import PostCreationButton from '../../../components/create-post/PostCreationButt
 import { PostCreationForm } from '../../../components/create-post/PostCreationForm'
 import PageHead from '../../../components/PageHead'
 import PostCard, { PostLoadingCard, Width } from '../../../components/PostCard'
+import PostDrawer, { postDrawer } from '../../../components/PostDrawer'
 import SharingPostButton from '../../../components/sharing-post/SharingPostButton'
 import SharedPostCard, {
   GreyH5,
@@ -46,9 +46,9 @@ import HeartIcon from '../../../svgs/HeartIcon'
 import ShareIcon from '../../../svgs/ShareIcon'
 import ThreeDotsIcon from '../../../svgs/three-dots.svg'
 import { stopPropagation } from '../../../utils'
+import { NODE_ENV } from '../../../utils/constants'
 import { currentUser } from '../../../utils/recoil'
 import { borderRadiusCircle } from '..'
-import PostDrawer, { postDrawer } from '../../../components/PostDrawer'
 
 const description = '자유담에서 이야기해보세요'
 
@@ -393,7 +393,7 @@ function Comments({ postCreationRef }: Props2) {
   )
 }
 
-const limit = process.env.NODE_ENV === 'production' ? 20 : 2
+const limit = NODE_ENV === 'production' ? 20 : 2
 
 const Sticky = styled.header`
   position: sticky;

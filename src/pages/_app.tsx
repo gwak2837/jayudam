@@ -32,7 +32,7 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
 
   // Google Analytics 설정
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') {
+    if (NEXT_PUBLIC_GOOGLE_ANALYTICS_ID) {
       const handleRouteChange = (url: string) => pageview(url)
       router.events.on('routeChangeComplete', handleRouteChange)
       return () => {
@@ -52,13 +52,17 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
       </Head>
 
       {/* Global site tag (gtag.js) https://nextjs.org/docs/messages/next-script-for-ga */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {gaScript}
-      </Script>
+      {NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {gaScript}
+          </Script>
+        </>
+      )}
 
       <Script id="channel-talk" strategy="afterInteractive">
         {channelTalkScript}
