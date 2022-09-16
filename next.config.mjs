@@ -21,7 +21,7 @@ const nextConfig = {
   images: {
     domains: ['storage.googleapis.com', 'k.kakaocdn.net'],
   },
-  output: 'standalone',
+  // output: 'standalone',
   poweredByHeader: NODE_ENV === 'development',
   reactStrictMode: NODE_ENV === 'development',
   swcMinify: true,
