@@ -10,9 +10,6 @@ const nextConfig = {
     styledComponents: true,
   },
   experimental: {
-    images: {
-      allowFutureImage: true,
-    },
     newNextLinkBehavior: true,
     runtime: 'experimental-edge',
     scrollRestoration: true,
