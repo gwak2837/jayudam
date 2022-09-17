@@ -1,13 +1,27 @@
-import { ReactNode, RefObject, useEffect } from 'react'
+import Image from 'next/future/image'
+import { ChangeEvent, ReactNode, RefObject, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
+import {
+  CreatePostMutationVariables,
+  PostCreationInput,
+} from '../../graphql/generated/types-and-hooks'
+import { theme } from '../../styles/global'
+import ImageIcon from '../../svgs/image.svg'
+import XCircleIcon from '../../svgs/x-circle.svg'
 import { resizeTextareaHeight, submitWhenCmdEnter } from '../../utils/react'
 import { currentUser } from '../../utils/recoil'
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
-import { FlexBetweenCenter } from '../atoms/Flex'
+import {
+  Absolute,
+  FlexBetweenCenter,
+  FlexCenter,
+  FlexCenterGap,
+  FlexGap as FlexGap_,
+} from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import { Card } from '../PostCard'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
@@ -21,6 +35,17 @@ type Props = {
   postCreationRef: RefObject<HTMLFormElement>
 }
 
+type ImageInfo = {
+  id: number
+  name: string
+  url: string
+}
+
+export type PostCreation = {
+  content: string
+  formData: FormData | null
+}
+
 export function PostCreationForm({
   children,
   disabled,
@@ -29,21 +54,8 @@ export function PostCreationForm({
   onSubmit,
   postCreationRef,
 }: Props) {
+  // 로그인 상태
   const { name } = useRecoilValue(currentUser)
-
-  const {
-    formState: { errors },
-    handleSubmit,
-    register,
-    reset,
-    watch,
-  } = useForm({
-    defaultValues: {
-      content: '',
-    },
-  })
-
-  const contentLength = watch('content').length
 
   function needLogin() {
     if (!name) {
@@ -55,10 +67,81 @@ export function PostCreationForm({
     }
   }
 
+  // 새로운 이야기 입력값
+  const {
+    formState: { errors },
+    getValues,
+    handleSubmit,
+    register,
+    reset,
+    watch,
+  } = useForm<PostCreation>({
+    defaultValues: {
+      content: '',
+      formData: globalThis.FormData ? new FormData() : null,
+    },
+  })
+
+  const contentLength = watch('content').length
+
+  // Image upload
+  const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
+  const imageId = useRef(0)
+
+  function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+
+    if (files && files.length > 0) {
+      const newImageInfos: ImageInfo[] = []
+
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) {
+          toast.warn(
+            <div>
+              이미지만 가능합니다.
+              <h6>{file.name}</h6>
+            </div>
+          )
+          continue
+        }
+
+        if (file.size > 10_000_000) {
+          toast.warn(
+            <div>
+              10 MB 이하만 가능합니다.
+              <h6>{file.name}</h6>
+            </div>
+          )
+          continue
+        }
+
+        newImageInfos.push({
+          id: imageId.current,
+          name: file.name,
+          url: URL.createObjectURL(file),
+        })
+        getValues('formData')!.append(`image-${imageId.current}`, file)
+        imageId.current++
+      }
+
+      setImageInfos((prev) => [...prev, ...newImageInfos])
+    }
+  }
+
+  function deletePreviewImage(imageId: number) {
+    const formData = getValues('formData')
+    if (formData) {
+      formData.delete(`image-${imageId}`)
+      setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
+    }
+  }
+
+  // 기타
   useEffect(() => {
     if (haveToReset) {
       reset()
       onReset()
+      setImageInfos([])
     }
   }, [haveToReset, onReset, reset])
 
@@ -74,8 +157,30 @@ export function PostCreationForm({
             placeholder="Add content"
             {...register('content')}
           />
+          <FlexGap>
+            {imageInfos.map((imageInfo) => (
+              <SquareFrame key={imageInfo.id}>
+                <Image src={imageInfo.url} alt={imageInfo.name} fill />
+                <AbsoluteTopRight as="button" onClick={() => deletePreviewImage(imageInfo.id)}>
+                  <XCircleIcon width="1rem" />
+                </AbsoluteTopRight>
+              </SquareFrame>
+            ))}
+          </FlexGap>
           <FlexBetweenCenter>
-            <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
+            <FlexCenterGap>
+              <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
+              <FlexCenter as="label">
+                <ImageIcon cursor="pointer" width="1.5rem" fill={theme.primaryText} />
+                <FileInput
+                  accept="image/*"
+                  disabled={!name || disabled}
+                  multiple
+                  onChange={createPreviewImages}
+                  type="file"
+                />
+              </FlexCenter>
+            </FlexCenterGap>
             <PrimaryButton
               disabled={
                 !name ||
@@ -106,4 +211,35 @@ const GridSmallGap = styled.div`
 
 export const PrimaryOrError = styled.span<{ error: boolean }>`
   color: ${(p) => (p.error ? p.theme.error : p.theme.primaryText)};
+  height: 1.6rem;
+`
+
+const FileInput = styled.input`
+  display: none;
+`
+
+const FlexGap = styled(FlexGap_)`
+  overflow-x: auto;
+  /* width: 100%; */
+  min-width: 0;
+`
+
+const SquareFrame = styled.div`
+  aspect-ratio: 1 / 1;
+  position: relative;
+  min-width: 10rem;
+
+  > img {
+    object-fit: cover;
+  }
+`
+
+const AbsoluteTopRight = styled(Absolute)`
+  top: 0;
+  right: 0;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
 `

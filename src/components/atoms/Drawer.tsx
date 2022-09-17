@@ -29,6 +29,7 @@ export default function Drawer({ children, open, onClose }: Props) {
     if (topRef.current && drawerRef.current) {
       firstClickPosition.current.clientY = e.clientY ?? e.changedTouches[0].clientY
       firstClickPosition.current.offsetHeight = drawerRef.current.offsetHeight
+      drawerRef.current.style.transition = '0s linear'
 
       if (e.clientY !== undefined) {
         topRef.current.addEventListener('mousemove', moveDrawer)
@@ -50,18 +51,10 @@ export default function Drawer({ children, open, onClose }: Props) {
 
     requestAnimationFrame(() => {
       if (backgroundRef.current && drawerRef.current && move) {
-        const percent = ~~(
-          ((e.clientY ?? e.changedTouches[0].clientY) * 100) /
-          backgroundRef.current.clientHeight
-        )
+        const clientY = e.clientY ?? e.changedTouches[0].clientY
+        const translateY = ~~(((clientY * 10) / backgroundRef.current.clientHeight - 1) * 11)
 
-        if (percent < 50) {
-          drawerRef.current.style.height = `${100 - percent}%`
-          drawerRef.current.style.transform = ''
-        } else {
-          drawerRef.current.style.transform = `translate(-50%, ${(percent - 50) * 2}%)`
-          drawerRef.current.style.height = ''
-        }
+        if (translateY >= 0) drawerRef.current.style.transform = `translate(-50%, ${translateY}%)`
       }
     })
   }
@@ -77,7 +70,8 @@ export default function Drawer({ children, open, onClose }: Props) {
       )
 
       if (percent < 30) {
-        drawerRef.current.style.height = '90%'
+        drawerRef.current.style.transform = 'translate(-50%, 0%)'
+        drawerRef.current.style.transition = ''
         removeEventListener()
       } else if (percent < 70) {
         drawerRef.current.removeAttribute('style')
@@ -139,7 +133,7 @@ export default function Drawer({ children, open, onClose }: Props) {
   }, [])
 
   const drawer = (
-    <Transition onClick={stopPropagation} ref={topRef}>
+    <div onClick={stopPropagation} ref={topRef}>
       <DrawerInput checked={open} readOnly type="checkbox" />
       <DrawerBackground onClick={closeDrawer} ref={backgroundRef} />
       <DrawerSection ref={drawerRef}>
@@ -148,17 +142,11 @@ export default function Drawer({ children, open, onClose }: Props) {
         </FlexCenterCenter>
         {children}
       </DrawerSection>
-    </Transition>
+    </div>
   )
 
   return show ? createPortal(drawer, document.body) : null
 }
-
-const Transition = styled.div`
-  > section {
-    transition: 0.2s linear;
-  }
-`
 
 const DrawerInput = styled.input`
   display: none;
@@ -169,7 +157,7 @@ const DrawerInput = styled.input`
   }
 
   :checked ~ section {
-    transform: translate(-50%, 0%);
+    transform: translate(-50%, 45%);
   }
 `
 
@@ -191,12 +179,13 @@ const DrawerSection = styled.section`
 
   width: 100%;
   max-width: ${MOBILE_MIN_HEIGHT};
-  height: 50%;
+  height: 90%;
 
   background: #fff;
   border: 1px solid #888;
   border-radius: 1.5rem 1.5rem 0px 0px;
   overflow: auto;
+  transition: 0.3s linear;
 `
 
 const FlexCenterCenter = styled(FlexCenterCenter_)`
@@ -204,7 +193,7 @@ const FlexCenterCenter = styled(FlexCenterCenter_)`
   top: 0;
 
   background: #fff;
-  padding: 0.5rem 0;
+  padding: 1rem 0;
 `
 
 const GrayBar = styled.div`

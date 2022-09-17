@@ -1,6 +1,6 @@
-schema: 'http://localhost:4000'
+schema: 'https://localhost:4000'
 documents: 'src/graphql/**/*.graphql'
 extensions:
   endpoints:
     default:
-      url: 'http://localhost:4000'
+      url: 'https://localhost:4000'

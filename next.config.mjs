@@ -10,11 +10,8 @@ const nextConfig = {
     styledComponents: true,
   },
   experimental: {
-    images: {
-      allowFutureImage: true,
-    },
     newNextLinkBehavior: true,
-    runtime: 'experimental-edge',
+    // runtime: 'experimental-edge',
     scrollRestoration: true,
   },
   i18n: {
@@ -24,7 +21,7 @@ const nextConfig = {
   images: {
     domains: ['storage.googleapis.com', 'k.kakaocdn.net'],
   },
-  output: 'standalone',
+  // output: 'standalone',
   poweredByHeader: NODE_ENV === 'development',
   reactStrictMode: NODE_ENV === 'development',
   swcMinify: true,

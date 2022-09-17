@@ -316,8 +316,8 @@ export type User = {
   coverImageUrls?: Maybe<Array<Scalars['String']>>
   creationTime?: Maybe<Scalars['DateTime']>
   email?: Maybe<Scalars['String']>
-  followerCount?: Maybe<Scalars['Int']>
-  followingCount?: Maybe<Scalars['Int']>
+  followerCount?: Maybe<Scalars['String']>
+  followingCount?: Maybe<Scalars['String']>
   grade?: Maybe<Grade>
   id: Scalars['UUID']
   imageUrl?: Maybe<Scalars['String']>
@@ -335,7 +335,7 @@ export type User = {
   name?: Maybe<Scalars['String']>
   nickname?: Maybe<Scalars['String']>
   oAuthProviders?: Maybe<Array<OAuthProvider>>
-  postCount?: Maybe<Scalars['Int']>
+  postCount?: Maybe<Scalars['String']>
   serviceAgreement?: Maybe<ServiceAgreement>
   sex?: Maybe<Sex>
   sleepingTime?: Maybe<Scalars['DateTime']>
@@ -533,8 +533,8 @@ export type UserQuery = {
     blockingEndTime?: any | null
     cherry?: number | null
     coverImageUrls?: Array<string> | null
-    followerCount?: number | null
-    followingCount?: number | null
+    followerCount?: string | null
+    followingCount?: string | null
     grade?: Grade | null
     imageUrls?: Array<string> | null
     isPrivate?: boolean | null
@@ -544,7 +544,7 @@ export type UserQuery = {
     isVerifiedSex?: boolean | null
     name?: string | null
     nickname?: string | null
-    postCount?: number | null
+    postCount?: string | null
     sex?: Sex | null
     sleepingTime?: any | null
     towns?: Array<{ __typename?: 'Town'; count: number; name?: string | null }> | null
