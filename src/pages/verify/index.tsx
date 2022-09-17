@@ -20,7 +20,7 @@ import FlipIcon from '../../svgs/flip.svg'
 import SettingIcon from '../../svgs/setting.svg'
 import TestTubeIcon from '../../svgs/test-tube.svg'
 import VerifyIcon from '../../svgs/VerifyIcon'
-import XIcon from '../../svgs/x-button.svg'
+import XCircleIcon from '../../svgs/x-circle.svg'
 import { getViewportWidth, parseJWT } from '../../utils'
 import { TABLET_MIN_WIDTH_1 } from '../../utils/constants'
 import { formatISOLocalDate } from '../../utils/date'
@@ -208,7 +208,7 @@ export default function VerificationPage() {
           <AbsoluteFull show={showSetting}>
             <FlexReverseRow>
               <button onClick={() => setShowSetting(false)}>
-                <XIcon />
+                <XCircleIcon />
               </button>
             </FlexReverseRow>
 
@@ -248,7 +248,7 @@ export default function VerificationPage() {
                   resumeScanningQRCode()
                 }}
               >
-                <XIcon />
+                <XCircleIcon />
               </button>
             </FlexReverseRow>
 
@@ -269,7 +269,7 @@ export default function VerificationPage() {
                         <td>
                           {allCerts.birthdate ? formatISOLocalDate(allCerts.birthdate) : '미동의'}
                         </td>
-                        <td>{allCerts.sex ? formatSex(allCerts.sex as Sex) : '미동의'}</td>
+                        <td>{allCerts.sex ? formatSex(allCerts.sex) : '미동의'}</td>
                       </tr>
                     </tbody>
                   </CenterTable>
