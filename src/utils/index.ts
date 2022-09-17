@@ -1,12 +1,10 @@
 import { NextRouter } from 'next/router'
 import { MouseEvent } from 'react'
 
-import { NEXT_PUBLIC_BACKEND_URL } from './constants'
-
 export function parseJWT(token: string) {
-  var base64Url = token.split('.')[1]
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-  var jsonPayload = decodeURIComponent(
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(
     globalThis.window
       ?.atob(base64)
       .split('')
@@ -80,14 +78,6 @@ export function isEmpty(object: Record<string, unknown>) {
     return false
   }
   return true
-}
-
-export async function uploadImageFiles(formData: FormData) {
-  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/upload`, {
-    method: 'POST',
-    body: formData,
-  })
-  return response.json()
 }
 
 export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
