@@ -58,6 +58,7 @@ export function PostCreationForm({
   // 새로운 이야기 입력값
   const {
     formState: { errors },
+    getValues,
     handleSubmit,
     register,
     reset,
@@ -81,13 +82,12 @@ export function PostCreationForm({
   // Image upload
   const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
   const imageId = useRef(0)
-  const formData = useRef(globalThis.FormData ? new FormData() : null)
   const [postCreationLoading, setPostCreationLoading] = useState(false)
 
   function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
 
-    if (files && files.length > 0 && formData.current) {
+    if (files && files.length > 0) {
       const newImageInfos: ImageInfo[] = []
 
       for (const file of files) {
@@ -97,7 +97,7 @@ export function PostCreationForm({
             name: file.name,
             url: URL.createObjectURL(file),
           })
-          formData.current.append(`image-${imageId.current}`, file)
+          getValues('formData').append(`image-${imageId.current}`, file)
           imageId.current++
         }
       }
@@ -107,8 +107,8 @@ export function PostCreationForm({
   }
 
   function deletePreviewImage(imageId: number) {
-    if (formData.current) {
-      formData.current.delete(`image${imageId}`)
+    if (getValues('formData')) {
+      getValues('formData').delete(`image-${imageId}`)
       setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
     }
   }
@@ -188,12 +188,6 @@ export function PostCreationForm({
       </Card>
     </form>
   )
-}
-
-function getGroupIdFromQueryString() {
-  return globalThis.location
-    ? new URLSearchParams(globalThis.location.search).get('groupId') ?? ''
-    : ''
 }
 
 const AutoTextarea = styled(AutoTextarea_)`

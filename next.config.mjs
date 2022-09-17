@@ -11,7 +11,7 @@ const nextConfig = {
   },
   experimental: {
     newNextLinkBehavior: true,
-    runtime: 'experimental-edge',
+    // runtime: 'experimental-edge',
     scrollRestoration: true,
   },
   i18n: {
