@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import { toastApolloError } from '../../apollo/error'
 import PostCreationButton from '../../components/create-post/PostCreationButton'
-import { PostCreationForm } from '../../components/create-post/PostCreationForm'
+import { PostCreation, PostCreationForm } from '../../components/create-post/PostCreationForm'
 import PageHead from '../../components/PageHead'
 import PostCard, { PostLoadingCard } from '../../components/PostCard'
 import PostDrawer from '../../components/PostDrawer'
@@ -20,6 +20,7 @@ import {
 import useInfiniteScroll from '../../hooks/useInfiniteScroll'
 import Navigation from '../../layouts/Navigation'
 import { Skeleton } from '../../styles'
+import { uploadFormDataFiles } from '../../utils/fetch'
 import { currentUser } from '../../utils/recoil'
 
 export default function PostsPage() {
@@ -28,7 +29,7 @@ export default function PostsPage() {
   // 이야기 불러오기
   const {
     data,
-    loading: postLoading,
+    loading: isPostLoading,
     fetchMore,
   } = usePostsQuery({
     notifyOnNetworkStatusChange: true,
@@ -54,7 +55,7 @@ export default function PostsPage() {
   })
 
   // 프로필 사진 불러오기
-  const { data: data2, loading: profileLoading } = useMyProfileQuery({
+  const { data: data2, loading: isProfileLoading } = useMyProfileQuery({
     onError: toastApolloError,
     skip: !name,
   })
@@ -81,27 +82,37 @@ export default function PostsPage() {
   }, [])
 
   // 이야기 생성
-  const [createPostMutation, { loading: createLoading }] = useCreatePostMutation({
+  const [createPostMutation] = useCreatePostMutation({
     onCompleted: () => {
       toast.success('이야기 생성 완료')
       setIsSubmitionSuccess(true)
+      setIsPostCreating(false)
     },
     onError: toastApolloError,
     update: addNewPost,
   })
 
   const [isSubmitionSuccess, setIsSubmitionSuccess] = useState(false)
+  const [isPostCreating, setIsPostCreating] = useState(false)
 
-  function createPost({ content }: any) {
+  async function createPost({ content, formData }: PostCreation) {
+    setIsPostCreating(true)
+
     createPostMutation({
       variables: {
-        input: { content },
+        input: {
+          content,
+          ...(formData &&
+            Array.from(formData.keys()).length > 0 && {
+              imageUrls: (await uploadFormDataFiles(formData)).map((info: any) => info.url),
+            }),
+        },
       },
     })
   }
 
   return (
-    <PageHead title="이야기 - 자유담" description="">
+    <PageHead title="이야기 - 자유담" description="자유담에서 이야기를 나눠보세요">
       <Navigation>
         <main>
           <Sticky>
@@ -110,13 +121,13 @@ export default function PostsPage() {
           </Sticky>
 
           <PostCreationForm
-            disabled={createLoading}
+            disabled={isPostCreating}
             haveToReset={isSubmitionSuccess}
             onReset={() => setIsSubmitionSuccess(false)}
             onSubmit={createPost}
             postCreationRef={postCreationRef}
           >
-            {profileLoading ? (
+            {isProfileLoading ? (
               <Skeleton width="32px" height="32px" borderRadius="50%" />
             ) : (
               <Image
@@ -129,38 +140,13 @@ export default function PostsPage() {
             )}
           </PostCreationForm>
 
-          {/* <Slider padding={imageInfos.length === 0 ? '0 1rem' : '0'}>
-            {imageInfos.map((imageInfo) => (
-              <PreviewSlide key={imageInfo.id} flexBasis="96%">
-                <Frame16to11>
-                  <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
-                </Frame16to11>
-                <XButtonIcon onClick={() => deletePreviewImage(imageInfo.id)} />
-              </PreviewSlide>
-            ))}
-            <Slide flexBasis={imageInfos.length === 0 ? '100%' : '96%'}>
-              <FileInputLabel disabled={postCreationLoading} htmlFor="images">
-                <FileUploadIcon />
-                <GreyH3>사진을 추가해주세요</GreyH3>
-              </FileInputLabel>
-              <FileInput
-                accept="image/*"
-                disabled={postCreationLoading}
-                id="images"
-                multiple
-                onChange={createPreviewImages}
-                type="file"
-              />
-            </Slide>
-          </Slider> */}
-
           <PostDrawer />
 
           {posts
             ? posts.map((post) => <PostCard key={post.id} post={post as Post} showSharedPost />)
-            : !postLoading && <div>posts not found</div>}
+            : !isPostLoading && <div>posts not found</div>}
 
-          {postLoading && (
+          {isPostLoading && (
             <>
               <PostLoadingCard />
               <PostLoadingCard />
@@ -168,7 +154,7 @@ export default function PostsPage() {
             </>
           )}
 
-          {!postLoading &&
+          {!isPostLoading &&
             (hasMoreData ? (
               <div ref={infiniteScrollRef}>
                 <PostLoadingCard />

@@ -11,10 +11,17 @@ import {
 } from '../../graphql/generated/types-and-hooks'
 import { theme } from '../../styles/global'
 import ImageIcon from '../../svgs/image.svg'
+import XCircleIcon from '../../svgs/x-circle.svg'
 import { resizeTextareaHeight, submitWhenCmdEnter } from '../../utils/react'
 import { currentUser } from '../../utils/recoil'
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
-import { FlexBetweenCenter, FlexCenter, FlexCenterGap } from '../atoms/Flex'
+import {
+  Absolute,
+  FlexBetweenCenter,
+  FlexCenter,
+  FlexCenterGap,
+  FlexGap as FlexGap_,
+} from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import { Card } from '../PostCard'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
@@ -28,10 +35,15 @@ type Props = {
   postCreationRef: RefObject<HTMLFormElement>
 }
 
-export type ImageInfo = {
+type ImageInfo = {
   id: number
   name: string
   url: string
+}
+
+export type PostCreation = {
+  content: string
+  formData: FormData | null
 }
 
 export function PostCreationForm({
@@ -63,26 +75,18 @@ export function PostCreationForm({
     register,
     reset,
     watch,
-  } = useForm({
+  } = useForm<PostCreation>({
     defaultValues: {
       content: '',
-      formData: new FormData(),
+      formData: globalThis.FormData ? new FormData() : null,
     },
   })
 
   const contentLength = watch('content').length
 
-  useEffect(() => {
-    if (haveToReset) {
-      reset()
-      onReset()
-    }
-  }, [haveToReset, onReset, reset])
-
   // Image upload
   const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
   const imageId = useRef(0)
-  const [postCreationLoading, setPostCreationLoading] = useState(false)
 
   function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
@@ -91,15 +95,33 @@ export function PostCreationForm({
       const newImageInfos: ImageInfo[] = []
 
       for (const file of files) {
-        if (file.type.startsWith('image/')) {
-          newImageInfos.push({
-            id: imageId.current,
-            name: file.name,
-            url: URL.createObjectURL(file),
-          })
-          getValues('formData').append(`image-${imageId.current}`, file)
-          imageId.current++
+        if (!file.type.startsWith('image/')) {
+          toast.warn(
+            <div>
+              이미지만 가능합니다.
+              <h6>{file.name}</h6>
+            </div>
+          )
+          continue
         }
+
+        if (file.size > 10_000_000) {
+          toast.warn(
+            <div>
+              10 MB 이하만 가능합니다.
+              <h6>{file.name}</h6>
+            </div>
+          )
+          continue
+        }
+
+        newImageInfos.push({
+          id: imageId.current,
+          name: file.name,
+          url: URL.createObjectURL(file),
+        })
+        getValues('formData')!.append(`image-${imageId.current}`, file)
+        imageId.current++
       }
 
       setImageInfos((prev) => [...prev, ...newImageInfos])
@@ -107,33 +129,21 @@ export function PostCreationForm({
   }
 
   function deletePreviewImage(imageId: number) {
-    if (getValues('formData')) {
-      getValues('formData').delete(`image-${imageId}`)
+    const formData = getValues('formData')
+    if (formData) {
+      formData.delete(`image-${imageId}`)
       setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
     }
   }
 
-  // async function createPost(input: PostCreationInput) {
-  //   setPostCreationLoading(true)
-  //   const variables: CreatePostMutationVariables = { input }
-
-  //   if (formData.current) {
-  //     const files = [...formData.current.values()]
-
-  //     if (files.length > 0) {
-  //       const newFormData = new FormData()
-  //       for (const file of files) {
-  //         newFormData.append('images', file)
-  //       }
-
-  //       const { imageUrls } = await uploadImageFiles(newFormData)
-  //       variables.input.imageUrls = imageUrls
-  //     }
-  //   }
-
-  //   await createPostMutation({ variables })
-  //   setPostCreationLoading(false)
-  // }
+  // 기타
+  useEffect(() => {
+    if (haveToReset) {
+      reset()
+      onReset()
+      setImageInfos([])
+    }
+  }, [haveToReset, onReset, reset])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} ref={postCreationRef}>
@@ -147,24 +157,24 @@ export function PostCreationForm({
             placeholder="Add content"
             {...register('content')}
           />
-          {imageInfos.map((imageInfo) => (
-            <Image
-              key={imageInfo.id}
-              src={imageInfo.url}
-              alt={imageInfo.name}
-              width="200"
-              height="200"
-            />
-          ))}
+          <FlexGap>
+            {imageInfos.map((imageInfo) => (
+              <SquareFrame key={imageInfo.id}>
+                <Image src={imageInfo.url} alt={imageInfo.name} fill />
+                <AbsoluteTopRight as="button" onClick={() => deletePreviewImage(imageInfo.id)}>
+                  <XCircleIcon width="1rem" />
+                </AbsoluteTopRight>
+              </SquareFrame>
+            ))}
+          </FlexGap>
           <FlexBetweenCenter>
             <FlexCenterGap>
               <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
               <FlexCenter as="label">
-                <ImageIcon width="1.5rem" fill={theme.primaryText} />
+                <ImageIcon cursor="pointer" width="1.5rem" fill={theme.primaryText} />
                 <FileInput
                   accept="image/*"
                   disabled={!name || disabled}
-                  // id="images"
                   multiple
                   onChange={createPreviewImages}
                   type="file"
@@ -202,9 +212,34 @@ const GridSmallGap = styled.div`
 export const PrimaryOrError = styled.span<{ error: boolean }>`
   color: ${(p) => (p.error ? p.theme.error : p.theme.primaryText)};
   height: 1.6rem;
-  /* height: 100%; */
 `
 
 const FileInput = styled.input`
   display: none;
+`
+
+const FlexGap = styled(FlexGap_)`
+  overflow-x: auto;
+  /* width: 100%; */
+  min-width: 0;
+`
+
+const SquareFrame = styled.div`
+  aspect-ratio: 1 / 1;
+  position: relative;
+  min-width: 10rem;
+
+  > img {
+    object-fit: cover;
+  }
+`
+
+const AbsoluteTopRight = styled(Absolute)`
+  top: 0;
+  right: 0;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
 `
