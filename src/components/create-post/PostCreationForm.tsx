@@ -5,10 +5,6 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import {
-  CreatePostMutationVariables,
-  PostCreationInput,
-} from '../../graphql/generated/types-and-hooks'
 import { theme } from '../../styles/global'
 import ImageIcon from '../../svgs/image.svg'
 import XCircleIcon from '../../svgs/x-circle.svg'
@@ -18,8 +14,9 @@ import { AutoTextarea_ } from '../atoms/AutoTextarea'
 import {
   Absolute,
   FlexBetweenCenter,
+  FlexBigGap,
   FlexCenter,
-  FlexCenterGap,
+  FlexCenterBigGap,
   FlexGap as FlexGap_,
 } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
@@ -157,6 +154,7 @@ export function PostCreationForm({
             placeholder="Add content"
             {...register('content')}
           />
+
           <FlexGap>
             {imageInfos.map((imageInfo) => (
               <SquareFrame key={imageInfo.id}>
@@ -167,8 +165,9 @@ export function PostCreationForm({
               </SquareFrame>
             ))}
           </FlexGap>
+
           <FlexBetweenCenter>
-            <FlexCenterGap>
+            <FlexCenterBigGap>
               <PrimaryOrError error={contentLength > 200}>{contentLength}</PrimaryOrError>
               <FlexCenter as="label">
                 <ImageIcon cursor="pointer" width="1.5rem" fill={theme.primaryText} />
@@ -180,7 +179,7 @@ export function PostCreationForm({
                   type="file"
                 />
               </FlexCenter>
-            </FlexCenterGap>
+            </FlexCenterBigGap>
             <PrimaryButton
               disabled={
                 !name ||
@@ -201,6 +200,7 @@ export function PostCreationForm({
 }
 
 const AutoTextarea = styled(AutoTextarea_)`
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'text')};
   max-height: 50vh;
 `
 
@@ -220,11 +220,10 @@ const FileInput = styled.input`
 
 const FlexGap = styled(FlexGap_)`
   overflow-x: auto;
-  /* width: 100%; */
   min-width: 0;
 `
 
-const SquareFrame = styled.div`
+export const SquareFrame = styled.div`
   aspect-ratio: 1 / 1;
   position: relative;
   min-width: 10rem;

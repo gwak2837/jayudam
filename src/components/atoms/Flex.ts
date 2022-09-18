@@ -24,6 +24,10 @@ export const FlexCenterGap = styled(FlexCenter)`
   gap: 0.5rem;
 `
 
+export const FlexCenterBigGap = styled(FlexCenter)`
+  gap: 1rem;
+`
+
 export const FlexSmallGap = styled(Flex)`
   gap: 0.3rem;
 `

@@ -74,7 +74,7 @@
   },
   "private": true,
   "engines": {
-    "node": ">=16.15.1"
+    "node": ">=16.17.0"
   },
   "browserslist": [
     "defaults",

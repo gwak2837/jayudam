@@ -18,9 +18,17 @@ import ThreeDotsIcon from '../svgs/three-dots.svg'
 import { stopPropagation } from '../utils'
 import { applyLineBreak } from '../utils/react'
 import { currentUser } from '../utils/recoil'
-import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap } from './atoms/Flex'
+import {
+  FlexBetween,
+  FlexCenter,
+  FlexColumn,
+  FlexGap as FlexGap_,
+  GrayText,
+  GridGap,
+} from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
+import { SquareFrame } from './create-post/PostCreationForm'
 import { postDrawer } from './PostDrawer'
 import SharingPostButton from './sharing-post/SharingPostButton'
 import SharedPostCard, { GreyH5, OverflowAuto, TextOverflow } from './sharing-post/SharingPostCard'
@@ -185,6 +193,16 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
             : applyLineBreak(post.content)}
         </p>
 
+        {post.imageUrls && (
+          <FlexGap onClick={stopPropagation}>
+            {post.imageUrls.map((imageUrl, i) => (
+              <SquareFrame key={i}>
+                <Image src={imageUrl} alt={imageUrl} fill />
+              </SquareFrame>
+            ))}
+          </FlexGap>
+        )}
+
         {showSharedPost && sharedPost && <SharedPostCard sharedPost={sharedPost as Post} />}
 
         {showButtons && (
@@ -284,4 +302,9 @@ const FlexCenterGap = styled(FlexCenter)`
   gap: 0 0.5rem;
   min-width: 0;
   flex-flow: row wrap;
+`
+
+const FlexGap = styled(FlexGap_)`
+  overflow-x: auto;
+  min-width: 0;
 `
