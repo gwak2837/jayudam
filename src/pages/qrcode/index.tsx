@@ -18,6 +18,7 @@ import {
 } from '../../graphql/generated/types-and-hooks'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
+import CherryIcon from '../../svgs/cherry.svg'
 import TimerIcon from '../../svgs/timer.svg'
 import { getViewportWidth, parseJWT } from '../../utils'
 import { MOBILE_MIN_WIDTH } from '../../utils/constants'
@@ -145,9 +146,9 @@ export default function QRCodePage() {
   }
 
   // 이전 인증서 동의 항목 불러오기
-  const { loading: certAgreementLoading } = useMyCertAgreementQuery({
+  const { data: data2, loading: certAgreementLoading } = useMyCertAgreementQuery({
     onCompleted: ({ myCertAgreement }) => {
-      if (myCertAgreement) {
+      if (myCertAgreement?.certAgreement) {
         const {
           showBirthdate,
           showLegalName,
@@ -158,7 +159,7 @@ export default function QRCodePage() {
           immunizationSince, // string | null
           showSexualCrime,
           sexualCrimeSince, // string | null
-        } = myCertAgreement
+        } = myCertAgreement.certAgreement
 
         const stdTestSinceTime = getTimeFromDateString(stdTestSince)
         const immunizationSinceTime = getTimeFromDateString(immunizationSince)
@@ -208,6 +209,7 @@ export default function QRCodePage() {
     skip: !name,
   })
 
+  const cherry = data2?.myCertAgreement?.cherry
   const isLoading = certAgreementLoading || certJWTLoading
 
   return (
@@ -218,6 +220,11 @@ export default function QRCodePage() {
             <canvas ref={qrCodeImageRef} width={300} height={300} />
 
             <Width>
+              <FlexCenterCenterGap>
+                <CherryIcon width="1.5rem" />
+                <h5>체리 {cherry}개</h5>
+              </FlexCenterCenterGap>
+
               <FlexCenterCenterGap>
                 <TimerIcon width="1.5rem" />
                 <h4>남은시간</h4>

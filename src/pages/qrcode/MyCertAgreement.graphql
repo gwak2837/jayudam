@@ -1,13 +1,17 @@
 query MyCertAgreement {
   myCertAgreement {
-    showBirthdate
-    showLegalName
-    showSex
-    showSTDTest
-    stdTestSince
-    showImmunization
-    immunizationSince
-    showSexualCrime
-    sexualCrimeSince
+    id
+    certAgreement {
+      showBirthdate
+      showLegalName
+      showSex
+      showSTDTest
+      stdTestSince
+      showImmunization
+      immunizationSince
+      showSexualCrime
+      sexualCrimeSince
+    }
+    cherry
   }
 }

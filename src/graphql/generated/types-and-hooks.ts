@@ -233,7 +233,7 @@ export type Query = {
   comments?: Maybe<Array<Post>>
   hello: Scalars['String']
   isUniqueUsername: Scalars['Boolean']
-  myCertAgreement?: Maybe<CertAgreement>
+  myCertAgreement?: Maybe<User>
   myProfile?: Maybe<User>
   pendingCerts?: Maybe<Array<Cert>>
   post?: Maybe<Post>
@@ -795,16 +795,21 @@ export type MyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
 export type MyCertAgreementQuery = {
   __typename?: 'Query'
   myCertAgreement?: {
-    __typename?: 'CertAgreement'
-    showBirthdate: boolean
-    showLegalName: boolean
-    showSex: boolean
-    showSTDTest: boolean
-    stdTestSince?: any | null
-    showImmunization: boolean
-    immunizationSince?: any | null
-    showSexualCrime: boolean
-    sexualCrimeSince?: any | null
+    __typename?: 'User'
+    id: any
+    cherry?: number | null
+    certAgreement?: {
+      __typename?: 'CertAgreement'
+      showBirthdate: boolean
+      showLegalName: boolean
+      showSex: boolean
+      showSTDTest: boolean
+      stdTestSince?: any | null
+      showImmunization: boolean
+      immunizationSince?: any | null
+      showSexualCrime: boolean
+      sexualCrimeSince?: any | null
+    } | null
   } | null
 }
 
@@ -1656,15 +1661,19 @@ export type CertJwtMutationOptions = Apollo.BaseMutationOptions<
 export const MyCertAgreementDocument = gql`
   query MyCertAgreement {
     myCertAgreement {
-      showBirthdate
-      showLegalName
-      showSex
-      showSTDTest
-      stdTestSince
-      showImmunization
-      immunizationSince
-      showSexualCrime
-      sexualCrimeSince
+      id
+      certAgreement {
+        showBirthdate
+        showLegalName
+        showSex
+        showSTDTest
+        stdTestSince
+        showImmunization
+        immunizationSince
+        showSexualCrime
+        sexualCrimeSince
+      }
+      cherry
     }
   }
 `
