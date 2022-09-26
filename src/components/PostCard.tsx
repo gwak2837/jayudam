@@ -68,8 +68,7 @@ function PostCard({
         showButtons={showButtons}
         showSharedPost={showSharedPost}
       >
-        {showVerticalLine && <VerticalLine />}
-        {comments && <VerticalLine />}
+        {showVerticalLine || comments ? <VerticalLine /> : null}
         {comments?.map((comment, i) => (
           <PostContent key={comment.id} post={comment}>
             {[comments?.length - 1 !== i && <VerticalLine key={i} />]}

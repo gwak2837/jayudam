@@ -222,7 +222,7 @@ export default function QRCodePage() {
             <Width>
               <FlexCenterCenterGap>
                 <CherryIcon width="1.5rem" />
-                <h5>체리 {cherry}개</h5>
+                <h5>체리 {cherry ?? '-'}개</h5>
               </FlexCenterCenterGap>
 
               <FlexCenterCenterGap>
