@@ -232,7 +232,7 @@ export default function PostPage() {
                 {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
 
                 <GrayText>
-                  {new Date(post.creationTime).toLocaleString()}{' '}
+                  {post.creationTime && new Date(post.creationTime).toLocaleString()}{' '}
                   <span>{post.updateTime && '(수정됨)'}</span>
                 </GrayText>
 

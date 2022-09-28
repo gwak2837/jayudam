@@ -144,7 +144,10 @@ export default function CommentCreationButton({ parentPost }: Props) {
                   <GrayText>탈퇴한 사용자</GrayText>
                 )}
                 <TextOverflow>
-                  <span>{new Date(parentPost.creationTime).toLocaleDateString()}</span>
+                  <span>
+                    {parentPost.creationTime &&
+                      new Date(parentPost.creationTime).toLocaleDateString()}
+                  </span>
                   <span>{parentPost.updateTime && '(수정됨)'}</span>
                 </TextOverflow>
               </FlexCenterGap>

@@ -107,12 +107,13 @@ export default function QRCodePage() {
       ...(showLegalName && { showLegalName }),
       ...(showSex && { showSex }),
       ...(showSTDTest && { showSTDTest }),
-      ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
+      ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince).toISOString() }),
       ...(showImmunization && { showImmunization }),
       ...(showImmunization &&
-        immunizationSince && { immunizationSince: new Date(immunizationSince) }),
+        immunizationSince && { immunizationSince: new Date(immunizationSince).toISOString() }),
       ...(showSexualCrime && { showSexualCrime }),
-      ...(showSexualCrime && sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince) }),
+      ...(showSexualCrime &&
+        sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince).toISOString() }),
     }
 
     setPreviousInput(input)

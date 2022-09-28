@@ -226,7 +226,6 @@ const FlexGap = styled(FlexGap_)`
 export const SquareFrame = styled.div`
   aspect-ratio: 1 / 1;
   position: relative;
-  min-width: 10rem;
 
   > img {
     object-fit: cover;

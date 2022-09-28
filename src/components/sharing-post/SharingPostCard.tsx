@@ -54,7 +54,7 @@ export default function SharedPostCard({ sharedPost }: Props) {
             </OverflowAuto>
           )}
           <TextOverflow>
-            {new Date(sharedPost.creationTime).toLocaleDateString()}{' '}
+            {sharedPost.creationTime && new Date(sharedPost.creationTime).toLocaleDateString()}{' '}
             <span>{sharedPost.updateTime && '(수정됨)'}</span>
           </TextOverflow>
         </FlexCenterGap>

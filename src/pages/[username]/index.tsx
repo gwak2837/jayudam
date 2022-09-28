@@ -86,7 +86,7 @@ export default function UserPage() {
         toast.success(
           <div>
             로그아웃 성공 <br />
-            {new Date(logout.logoutTime).toLocaleString()}
+            {logout.logoutTime && new Date(logout.logoutTime).toLocaleString()}
           </div>
         )
       }
@@ -179,7 +179,10 @@ export default function UserPage() {
                   </FlexCenterSmallGap>
                   <FlexCenterSmallGap>
                     <MailIcon width="1.3rem" />
-                    <GrayText> {formatSimpleDate(new Date(user.creationTime))} 가입</GrayText>
+                    <GrayText>
+                      {' '}
+                      {user.creationTime && formatSimpleDate(new Date(user.creationTime))} 가입
+                    </GrayText>
                   </FlexCenterSmallGap>
                 </FlexColumn>
               )}
