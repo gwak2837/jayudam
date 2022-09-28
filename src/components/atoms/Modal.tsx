@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 
-import XIcon from '../../svgs/x-white.svg'
+import XIcon from '../../svgs/x-circle.svg'
 
 type Props = {
   children: ReactNode
@@ -40,7 +40,7 @@ export default function Modal({ children, lazy, open, onClose, showCloseButton =
 
   const modal = (
     <FixedFullscreen open={open} onClick={closeModal}>
-      {showCloseButton && <XIcon onClick={closeModal} />}
+      {showCloseButton && <XIcon onClick={closeModal} width="3rem" />}
       {children}
     </FixedFullscreen>
   )
@@ -71,7 +71,6 @@ const FixedFullscreen = styled.div<{ open: boolean }>`
     right: 0;
     z-index: 3;
 
-    width: 2.2rem;
     padding: 0.6rem;
     cursor: pointer;
   }

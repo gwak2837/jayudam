@@ -23,6 +23,7 @@ import { PostCreationForm } from '../../../components/create-post/PostCreationFo
 import PageHead from '../../../components/PageHead'
 import PostCard, { PostLoadingCard, Width } from '../../../components/PostCard'
 import PostDrawer, { postDrawer } from '../../../components/PostDrawer'
+import { PostImages } from '../../../components/PostImages'
 import SharingPostButton from '../../../components/sharing-post/SharingPostButton'
 import SharedPostCard, {
   GreyH5,
@@ -228,6 +229,8 @@ export default function PostPage() {
                     ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
                     : post.content}
                 </p>
+
+                {post.imageUrls && <PostImages imageUrls={post.imageUrls} />}
 
                 {sharingPost && <SharedPostCard sharedPost={sharingPost as Post} />}
 

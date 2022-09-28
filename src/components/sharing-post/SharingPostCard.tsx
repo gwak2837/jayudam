@@ -8,6 +8,7 @@ import { borderRadiusCircle } from '../../pages/post'
 import { LineLink } from '../../pages/post/[id]'
 import { stopPropagation } from '../../utils'
 import { FlexCenter, GridSmallGap, TextOverflow as TextOverflow_ } from '../atoms/Flex'
+import { PostImages } from '../PostImages'
 
 type Props = {
   sharedPost: Post
@@ -15,6 +16,7 @@ type Props = {
 
 export default function SharedPostCard({ sharedPost }: Props) {
   const author = sharedPost.author
+  const imageUrls = sharedPost.imageUrls
 
   // 페이지 이동
   const router = useRouter()
@@ -58,11 +60,14 @@ export default function SharedPostCard({ sharedPost }: Props) {
             <span>{sharedPost.updateTime && '(수정됨)'}</span>
           </TextOverflow>
         </FlexCenterGap>
+
         <p>
           {sharedPost.deletionTime
             ? `${new Date(sharedPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
             : sharedPost.content}
         </p>
+
+        {imageUrls && <PostImages imageUrls={imageUrls} />}
       </GridSmallGap>
     </Border>
   )

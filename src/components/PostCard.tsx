@@ -22,6 +22,7 @@ import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap, Grid as Grid_ }
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
 import { postDrawer } from './PostDrawer'
+import { PostImages } from './PostImages'
 import SharingPostButton from './sharing-post/SharingPostButton'
 import SharedPostCard, { GreyH5, OverflowAuto, TextOverflow } from './sharing-post/SharingPostCard'
 
@@ -187,7 +188,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
             : applyLineBreak(post.content)}
         </p>
 
-        <PostImages imageUrls={imageUrls} />
+        {imageUrls && <PostImages imageUrls={imageUrls} />}
 
         {showSharedPost && sharedPost && <SharedPostCard sharedPost={sharedPost as Post} />}
 
@@ -248,42 +249,6 @@ function PostLoadingCard_() {
   )
 }
 
-type Props3 = {
-  imageUrls?: string[] | null
-}
-
-export function PostImages({ imageUrls }: Props3) {
-  return imageUrls ? (
-    imageUrls.length == 1 ? (
-      <KeepRatioImage src={imageUrls[0]} alt={imageUrls[0]} width="500" height="500" />
-    ) : imageUrls.length == 2 ? (
-      <Grid2>
-        {imageUrls.map((imageUrl, i) => (
-          <SquareFrame key={i}>
-            <CoverImage src={imageUrl} alt={imageUrl} fill />
-          </SquareFrame>
-        ))}
-      </Grid2>
-    ) : imageUrls.length == 3 ? (
-      <Grid4>
-        {imageUrls.map((imageUrl, i) => (
-          <SquareFrame key={i} i={i}>
-            <CoverImage src={imageUrl} alt={imageUrl} fill />
-          </SquareFrame>
-        ))}
-      </Grid4>
-    ) : imageUrls.length >= 4 ? (
-      <Grid4>
-        {imageUrls.map((imageUrl, i) => (
-          <SquareFrame key={i}>
-            <CoverImage src={imageUrl} alt={imageUrl} fill />
-          </SquareFrame>
-        ))}
-      </Grid4>
-    ) : null
-  ) : null
-}
-
 export const Card = styled(GridGap)`
   grid-template-columns: auto 1fr;
 
@@ -316,13 +281,6 @@ export const Width = styled.div`
   }
 `
 
-const KeepRatioImage = styled(Image)`
-  border: 1px solid ${(p) => p.theme.primaryBackgroundAchromatic};
-  border-radius: 0.5rem;
-  width: 100%;
-  height: auto;
-`
-
 const GridGapPointer = styled(GridGap)`
   cursor: pointer;
 `
@@ -331,28 +289,4 @@ const FlexCenterGap = styled(FlexCenter)`
   gap: 0 0.5rem;
   min-width: 0;
   flex-flow: row wrap;
-`
-
-const Grid2 = styled(Grid_)`
-  grid-template-columns: 1fr 1fr;
-  gap: 0.2rem;
-
-  aspect-ratio: 16 / 9;
-  border: 1px solid ${(p) => p.theme.primaryBackgroundAchromatic};
-  border-radius: 0.5rem;
-  overflow: hidden;
-  width: 100%;
-`
-
-const Grid4 = styled(Grid2)`
-  grid-template-rows: 1fr 1fr;
-`
-
-const SquareFrame = styled.div<{ i?: number }>`
-  position: relative;
-  ${(p) => p.i === 0 && 'grid-row: span 2;'}
-`
-
-const CoverImage = styled(Image)`
-  object-fit: cover;
 `
