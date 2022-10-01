@@ -72,7 +72,7 @@ export default function OAuthPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (url.current && doRedirect) {
+    if (router && url.current && doRedirect) {
       sessionStorage.removeItem('redirectToAfterLogin')
       router.replace(url.current)
     }

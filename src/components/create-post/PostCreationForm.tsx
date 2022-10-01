@@ -7,7 +7,6 @@ import styled from 'styled-components'
 
 import { theme } from '../../styles/global'
 import ImageIcon from '../../svgs/image.svg'
-import XCircleIcon from '../../svgs/x-circle.svg'
 import { resizeTextareaHeight, submitWhenCmdEnter } from '../../utils/react'
 import { currentUser } from '../../utils/recoil'
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
@@ -21,6 +20,7 @@ import {
 } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import { Card } from '../PostCard'
+import { PostImages, PostImagesPreview } from '../PostImages'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
 
 type Props = {
@@ -32,7 +32,7 @@ type Props = {
   postCreationRef: RefObject<HTMLFormElement>
 }
 
-type ImageInfo = {
+export type ImageInfo = {
   id: number
   name: string
   url: string
@@ -88,41 +88,46 @@ export function PostCreationForm({
   function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
 
-    if (files && files.length > 0) {
-      const newImageInfos: ImageInfo[] = []
+    if (!files || files.length === 0) return
 
-      for (const file of files) {
-        if (!file.type.startsWith('image/')) {
-          toast.warn(
-            <div>
-              이미지만 가능합니다.
-              <h6>{file.name}</h6>
-            </div>
-          )
-          continue
-        }
+    if (files.length > 4) {
+      toast.warn('4개까지만 선택해주세요')
+      return
+    }
 
-        if (file.size > 10_000_000) {
-          toast.warn(
-            <div>
-              10 MB 이하만 가능합니다.
-              <h6>{file.name}</h6>
-            </div>
-          )
-          continue
-        }
+    const newImageInfos: ImageInfo[] = []
 
-        newImageInfos.push({
-          id: imageId.current,
-          name: file.name,
-          url: URL.createObjectURL(file),
-        })
-        getValues('formData')!.append(`image-${imageId.current}`, file)
-        imageId.current++
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        toast.warn(
+          <div>
+            이미지만 가능합니다.
+            <h6>{file.name}</h6>
+          </div>
+        )
+        continue
       }
 
-      setImageInfos((prev) => [...prev, ...newImageInfos])
+      if (file.size > 10_000_000) {
+        toast.warn(
+          <div>
+            10 MB 이하만 가능합니다.
+            <h6>{file.name}</h6>
+          </div>
+        )
+        continue
+      }
+
+      newImageInfos.push({
+        id: imageId.current,
+        name: file.name,
+        url: URL.createObjectURL(file),
+      })
+      getValues('formData')!.append(`image-${imageId.current}`, file)
+      imageId.current++
     }
+
+    setImageInfos((prev) => [...prev, ...newImageInfos])
   }
 
   function deletePreviewImage(imageId: number) {
@@ -155,16 +160,9 @@ export function PostCreationForm({
             {...register('content')}
           />
 
-          <FlexGap>
-            {imageInfos.map((imageInfo) => (
-              <SquareFrame key={imageInfo.id}>
-                <Image src={imageInfo.url} alt={imageInfo.name} fill />
-                <AbsoluteTopRight as="button" onClick={() => deletePreviewImage(imageInfo.id)}>
-                  <XCircleIcon width="1rem" />
-                </AbsoluteTopRight>
-              </SquareFrame>
-            ))}
-          </FlexGap>
+          {imageInfos && (
+            <PostImagesPreview imageInfos={imageInfos} onDelete={deletePreviewImage} />
+          )}
 
           <FlexBetweenCenter>
             <FlexCenterBigGap>
@@ -218,27 +216,11 @@ const FileInput = styled.input`
   display: none;
 `
 
-const FlexGap = styled(FlexGap_)`
-  overflow-x: auto;
-  min-width: 0;
-`
-
 export const SquareFrame = styled.div`
   aspect-ratio: 1 / 1;
   position: relative;
-  min-width: 10rem;
 
   > img {
     object-fit: cover;
   }
-`
-
-const AbsoluteTopRight = styled(Absolute)`
-  top: 0;
-  right: 0;
-  z-index: 1;
-
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
 `

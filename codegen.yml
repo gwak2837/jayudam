@@ -9,6 +9,10 @@ generates:
       - typescript-operations
       - typescript-react-apollo
       - typescript-apollo-client-helpers
+    config:
+      scalars:
+        DateTime: string
+        URL: string
 hooks:
   afterAllFileWrite:
     - prettier --write

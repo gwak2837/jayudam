@@ -57,6 +57,10 @@ export const GridCenterCenter = styled(Grid)`
   align-items: center;
 `
 
+export const GridXSmallGap = styled(Grid)`
+  gap: 0.25rem;
+`
+
 export const GridSmallGap = styled(Grid)`
   gap: 0.5rem;
 `
@@ -71,6 +75,10 @@ export const GridBigGap = styled(Grid)`
 
 export const GrayText = styled.span`
   color: ${(p) => p.theme.primaryTextAchromatic};
+`
+
+export const PrimaryText = styled.span`
+  color: ${(p) => p.theme.primaryText};
 `
 
 export const Relative = styled.div`

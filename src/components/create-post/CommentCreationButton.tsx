@@ -1,4 +1,5 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -11,16 +12,22 @@ import {
   useMyProfileQuery,
 } from '../../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../../pages/post'
-import { Button, LineLink, addNewComment } from '../../pages/post/[id]'
+import { Button, addNewComment } from '../../pages/post/[id]'
 import { theme } from '../../styles/global'
 import CommentIcon from '../../svgs/CommentIcon'
 import { stopPropagation } from '../../utils'
-import { applyLineBreak } from '../../utils/react'
 import { currentUser } from '../../utils/recoil'
-import { FlexCenter, FlexColumn, Flex as Flex_, GrayText, GridGap } from '../atoms/Flex'
+import {
+  FlexCenter,
+  FlexColumn,
+  Flex as Flex_,
+  GrayText,
+  GridGap,
+  GridXSmallGap,
+} from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
-import { VerticalLine } from '../PostCard'
+import { VerticalLine, applyLineBreakNHashtag } from '../PostCard'
 import { TextOverflow } from '../sharing-post/SharingPostCard'
 import PostCreationModalForm from './PostCreationModalForm'
 
@@ -144,19 +151,26 @@ export default function CommentCreationButton({ parentPost }: Props) {
                   <GrayText>탈퇴한 사용자</GrayText>
                 )}
                 <TextOverflow>
-                  <span>{new Date(parentPost.creationTime).toLocaleDateString()}</span>
+                  <span>
+                    {parentPost.creationTime &&
+                      new Date(parentPost.creationTime).toLocaleDateString()}
+                  </span>
                   <span>{parentPost.updateTime && '(수정됨)'}</span>
                 </TextOverflow>
               </FlexCenterGap>
 
-              <p>{applyLineBreak(parentPost.content)}</p>
+              <GridXSmallGap>
+                {parentPost.deletionTime
+                  ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+                  : parentPost.content && applyLineBreakNHashtag(parentPost.content)}
+              </GridXSmallGap>
 
               {parentAuthor && (
                 <TextOverflow>
                   <GrayText>Replying to </GrayText>
-                  <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+                  <Link href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
                     @{parentAuthor.name}
-                  </LineLink>
+                  </Link>
                 </TextOverflow>
               )}
             </GridGap>

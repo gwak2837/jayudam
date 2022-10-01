@@ -15,7 +15,7 @@ export type Scalars = {
   Int: number
   Float: number
   Any: any
-  DateTime: any
+  DateTime: string
   EmailAddress: any
   JWT: any
   Latitude: any
@@ -23,7 +23,7 @@ export type Scalars = {
   NonEmptyString: any
   NonNegativeInt: any
   PositiveInt: any
-  URL: any
+  URL: string
   UUID: any
 }
 
@@ -191,7 +191,7 @@ export type Post = {
   doIComment: Scalars['Boolean']
   doIShare: Scalars['Boolean']
   id: Scalars['ID']
-  imageUrls?: Maybe<Array<Maybe<Scalars['URL']>>>
+  imageUrls?: Maybe<Array<Scalars['URL']>>
   isLiked: Scalars['Boolean']
   likeCount?: Maybe<Scalars['Int']>
   parentPost?: Maybe<Post>
@@ -365,11 +365,11 @@ export type CreatePostMutation = {
     newPost: {
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
@@ -394,9 +394,9 @@ export type DeletePostMutation = {
   deletePost?: {
     __typename?: 'Post'
     id: string
-    deletionTime?: any | null
+    deletionTime?: string | null
     content?: string | null
-    imageUrls?: Array<any | null> | null
+    imageUrls?: Array<string> | null
     sharingPost?: { __typename?: 'Post'; id: string } | null
     parentPost?: { __typename?: 'Post'; id: string } | null
   } | null
@@ -413,9 +413,9 @@ export type DeleteSharingPostMutation = {
     deletedPost?: {
       __typename?: 'Post'
       id: string
-      deletionTime?: any | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       sharingPost?: { __typename?: 'Post'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
@@ -442,11 +442,11 @@ export type SharePostMutation = {
     newPost: {
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
@@ -478,11 +478,11 @@ export type SharePostMutation = {
 export type PostCardFragment = {
   __typename?: 'Post'
   id: string
-  creationTime?: any | null
-  updateTime?: any | null
-  deletionTime?: any | null
+  creationTime?: string | null
+  updateTime?: string | null
+  deletionTime?: string | null
   content?: string | null
-  imageUrls?: Array<any | null> | null
+  imageUrls?: Array<string> | null
   isLiked: boolean
   doIComment: boolean
   doIShare: boolean
@@ -513,7 +513,7 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never }>
 
 export type LogoutMutation = {
   __typename?: 'Mutation'
-  logout?: { __typename?: 'User'; logoutTime?: any | null } | null
+  logout?: { __typename?: 'User'; logoutTime?: string | null } | null
 }
 
 export type UserQueryVariables = Exact<{
@@ -525,12 +525,12 @@ export type UserQuery = {
   user?: {
     __typename?: 'User'
     id: any
-    creationTime?: any | null
+    creationTime?: string | null
     bio?: string | null
     birthday?: string | null
     birthyear?: number | null
-    blockingStartTime?: any | null
-    blockingEndTime?: any | null
+    blockingStartTime?: string | null
+    blockingEndTime?: string | null
     cherry?: number | null
     coverImageUrls?: Array<string> | null
     followerCount?: string | null
@@ -546,7 +546,7 @@ export type UserQuery = {
     nickname?: string | null
     postCount?: string | null
     sex?: Sex | null
-    sleepingTime?: any | null
+    sleepingTime?: string | null
     towns?: Array<{ __typename?: 'Town'; count: number; name?: string | null }> | null
   } | null
 }
@@ -567,11 +567,11 @@ export type PostsQuery = {
   posts?: Array<{
     __typename?: 'Post'
     id: string
-    creationTime?: any | null
-    updateTime?: any | null
-    deletionTime?: any | null
+    creationTime?: string | null
+    updateTime?: string | null
+    deletionTime?: string | null
     content?: string | null
-    imageUrls?: Array<any | null> | null
+    imageUrls?: Array<string> | null
     isLiked: boolean
     doIComment: boolean
     doIShare: boolean
@@ -581,11 +581,11 @@ export type PostsQuery = {
     sharingPost?: {
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
         id: any
@@ -619,11 +619,11 @@ export type CommentsQuery = {
   comments?: Array<{
     __typename?: 'Post'
     id: string
-    creationTime?: any | null
-    updateTime?: any | null
-    deletionTime?: any | null
+    creationTime?: string | null
+    updateTime?: string | null
+    deletionTime?: string | null
     content?: string | null
-    imageUrls?: Array<any | null> | null
+    imageUrls?: Array<string> | null
     isLiked: boolean
     doIComment: boolean
     doIShare: boolean
@@ -633,11 +633,11 @@ export type CommentsQuery = {
     comments?: Array<{
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
@@ -681,11 +681,11 @@ export type CreateCommentMutation = {
     newPost: {
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       isLiked: boolean
       doIComment: boolean
       doIShare: boolean
@@ -717,11 +717,11 @@ export type PostQuery = {
   post?: {
     __typename?: 'Post'
     id: string
-    creationTime?: any | null
-    updateTime?: any | null
-    deletionTime?: any | null
+    creationTime?: string | null
+    updateTime?: string | null
+    deletionTime?: string | null
     content?: string | null
-    imageUrls?: Array<any | null> | null
+    imageUrls?: Array<string> | null
     isLiked: boolean
     doIComment: boolean
     doIShare: boolean
@@ -738,11 +738,11 @@ export type PostQuery = {
     parentPost?: {
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
         id: any
@@ -754,11 +754,11 @@ export type PostQuery = {
     sharingPost?: {
       __typename?: 'Post'
       id: string
-      creationTime?: any | null
-      updateTime?: any | null
-      deletionTime?: any | null
+      creationTime?: string | null
+      updateTime?: string | null
+      deletionTime?: string | null
       content?: string | null
-      imageUrls?: Array<any | null> | null
+      imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
         id: any
@@ -804,11 +804,11 @@ export type MyCertAgreementQuery = {
       showLegalName: boolean
       showSex: boolean
       showSTDTest: boolean
-      stdTestSince?: any | null
+      stdTestSince?: string | null
       showImmunization: boolean
-      immunizationSince?: any | null
+      immunizationSince?: string | null
       showSexualCrime: boolean
-      sexualCrimeSince?: any | null
+      sexualCrimeSince?: string | null
     } | null
   } | null
 }
@@ -841,15 +841,15 @@ export type VerifyCertJwtMutation = {
   verifyCertJWT?: {
     __typename?: 'Certs'
     id: string
-    birthdate?: any | null
+    birthdate?: string | null
     legalName?: string | null
     sex?: Sex | null
     stdTestCerts?: Array<{
       __typename?: 'Cert'
       id: string
       content?: string | null
-      effectiveDate?: any | null
-      issueDate?: any | null
+      effectiveDate?: string | null
+      issueDate?: string | null
       location?: string | null
       name?: string | null
     }> | null
@@ -857,8 +857,8 @@ export type VerifyCertJwtMutation = {
       __typename?: 'Cert'
       id: string
       content?: string | null
-      effectiveDate?: any | null
-      issueDate?: any | null
+      effectiveDate?: string | null
+      issueDate?: string | null
       location?: string | null
       name?: string | null
     }> | null
@@ -866,8 +866,8 @@ export type VerifyCertJwtMutation = {
       __typename?: 'Cert'
       id: string
       content?: string | null
-      effectiveDate?: any | null
-      issueDate?: any | null
+      effectiveDate?: string | null
+      issueDate?: string | null
       location?: string | null
       name?: string | null
     }> | null

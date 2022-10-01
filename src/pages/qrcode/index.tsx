@@ -107,12 +107,13 @@ export default function QRCodePage() {
       ...(showLegalName && { showLegalName }),
       ...(showSex && { showSex }),
       ...(showSTDTest && { showSTDTest }),
-      ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince) }),
+      ...(showSTDTest && stdTestSince && { stdTestSince: new Date(stdTestSince).toISOString() }),
       ...(showImmunization && { showImmunization }),
       ...(showImmunization &&
-        immunizationSince && { immunizationSince: new Date(immunizationSince) }),
+        immunizationSince && { immunizationSince: new Date(immunizationSince).toISOString() }),
       ...(showSexualCrime && { showSexualCrime }),
-      ...(showSexualCrime && sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince) }),
+      ...(showSexualCrime &&
+        sexualCrimeSince && { sexualCrimeSince: new Date(sexualCrimeSince).toISOString() }),
     }
 
     setPreviousInput(input)
@@ -222,7 +223,7 @@ export default function QRCodePage() {
             <Width>
               <FlexCenterCenterGap>
                 <CherryIcon width="1.5rem" />
-                <h5>체리 {cherry}개</h5>
+                <h5>체리 {cherry ?? '-'}개</h5>
               </FlexCenterCenterGap>
 
               <FlexCenterCenterGap>

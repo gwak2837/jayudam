@@ -1,6 +1,7 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
+import { Fragment, MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
@@ -8,7 +9,7 @@ import styled from 'styled-components'
 import { toastApolloError } from '../apollo/error'
 import { Post, useToggleLikingPostMutation } from '../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../pages/post'
-import { Bold, Button, GridColumn4, LineLink } from '../pages/post/[id]'
+import { Bold, Button, GridColumn4 } from '../pages/post/[id]'
 import { Skeleton } from '../styles'
 import { theme } from '../styles/global'
 import CommentIcon from '../svgs/CommentIcon'
@@ -22,14 +23,15 @@ import {
   FlexBetween,
   FlexCenter,
   FlexColumn,
-  FlexGap as FlexGap_,
   GrayText,
   GridGap,
+  GridXSmallGap,
+  Grid as Grid_,
 } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
-import { SquareFrame } from './create-post/PostCreationForm'
 import { postDrawer } from './PostDrawer'
+import { PostImages } from './PostImages'
 import SharingPostButton from './sharing-post/SharingPostButton'
 import SharedPostCard, { GreyH5, OverflowAuto, TextOverflow } from './sharing-post/SharingPostCard'
 
@@ -68,8 +70,7 @@ function PostCard({
         showButtons={showButtons}
         showSharedPost={showSharedPost}
       >
-        {showVerticalLine && <VerticalLine />}
-        {comments && <VerticalLine />}
+        {showVerticalLine || comments ? <VerticalLine /> : null}
         {comments?.map((comment, i) => (
           <PostContent key={comment.id} post={comment}>
             {[comments?.length - 1 !== i && <VerticalLine key={i} />]}
@@ -92,6 +93,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
   const author = post.author
   const parentAuthor = post.parentPost?.author
   const sharedPost = post.sharingPost
+  const imageUrls = post.imageUrls
 
   const { name } = useRecoilValue(currentUser)
 
@@ -141,7 +143,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
 
   return (
     <>
-      <FlexColumnGap onClick={goToPostPage}>
+      <FlexColumnGap>
         <Image
           src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
           alt="profile"
@@ -153,7 +155,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
         {children?.[0]}
       </FlexColumnGap>
 
-      <GridGapPointer onClick={goToPostPage}>
+      <GridGapPointer>
         <FlexBetweenGap>
           <FlexCenterGap>
             <TextOverflow>
@@ -163,13 +165,15 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
             </TextOverflow>
             {author && (
               <OverflowAuto>
-                <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+                <GrayLink href={`/@${author.name}`}>
                   <GreyH5> @{author.name}</GreyH5>
-                </LineLink>
+                </GrayLink>
               </OverflowAuto>
             )}
             <TextOverflow>
-              <GrayText>{new Date(post.creationTime).toLocaleDateString()}</GrayText>
+              <GrayText>
+                {post.creationTime && new Date(post.creationTime).toLocaleDateString()}
+              </GrayText>
               <GrayText>{post.updateTime && '(수정됨)'}</GrayText>
             </TextOverflow>
           </FlexCenterGap>
@@ -181,27 +185,17 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
           <TextOverflow>
             <GrayText>Replying to </GrayText>
-            <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
-              @{parentAuthor.name}
-            </LineLink>
+            <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
           </TextOverflow>
         )}
 
-        <p>
+        <GridXSmallGap onClick={goToPostPage}>
           {post.deletionTime
             ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-            : applyLineBreak(post.content)}
-        </p>
+            : post.content && applyLineBreakNHashtag(post.content)}
+        </GridXSmallGap>
 
-        {post.imageUrls && (
-          <FlexGap onClick={stopPropagation}>
-            {post.imageUrls.map((imageUrl, i) => (
-              <SquareFrame key={i}>
-                <Image src={imageUrl} alt={imageUrl} fill />
-              </SquareFrame>
-            ))}
-          </FlexGap>
-        )}
+        {imageUrls && <PostImages imageUrls={imageUrls} />}
 
         {showSharedPost && sharedPost && <SharedPostCard sharedPost={sharedPost as Post} />}
 
@@ -262,11 +256,33 @@ function PostLoadingCard_() {
   )
 }
 
+export function applyLineBreakNHashtag(oneLine?: string | null) {
+  return oneLine?.split('\n').map((sentence, i) => (
+    <OverflowWrapP key={i}>
+      {sentence.split(' ').map((word, j) =>
+        word.startsWith('#') ? (
+          <Link key={j} href={`/search?q=${word}`} onClick={stopPropagation}>
+            {word}&nbsp;
+          </Link>
+        ) : (
+          <Fragment key={j}>{word}&nbsp;</Fragment>
+        )
+      )}
+    </OverflowWrapP>
+  ))
+}
+
 export const Card = styled(GridGap)`
   grid-template-columns: auto 1fr;
 
   border: 1px solid ${(p) => p.theme.shadow};
   padding: 0.8rem 1rem;
+`
+
+const OverflowWrapP = styled.p`
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-all;
 `
 
 const FlexColumnGap = styled(FlexColumn)`
@@ -304,7 +320,6 @@ const FlexCenterGap = styled(FlexCenter)`
   flex-flow: row wrap;
 `
 
-const FlexGap = styled(FlexGap_)`
-  overflow-x: auto;
-  min-width: 0;
+const GrayLink = styled(Link)`
+  color: ${(p) => p.theme.primaryTextAchromatic};
 `

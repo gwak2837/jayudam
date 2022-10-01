@@ -1,9 +1,9 @@
 import { Fragment, KeyboardEvent } from 'react'
 
-export function applyLineBreak(line?: string | null) {
-  return line?.split('\n').map((title, i) => (
+export function applyLineBreak(oneLine: string) {
+  return oneLine?.split('\n').map((sentence, i) => (
     <Fragment key={i}>
-      {title}
+      {sentence}
       <br />
     </Fragment>
   ))
