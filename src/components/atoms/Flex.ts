@@ -73,6 +73,10 @@ export const GrayText = styled.span`
   color: ${(p) => p.theme.primaryTextAchromatic};
 `
 
+export const PrimaryText = styled.span`
+  color: ${(p) => p.theme.primaryText};
+`
+
 export const Relative = styled.div`
   position: relative;
 `

@@ -1,4 +1,5 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -11,16 +12,15 @@ import {
   useMyProfileQuery,
 } from '../../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../../pages/post'
-import { Button, LineLink, addNewComment } from '../../pages/post/[id]'
+import { Button, addNewComment } from '../../pages/post/[id]'
 import { theme } from '../../styles/global'
 import CommentIcon from '../../svgs/CommentIcon'
 import { stopPropagation } from '../../utils'
-import { applyLineBreak } from '../../utils/react'
 import { currentUser } from '../../utils/recoil'
 import { FlexCenter, FlexColumn, Flex as Flex_, GrayText, GridGap } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
-import { VerticalLine } from '../PostCard'
+import { VerticalLine, applyLineBreakNHashtag } from '../PostCard'
 import { TextOverflow } from '../sharing-post/SharingPostCard'
 import PostCreationModalForm from './PostCreationModalForm'
 
@@ -152,14 +152,14 @@ export default function CommentCreationButton({ parentPost }: Props) {
                 </TextOverflow>
               </FlexCenterGap>
 
-              <p>{applyLineBreak(parentPost.content)}</p>
+              <p>{applyLineBreakNHashtag(parentPost.content)}</p>
 
               {parentAuthor && (
                 <TextOverflow>
                   <GrayText>Replying to </GrayText>
-                  <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+                  <Link href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
                     @{parentAuthor.name}
-                  </LineLink>
+                  </Link>
                 </TextOverflow>
               )}
             </GridGap>

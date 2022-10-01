@@ -1,11 +1,11 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MouseEvent } from 'react'
 import styled from 'styled-components'
 
 import { Post } from '../../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../../pages/post'
-import { LineLink } from '../../pages/post/[id]'
 import { stopPropagation } from '../../utils'
 import { FlexCenter, GridSmallGap, TextOverflow as TextOverflow_ } from '../atoms/Flex'
 import { PostImages } from '../PostImages'
@@ -50,9 +50,9 @@ export default function SharedPostCard({ sharedPost }: Props) {
           <TextOverflow onClick={goToUserPage}>{author?.nickname ?? '탈퇴한 사용자'}</TextOverflow>
           {author && (
             <OverflowAuto>
-              <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+              <Link href={`/@${author.name}`} onClick={stopPropagation}>
                 <GreyH5 as="h5">@{author.name}</GreyH5>
-              </LineLink>
+              </Link>
             </OverflowAuto>
           )}
           <TextOverflow>

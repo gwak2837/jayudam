@@ -1,6 +1,7 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
+import { Fragment, MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
@@ -8,7 +9,7 @@ import styled from 'styled-components'
 import { toastApolloError } from '../apollo/error'
 import { Post, useToggleLikingPostMutation } from '../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../pages/post'
-import { Bold, Button, GridColumn4, LineLink } from '../pages/post/[id]'
+import { Bold, Button, GridColumn4 } from '../pages/post/[id]'
 import { Skeleton } from '../styles'
 import { theme } from '../styles/global'
 import CommentIcon from '../svgs/CommentIcon'
@@ -18,7 +19,15 @@ import ThreeDotsIcon from '../svgs/three-dots.svg'
 import { stopPropagation } from '../utils'
 import { applyLineBreak } from '../utils/react'
 import { currentUser } from '../utils/recoil'
-import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap, Grid as Grid_ } from './atoms/Flex'
+import {
+  FlexBetween,
+  FlexCenter,
+  FlexColumn,
+  GrayText,
+  GridGap,
+  Grid as Grid_,
+  PrimaryText,
+} from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
 import { postDrawer } from './PostDrawer'
@@ -134,7 +143,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
 
   return (
     <>
-      <FlexColumnGap onClick={goToPostPage}>
+      <FlexColumnGap>
         <Image
           src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
           alt="profile"
@@ -146,7 +155,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
         {children?.[0]}
       </FlexColumnGap>
 
-      <GridGapPointer onClick={goToPostPage}>
+      <GridGapPointer>
         <FlexBetweenGap>
           <FlexCenterGap>
             <TextOverflow>
@@ -156,9 +165,9 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
             </TextOverflow>
             {author && (
               <OverflowAuto>
-                <LineLink href={`/@${author.name}`} onClick={stopPropagation}>
+                <GrayLink href={`/@${author.name}`}>
                   <GreyH5> @{author.name}</GreyH5>
-                </LineLink>
+                </GrayLink>
               </OverflowAuto>
             )}
             <TextOverflow>
@@ -176,17 +185,15 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
           <TextOverflow>
             <GrayText>Replying to </GrayText>
-            <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
-              @{parentAuthor.name}
-            </LineLink>
+            <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
           </TextOverflow>
         )}
 
-        <p>
+        <OverflowWrapP onClick={goToPostPage}>
           {post.deletionTime
             ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-            : applyLineBreak(post.content)}
-        </p>
+            : post.content && applyLineBreakNHashtag(post.content)}
+        </OverflowWrapP>
 
         {imageUrls && <PostImages imageUrls={imageUrls} />}
 
@@ -249,11 +256,35 @@ function PostLoadingCard_() {
   )
 }
 
+export function applyLineBreakNHashtag(oneLine?: string | null) {
+  return oneLine?.split('\n').map((sentence, i) => (
+    <Fragment key={i}>
+      <>
+        {sentence.split(' ').map((word, j) =>
+          word.startsWith('#') ? (
+            <Link key={j} href={`/search?q=${word}`} onClick={stopPropagation}>
+              {word}&nbsp;
+            </Link>
+          ) : (
+            <Fragment key={j}>{word}&nbsp;</Fragment>
+          )
+        )}
+      </>
+      <br />
+    </Fragment>
+  ))
+}
+
 export const Card = styled(GridGap)`
   grid-template-columns: auto 1fr;
 
   border: 1px solid ${(p) => p.theme.shadow};
   padding: 0.8rem 1rem;
+`
+
+export const OverflowWrapP = styled.p`
+  word-break: break-all;
+  overflow-wrap: break-word;
 `
 
 const FlexColumnGap = styled(FlexColumn)`
@@ -289,4 +320,8 @@ const FlexCenterGap = styled(FlexCenter)`
   gap: 0 0.5rem;
   min-width: 0;
   flex-flow: row wrap;
+`
+
+const GrayLink = styled(Link)`
+  color: ${(p) => p.theme.primaryTextAchromatic};
 `

@@ -21,7 +21,11 @@ import CommentCreationButton from '../../../components/create-post/CommentCreati
 import PostCreationButton from '../../../components/create-post/PostCreationButton'
 import { PostCreationForm } from '../../../components/create-post/PostCreationForm'
 import PageHead from '../../../components/PageHead'
-import PostCard, { PostLoadingCard, Width } from '../../../components/PostCard'
+import PostCard, {
+  PostLoadingCard,
+  Width,
+  applyLineBreakNHashtag,
+} from '../../../components/PostCard'
 import PostDrawer, { postDrawer } from '../../../components/PostDrawer'
 import { PostImages } from '../../../components/PostImages'
 import SharingPostButton from '../../../components/sharing-post/SharingPostButton'
@@ -204,9 +208,9 @@ export default function PostPage() {
                         <Bold disabled={!author}>{author?.nickname ?? '탈퇴한 사용자'}</Bold>
                       </TextOverflow>
                       {author && (
-                        <LineLink href={`/@${author.name}`}>
+                        <Link href={`/@${author.name}`}>
                           <GreyH5>@{author.name}</GreyH5>
-                        </LineLink>
+                        </Link>
                       )}
                     </FlexColumnSmallGap>
                     <button onClick={openDrawer_setPostDrawerContent}>
@@ -218,16 +222,16 @@ export default function PostPage() {
                 {parentAuthor && author && parentAuthor.name !== author.name && (
                   <TextOverflow>
                     <GrayText>Replying to </GrayText>
-                    <LineLink href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+                    <Link href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
                       @{parentAuthor.name}
-                    </LineLink>
+                    </Link>
                   </TextOverflow>
                 )}
 
                 <p>
                   {post.deletionTime
                     ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
-                    : post.content}
+                    : post.content && applyLineBreakNHashtag(post.content)}
                 </p>
 
                 {post.imageUrls && <PostImages imageUrls={post.imageUrls} />}
@@ -470,14 +474,6 @@ const GridColumn4Center = styled(GridColumn4)`
 export const Bold = styled.b<{ disabled: boolean }>`
   color: ${(p) => (p.disabled ? p.theme.primaryAchromatic : '#000')};
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
-`
-
-export const LineLink = styled(Link)`
-  :hover {
-    > * {
-      text-decoration: underline;
-    }
-  }
 `
 
 export const Button = styled.button<{ color?: string; selected?: boolean }>`
