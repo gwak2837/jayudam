@@ -57,6 +57,10 @@ export const GridCenterCenter = styled(Grid)`
   align-items: center;
 `
 
+export const GridXSmallGap = styled(Grid)`
+  gap: 0.25rem;
+`
+
 export const GridSmallGap = styled(Grid)`
   gap: 0.5rem;
 `

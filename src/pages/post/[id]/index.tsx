@@ -15,6 +15,7 @@ import {
   GrayText,
   GridBigGap,
   GridSmallGap,
+  GridXSmallGap,
 } from '../../../components/atoms/Flex'
 import LoginLink from '../../../components/atoms/LoginLink'
 import CommentCreationButton from '../../../components/create-post/CommentCreationButton'
@@ -228,11 +229,11 @@ export default function PostPage() {
                   </TextOverflow>
                 )}
 
-                <p>
+                <GridXSmallGap>
                   {post.deletionTime
                     ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
                     : post.content && applyLineBreakNHashtag(post.content)}
-                </p>
+                </GridXSmallGap>
 
                 {post.imageUrls && <PostImages imageUrls={post.imageUrls} />}
 

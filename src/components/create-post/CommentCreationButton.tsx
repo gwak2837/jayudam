@@ -17,7 +17,14 @@ import { theme } from '../../styles/global'
 import CommentIcon from '../../svgs/CommentIcon'
 import { stopPropagation } from '../../utils'
 import { currentUser } from '../../utils/recoil'
-import { FlexCenter, FlexColumn, Flex as Flex_, GrayText, GridGap } from '../atoms/Flex'
+import {
+  FlexCenter,
+  FlexColumn,
+  Flex as Flex_,
+  GrayText,
+  GridGap,
+  GridXSmallGap,
+} from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import { VerticalLine, applyLineBreakNHashtag } from '../PostCard'
@@ -152,7 +159,11 @@ export default function CommentCreationButton({ parentPost }: Props) {
                 </TextOverflow>
               </FlexCenterGap>
 
-              <p>{applyLineBreakNHashtag(parentPost.content)}</p>
+              <GridXSmallGap>
+                {parentPost.deletionTime
+                  ? `${new Date(parentPost.deletionTime).toLocaleString()} 에 삭제된 글이에요`
+                  : parentPost.content && applyLineBreakNHashtag(parentPost.content)}
+              </GridXSmallGap>
 
               {parentAuthor && (
                 <TextOverflow>

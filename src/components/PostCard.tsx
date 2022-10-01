@@ -25,8 +25,8 @@ import {
   FlexColumn,
   GrayText,
   GridGap,
+  GridXSmallGap,
   Grid as Grid_,
-  PrimaryText,
 } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
@@ -189,11 +189,11 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
           </TextOverflow>
         )}
 
-        <OverflowWrapP onClick={goToPostPage}>
+        <GridXSmallGap onClick={goToPostPage}>
           {post.deletionTime
             ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
             : post.content && applyLineBreakNHashtag(post.content)}
-        </OverflowWrapP>
+        </GridXSmallGap>
 
         {imageUrls && <PostImages imageUrls={imageUrls} />}
 
@@ -258,20 +258,17 @@ function PostLoadingCard_() {
 
 export function applyLineBreakNHashtag(oneLine?: string | null) {
   return oneLine?.split('\n').map((sentence, i) => (
-    <Fragment key={i}>
-      <>
-        {sentence.split(' ').map((word, j) =>
-          word.startsWith('#') ? (
-            <Link key={j} href={`/search?q=${word}`} onClick={stopPropagation}>
-              {word}&nbsp;
-            </Link>
-          ) : (
-            <Fragment key={j}>{word}&nbsp;</Fragment>
-          )
-        )}
-      </>
-      <br />
-    </Fragment>
+    <OverflowWrapP key={i}>
+      {sentence.split(' ').map((word, j) =>
+        word.startsWith('#') ? (
+          <Link key={j} href={`/search?q=${word}`} onClick={stopPropagation}>
+            {word}&nbsp;
+          </Link>
+        ) : (
+          <Fragment key={j}>{word}&nbsp;</Fragment>
+        )
+      )}
+    </OverflowWrapP>
   ))
 }
 
@@ -282,9 +279,10 @@ export const Card = styled(GridGap)`
   padding: 0.8rem 1rem;
 `
 
-export const OverflowWrapP = styled.p`
-  word-break: break-all;
+const OverflowWrapP = styled.p`
+  line-height: 1.2;
   overflow-wrap: break-word;
+  word-break: break-all;
 `
 
 const FlexColumnGap = styled(FlexColumn)`
