@@ -122,17 +122,18 @@ const BlockLink = styled(Link)`
   justify-content: center;
   align-items: center;
 
-  white-space: nowrap;
-
   padding: 1rem 0.5rem;
+  white-space: nowrap;
 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
     flex-flow: row;
     justify-content: start;
   }
 
-  :hover {
+  :hover,
+  :focus {
     background: ${(p) => p.theme.shadow};
+    text-decoration: none;
   }
 `
 

@@ -82,7 +82,11 @@ export function PostImagesPreview({ imageInfos, onDelete }: Props2) {
           {imageInfos.map((imageInfo, i) => (
             <SquareFrame key={i}>
               <CoverImage src={imageInfo.url} alt={imageInfo.name} fill />
-              <AbsoluteTopRight as="button" onClick={() => onDelete(imageInfos[0].id)}>
+              <AbsoluteTopRight
+                as="button"
+                onClick={() => onDelete(imageInfos[i].id)}
+                type="button"
+              >
                 <XCircleIcon width="1rem" />
               </AbsoluteTopRight>
             </SquareFrame>
@@ -93,7 +97,11 @@ export function PostImagesPreview({ imageInfos, onDelete }: Props2) {
           {imageInfos.map((imageInfo, i) => (
             <SquareFrame key={i} i={i}>
               <CoverImage src={imageInfo.url} alt={imageInfo.name} fill />
-              <AbsoluteTopRight as="button" onClick={() => onDelete(imageInfos[0].id)}>
+              <AbsoluteTopRight
+                as="button"
+                onClick={() => onDelete(imageInfos[i].id)}
+                type="button"
+              >
                 <XCircleIcon width="1rem" />
               </AbsoluteTopRight>
             </SquareFrame>
@@ -104,7 +112,11 @@ export function PostImagesPreview({ imageInfos, onDelete }: Props2) {
           {imageInfos.map((imageInfo, i) => (
             <SquareFrame key={i}>
               <CoverImage src={imageInfo.url} alt={imageInfo.name} fill />
-              <AbsoluteTopRight as="button" onClick={() => onDelete(imageInfos[0].id)}>
+              <AbsoluteTopRight
+                as="button"
+                onClick={() => onDelete(imageInfos[i].id)}
+                type="button"
+              >
                 <XCircleIcon width="1rem" />
               </AbsoluteTopRight>
             </SquareFrame>
@@ -128,10 +140,6 @@ const KeepRatioImage = styled(CoverImage)`
 const BorderImage = styled(KeepRatioImage)`
   border: 1px solid ${(p) => p.theme.primaryBackgroundAchromatic};
   border-radius: 0.5rem;
-`
-
-const Grid1 = styled(Grid_)`
-  position: relative;
 `
 
 const Grid2 = styled(Grid_)`

@@ -3187,6 +3187,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-codegen/typescript-react-query@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@graphql-codegen/typescript-react-query@npm:4.0.1"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^2.6.2
+    "@graphql-codegen/visitor-plugin-common": 2.12.1
+    auto-bind: ~4.0.0
+    change-case-all: 1.0.14
+    tslib: ~2.4.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: b5f2f7d76a1af344239825409460c09f58e96e60574796605423d3579aaa62a3169815fa34a40243164ec765826e28e2668106109c28eaad6fe7994ff9ebafbc
+  languageName: node
+  linkType: hard
+
 "@graphql-codegen/typescript@npm:^2.7.3":
   version: 2.7.3
   resolution: "@graphql-codegen/typescript@npm:2.7.3"
@@ -4585,6 +4600,55 @@ __metadata:
   dependencies:
     tslib: ^2.4.0
   checksum: 736857d524b41a8a4db81094e9b027f554004e0fa3e86325d85bdb38f7e6459ce022db079edb6c61ba0f46fe8583b3e663e95f7acbd13e51b8da6c34e45bba2e
+  languageName: node
+  linkType: hard
+
+"@tanstack/match-sorter-utils@npm:^8.1.1":
+  version: 8.1.1
+  resolution: "@tanstack/match-sorter-utils@npm:8.1.1"
+  dependencies:
+    remove-accents: 0.4.2
+  checksum: bf1458b7ca08cf79750ebd46fddef9c9b845ef55b5b69c0f7f69d48d6cbd73dbfd98763509f655298033b93cfc92b21d54f9f13a4d631cc68ca9191913967205
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-core@npm:4.8.0":
+  version: 4.8.0
+  resolution: "@tanstack/query-core@npm:4.8.0"
+  checksum: 1410cc255d24a1d83b7ed644834ad27458da272c37bf5732c954aaa02fa8fc41b96abeca25903af95b139b353fb8738d68259ad771ef1d1dbde166b7c0514135
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^4.8.0":
+  version: 4.8.0
+  resolution: "@tanstack/react-query-devtools@npm:4.8.0"
+  dependencies:
+    "@tanstack/match-sorter-utils": ^8.1.1
+    use-sync-external-store: ^1.2.0
+  peerDependencies:
+    "@tanstack/react-query": 4.8.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 536c5d7184ea545a901c01948b77f874cd8a6505656c156e053da344ed46d987de98ba007518fbdb69d9a0dfac43a40b0f4bc711514861715c03a7cde64fe8b8
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^4.8.0":
+  version: 4.8.0
+  resolution: "@tanstack/react-query@npm:4.8.0"
+  dependencies:
+    "@tanstack/query-core": 4.8.0
+    use-sync-external-store: ^1.2.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-native: "*"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: e2075ae91760d3a81774d5f405d30074c20811e35439828c5f6e3bb4426c554a1cbe332d095ad4d45bd699a48af94412178f331ddcbb210f4b0c2d346e41ae00
   languageName: node
   linkType: hard
 
@@ -8975,7 +9039,10 @@ __metadata:
     "@graphql-codegen/typescript-apollo-client-helpers": ^2.2.3
     "@graphql-codegen/typescript-operations": ^2.5.3
     "@graphql-codegen/typescript-react-apollo": ^3.3.3
+    "@graphql-codegen/typescript-react-query": ^4.0.1
     "@svgr/webpack": ^6.3.1
+    "@tanstack/react-query": ^4.8.0
+    "@tanstack/react-query-devtools": ^4.8.0
     "@testing-library/react": ^13.4.0
     "@types/gtag.js": ^0.0.11
     "@types/jest": ^29.0.3
@@ -11463,6 +11530,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"remove-accents@npm:0.4.2":
+  version: 0.4.2
+  resolution: "remove-accents@npm:0.4.2"
+  checksum: 84a6988555dea24115e2d1954db99509588d43fe55a1590f0b5894802776f7b488b3151c37ceb9e4f4b646f26b80b7325dcea2fae58bc3865df146e1fa606711
+  languageName: node
+  linkType: hard
+
 "remove-trailing-separator@npm:^1.0.1":
   version: 1.1.0
   resolution: "remove-trailing-separator@npm:1.1.0"
@@ -13001,7 +13075,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:1.2.0":
+"use-sync-external-store@npm:1.2.0, use-sync-external-store@npm:^1.2.0":
   version: 1.2.0
   resolution: "use-sync-external-store@npm:1.2.0"
   peerDependencies:

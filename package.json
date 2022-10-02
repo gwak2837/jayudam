@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.6.9",
+    "@tanstack/react-query": "^4.8.0",
+    "@tanstack/react-query-devtools": "^4.8.0",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.2",
     "graphql": "^16.6.0",
@@ -51,6 +53,7 @@
     "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.3",
     "@graphql-codegen/typescript-operations": "^2.5.3",
     "@graphql-codegen/typescript-react-apollo": "^3.3.3",
+    "@graphql-codegen/typescript-react-query": "^4.0.1",
     "@svgr/webpack": "^6.3.1",
     "@testing-library/react": "^13.4.0",
     "@types/gtag.js": "^0.0.11",

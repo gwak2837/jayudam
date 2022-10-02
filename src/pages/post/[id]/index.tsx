@@ -296,7 +296,10 @@ function Comments({ postCreationRef }: Props2) {
   const { data, loading, fetchMore } = useCommentsQuery({
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ comments }) => (!comments || comments.length === 0) && setHasMoreData(false),
-    onError: toastApolloError,
+    onError: (error) => {
+      toastApolloError(error)
+      setHasMoreData(false)
+    },
     skip: !postId,
     variables: { parentId: postId, limit },
   })
@@ -305,7 +308,7 @@ function Comments({ postCreationRef }: Props2) {
 
   const infiniteScrollRef = useInfiniteScroll({
     hasMoreData,
-    onIntersecting: async () =>
+    onIntersecting: () =>
       comments &&
       comments.length > 0 &&
       fetchMore({
@@ -313,7 +316,20 @@ function Comments({ postCreationRef }: Props2) {
           lastId: comments[comments.length - 1].id,
         },
       })
-        .then((response) => response.data.comments?.length !== limit && setHasMoreData(false))
+        .then(({ data }) => {
+          const comments = data.comments
+
+          if (comments) {
+            const actualLimit = comments.reduce(
+              (acc, comment) => acc + (comment.commentCount || 1),
+              0
+            )
+
+            if (actualLimit !== limit) setHasMoreData(false)
+          } else {
+            setHasMoreData(false)
+          }
+        })
         .catch(() => setHasMoreData(false)),
   })
 
@@ -385,7 +401,6 @@ function Comments({ postCreationRef }: Props2) {
 
         {!comments && postId && !loading && (
           <Relative>
-            <Image src="/images/no-comment.jpg" alt="no post" fill />
             <CenterH2>No Comment</CenterH2>
           </Relative>
         )}
@@ -395,10 +410,28 @@ function Comments({ postCreationRef }: Props2) {
         (hasMoreData ? (
           <CenterText ref={infiniteScrollRef}>무한 스크롤</CenterText>
         ) : (
-          comments && <CenterText>모든 댓글을 불러왔어요</CenterText>
+          comments && (
+            <CenterText onClick={() => setHasMoreData(true)}>이야기 더 불러오기</CenterText>
+          )
         ))}
     </>
   )
+}
+
+export function addNewComment(cache: ApolloCache<any>, { data }: any) {
+  if (!data) return
+
+  const newPost = {
+    __ref: `Post:${data.createPost?.newPost.id}`,
+  }
+
+  return cache.modify({
+    broadcast: false,
+    fields: {
+      comments: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
+      posts: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
+    },
+  })
 }
 
 const limit = NODE_ENV === 'production' ? 20 : 2
@@ -510,22 +543,6 @@ export const Button = styled.button<{ color?: string; selected?: boolean }>`
     }
   }
 `
-
-export function addNewComment(cache: ApolloCache<any>, { data }: any) {
-  if (!data) return
-
-  const newPost = {
-    __ref: `Post:${data.createPost?.newPost.id}`,
-  }
-
-  return cache.modify({
-    broadcast: false,
-    fields: {
-      comments: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
-      posts: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
-    },
-  })
-}
 
 const Relative = styled.div`
   position: relative;

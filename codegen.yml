@@ -9,6 +9,7 @@ generates:
       - typescript-operations
       - typescript-react-apollo
       - typescript-apollo-client-helpers
+      # - typescript-react-query
     config:
       scalars:
         DateTime: string

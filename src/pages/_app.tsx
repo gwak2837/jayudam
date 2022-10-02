@@ -2,6 +2,8 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import 'normalize.css'
 
 import { ApolloProvider } from '@apollo/client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -16,16 +18,19 @@ import { toastApolloError } from '../apollo/error'
 import { useAuthQuery } from '../graphql/generated/types-and-hooks'
 import { GlobalStyle } from '../styles/global'
 import { theme } from '../styles/global'
+import { bootChanneltalk, channelTalkScript } from '../utils/channel-talk'
 import {
   NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY,
   NEXT_PUBLIC_GOOGLE_ANALYTICS_ID,
 } from '../utils/constants'
-import { pageview } from '../utils/google-analytics'
+import { gaScript, pageview } from '../utils/google-analytics'
 import { currentUser } from '../utils/recoil'
 
 // https://github.com/styled-components/styled-components/issues/3738
 const ThemeProvider2: any = ThemeProvider
 const GlobalStyle2: any = GlobalStyle
+
+const queryClient = new QueryClient()
 
 export default function JayudamApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
@@ -70,14 +75,17 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
 
       <ThemeProvider2 theme={theme}>
         <GlobalStyle2 />
-        <ApolloProvider client={client}>
-          <RecoilRoot>
-            <Authentication>
-              {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
-              <Component key={router.asPath} {...pageProps} />
-            </Authentication>
-          </RecoilRoot>
-        </ApolloProvider>
+        <QueryClientProvider client={queryClient}>
+          <ApolloProvider client={client}>
+            <RecoilRoot>
+              <Authentication>
+                {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
+                <Component key={router.asPath} {...pageProps} />
+              </Authentication>
+            </RecoilRoot>
+          </ApolloProvider>
+          <ReactQueryDevtools />
+        </QueryClientProvider>
       </ThemeProvider2>
 
       <ToastContainer autoClose={2000} hideProgressBar position="top-center" transition={fade} />
@@ -132,53 +140,3 @@ const fade = cssTransition({
   enter: 'fadeIn',
   exit: 'fadeOut',
 })
-
-const gaScript = `
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){window.dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', '${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}', {page_path: window.location.pathname});
-`
-
-const channelTalkScript = `
-  (function() {
-    var w = window;
-    if (w.ChannelIO) {
-      return (window.console.error || window.console.log || function(){})('ChannelIO script included twice.');
-    }
-    var ch = function() {
-      ch.c(arguments);
-    };
-    ch.q = [];
-    ch.c = function(args) {
-      ch.q.push(args);
-    };
-    w.ChannelIO = ch;
-    function l() {
-      if (w.ChannelIOInitialized) {
-        return;
-      }
-      w.ChannelIOInitialized = true;
-      var s = document.createElement('script');
-      s.type = 'text/javascript';
-      s.async = true;
-      s.src = 'https://cdn.channel.io/plugin/ch-plugin-web.js';
-      s.charset = 'UTF-8';
-      var x = document.getElementsByTagName('script')[0];
-      x.parentNode.insertBefore(s, x);
-    }
-    if (document.readyState === 'complete') {
-      l();
-    } else if (window.attachEvent) {
-      window.attachEvent('onload', l);
-    } else {
-      window.addEventListener('DOMContentLoaded', l, false);
-      window.addEventListener('load', l, false);
-    }
-  })();
-`
-
-function bootChanneltalk(option: Record<string, any>) {
-  globalThis.window?.ChannelIO('shutdown')
-  globalThis.window?.ChannelIO('boot', option)
-}
