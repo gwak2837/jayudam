@@ -15,6 +15,7 @@ import { ThemeProvider } from 'styled-components'
 
 import { client } from '../apollo/client'
 import { toastApolloError } from '../apollo/error'
+import WebPush from '../components/WebPush'
 import { useAuthQuery } from '../graphql/generated/types-and-hooks'
 import { GlobalStyle } from '../styles/global'
 import { theme } from '../styles/global'
@@ -78,10 +79,12 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
         <QueryClientProvider client={queryClient}>
           <ApolloProvider client={client}>
             <RecoilRoot>
-              <Authentication>
-                {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
-                <Component key={router.asPath} {...pageProps} />
-              </Authentication>
+              <WebPush>
+                <Authentication>
+                  {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
+                  <Component key={router.asPath} {...pageProps} />
+                </Authentication>
+              </WebPush>
             </RecoilRoot>
           </ApolloProvider>
           <ReactQueryDevtools />

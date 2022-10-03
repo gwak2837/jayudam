@@ -1,6 +1,7 @@
 export const NODE_ENV = process.env.NODE_ENV as string
 export const NEXT_PUBLIC_PROJECT_ENV = process.env.NEXT_PUBLIC_PROJECT_ENV as string
 export const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string
+export const NEXT_PUBLIC_VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY as string
 
 const NEXT_PUBLIC_VERCEL_URL = process.env.NEXT_PUBLIC_VERCEL_URL as string
 const NEXT_PUBLIC_VERCEL_ENV = process.env.NEXT_PUBLIC_VERCEL_ENV as string
@@ -22,6 +23,8 @@ export const NEXT_PUBLIC_CHANNELTALK_PLUGIN_KEY = process.env
 if (!NODE_ENV) throw new Error('`NODE_ENV` 환경 변수를 설정해주세요.')
 if (!NEXT_PUBLIC_PROJECT_ENV) throw new Error('`NEXT_PUBLIC_PROJECT_ENV` 환경 변수를 설정해주세요.')
 if (!NEXT_PUBLIC_BACKEND_URL) throw new Error('`NEXT_PUBLIC_BACKEND_URL` 환경 변수를 설정해주세요.')
+if (!NEXT_PUBLIC_VAPID_PUBLIC_KEY)
+  throw new Error('`NEXT_PUBLIC_VAPID_PUBLIC_KEY` 환경 변수를 설정해주세요.')
 
 if (NEXT_PUBLIC_PROJECT_ENV.startsWith('cloud') && !NEXT_PUBLIC_VERCEL_URL)
   throw new Error('`NEXT_PUBLIC_VERCEL_URL` 환경 변수를 설정해주세요.')

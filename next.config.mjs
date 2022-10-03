@@ -35,6 +35,6 @@ const nextConfig = {
 }
 
 export default withPWA({
+  customWorkerDir: 'src/worker',
   dest: 'public',
-  disable: NODE_ENV === 'development',
 })(nextConfig)
