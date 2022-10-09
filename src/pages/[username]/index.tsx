@@ -1,4 +1,5 @@
 import Image from 'next/future/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
@@ -202,6 +203,9 @@ export default function UserPage() {
 
               <button>따르기</button>
               <button>선물하기</button>
+              <div>
+                <Link href="/chat">대화</Link>
+              </div>
 
               <KakaoButton disabled={logoutLoading} onClick={goToKakaoLoginPage}>
                 <KakaoLogo />

@@ -15,7 +15,7 @@ import { ThemeProvider } from 'styled-components'
 
 import { client } from '../apollo/client'
 import { toastApolloError } from '../apollo/error'
-import WebPush from '../components/WebPush'
+import WebPush from '../components/push/WebPush'
 import { useAuthQuery } from '../graphql/generated/types-and-hooks'
 import { GlobalStyle } from '../styles/global'
 import { theme } from '../styles/global'

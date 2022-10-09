@@ -1,0 +1,3 @@
+mutation CreatePushSubscription($input: PushSubscription!) {
+  createPushSubscription(input: $input)
+}
