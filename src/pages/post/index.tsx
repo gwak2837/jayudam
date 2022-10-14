@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
 import PostCreationButton from '../../components/create-post/PostCreationButton'
 import { PostCreation, PostCreationForm } from '../../components/create-post/PostCreationForm'
 import PageHead from '../../components/PageHead'
@@ -33,7 +33,7 @@ export default function PostsPage() {
     fetchMore,
   } = usePostsQuery({
     notifyOnNetworkStatusChange: true,
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   const posts = data?.posts
@@ -56,7 +56,7 @@ export default function PostsPage() {
 
   // 프로필 사진 불러오기
   const { data: data2, loading: isProfileLoading } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -88,7 +88,7 @@ export default function PostsPage() {
       setIsSubmitionSuccess(true)
       setIsPostCreating(false)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: addNewPost,
   })
 

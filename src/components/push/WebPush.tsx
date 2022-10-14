@@ -1,12 +1,10 @@
+/* eslint-disable no-undef */
+import { useMutation } from '@tanstack/react-query'
 import { ReactNode, useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
-import { toastApolloError } from '../../apollo/error'
-import {
-  useCreatePushSubscriptionMutation,
-  useDeletePushSubscriptionMutation,
-} from '../../graphql/generated/types-and-hooks'
-import { NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../../utils/constants'
+import { toastError } from '../../apollo/error'
+import { NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../../utils/constants'
 import { currentUser, serviceWorker } from '../../utils/recoil'
 
 type Props = {
@@ -19,13 +17,37 @@ export default function WebPush({ children }: Props) {
   // Web push
   const setServiceWorker = useSetRecoilState(serviceWorker)
 
-  const [createPushMutation] = useCreatePushSubscriptionMutation({
-    onError: toastApolloError,
-  })
+  const { mutate: createPushSubscription } = useMutation<unknown, Error, PushSubscriptionJSON>(
+    async (pushSubscription) =>
+      fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/push`, {
+        method: 'POST',
+        headers: {
+          authorization:
+            globalThis.sessionStorage?.getItem('jwt') ??
+            globalThis.localStorage?.getItem('jwt') ??
+            '',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pushSubscription }),
+      }),
+    { onError: toastError }
+  )
 
-  const [deletePushMutation] = useDeletePushSubscriptionMutation({
-    onError: toastApolloError,
-  })
+  const { mutate: deletePushSubscription } = useMutation(
+    async (pushSubscription) =>
+      fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/push`, {
+        method: 'POST',
+        headers: {
+          authorization:
+            globalThis.sessionStorage?.getItem('jwt') ??
+            globalThis.localStorage?.getItem('jwt') ??
+            '',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pushSubscription }),
+      }),
+    { onError: toastError }
+  )
 
   useEffect(() => {
     let registration: ServiceWorkerRegistration | null | undefined
@@ -45,15 +67,7 @@ export default function WebPush({ children }: Props) {
       const pushSubscriptionInfo = pushSubscription.toJSON()
       if (!pushSubscriptionInfo.endpoint || !pushSubscriptionInfo.keys) return
 
-      createPushMutation({
-        variables: {
-          input: {
-            endpoint: pushSubscription.endpoint,
-            expirationTime: pushSubscriptionInfo.expirationTime,
-            keys: pushSubscriptionInfo.keys as any,
-          },
-        },
-      })
+      createPushSubscription(pushSubscriptionInfo)
 
       setServiceWorker({
         serviceWorkerRegistration: registration,
@@ -65,7 +79,7 @@ export default function WebPush({ children }: Props) {
       const unsubscribed = await pushSubscription?.unsubscribe()
       if (!unsubscribed) return
 
-      deletePushMutation()
+      deletePushSubscription()
 
       setServiceWorker({
         serviceWorkerRegistration: registration,
@@ -80,7 +94,7 @@ export default function WebPush({ children }: Props) {
         removePushSubscription()
       }
     }
-  }, [createPushMutation, deletePushMutation, name, setServiceWorker])
+  }, [createPushSubscription, deletePushSubscription, name, setServiceWorker])
 
   return <>{children}</>
 }

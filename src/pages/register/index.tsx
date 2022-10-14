@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
 import Checkbox from '../../components/atoms/Checkbox'
 import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
 import PageHead from '../../components/PageHead'
@@ -57,7 +57,7 @@ export default function RegisterPage() {
 
   // Username 중복 검사
   const [isUniqueUsername, { loading: isUniqueUsernameLoading }] = useIsUniqueUsernameLazyQuery({
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   const isUniqueUsernameTimeout = useRef<any>(null)
@@ -101,7 +101,7 @@ export default function RegisterPage() {
         toast.success('정보 등록에 성공했어요')
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   function updateUser(input: RegisterFormValues) {

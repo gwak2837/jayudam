@@ -16,15 +16,15 @@ export type Scalars = {
   Float: number
   Any: any
   DateTime: string
-  EmailAddress: any
-  JWT: any
+  EmailAddress: string
+  JWT: string
   Latitude: any
   Longitude: any
-  NonEmptyString: any
-  NonNegativeInt: any
-  PositiveInt: any
+  NonEmptyString: string
+  NonNegativeInt: number
+  PositiveInt: number
   URL: string
-  UUID: any
+  UUID: string
 }
 
 export type Cert = {
@@ -96,18 +96,11 @@ export enum Grade {
   Pro = 'PRO',
 }
 
-export type Keys = {
-  auth: Scalars['NonEmptyString']
-  p256dh: Scalars['NonEmptyString']
-}
-
 export type Mutation = {
   __typename?: 'Mutation'
   certJWT: Scalars['JWT']
   createPost?: Maybe<PostCreationResult>
-  createPushSubscription?: Maybe<Scalars['Boolean']>
   deletePost?: Maybe<Post>
-  deletePushSubscription?: Maybe<Scalars['Boolean']>
   deleteSharingPost?: Maybe<PostDeletionResult>
   disconnectFromGoogleOAuth?: Maybe<Scalars['Boolean']>
   disconnectFromKakaoOAuth?: Maybe<Scalars['Boolean']>
@@ -131,10 +124,6 @@ export type MutationCertJwtArgs = {
 
 export type MutationCreatePostArgs = {
   input: PostCreationInput
-}
-
-export type MutationCreatePushSubscriptionArgs = {
-  input: PushSubscription
 }
 
 export type MutationDeletePostArgs = {
@@ -235,22 +224,6 @@ export type PostUpdateInput = {
   content: Scalars['NonEmptyString']
   id: Scalars['ID']
   imageUrls?: InputMaybe<Array<Scalars['URL']>>
-}
-
-export type Push = {
-  __typename?: 'Push'
-  content?: Maybe<Scalars['String']>
-  creationTime?: Maybe<Scalars['DateTime']>
-  deletionTime?: Maybe<Scalars['DateTime']>
-  id: Scalars['ID']
-  imageUrls?: Maybe<Array<Scalars['URL']>>
-  updateTime?: Maybe<Scalars['DateTime']>
-}
-
-export type PushSubscription = {
-  endpoint: Scalars['URL']
-  expirationTime?: InputMaybe<Scalars['NonNegativeInt']>
-  keys: Keys
 }
 
 export type Query = {
@@ -403,10 +376,10 @@ export type CreatePostMutation = {
       likeCount?: number | null
       commentCount?: number | null
       sharedCount?: number | null
-      author?: { __typename?: 'User'; id: any } | null
+      author?: { __typename?: 'User'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     }
   } | null
@@ -429,22 +402,6 @@ export type DeletePostMutation = {
   } | null
 }
 
-export type CreatePushSubscriptionMutationVariables = Exact<{
-  input: PushSubscription
-}>
-
-export type CreatePushSubscriptionMutation = {
-  __typename?: 'Mutation'
-  createPushSubscription?: boolean | null
-}
-
-export type DeletePushSubscriptionMutationVariables = Exact<{ [key: string]: never }>
-
-export type DeletePushSubscriptionMutation = {
-  __typename?: 'Mutation'
-  deletePushSubscription?: boolean | null
-}
-
 export type DeleteSharingPostMutationVariables = Exact<{
   sharedPostId: Scalars['ID']
 }>
@@ -462,7 +419,7 @@ export type DeleteSharingPostMutation = {
       sharingPost?: { __typename?: 'Post'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     } | null
     sharedPost?: {
@@ -499,14 +456,14 @@ export type SharePostMutation = {
       sharingPost?: { __typename?: 'Post'; id: string } | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
       } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     }
     sharedPost?: {
@@ -534,14 +491,14 @@ export type PostCardFragment = {
   sharedCount?: number | null
   author?: {
     __typename?: 'User'
-    id: any
+    id: string
     name?: string | null
     nickname?: string | null
     imageUrl?: string | null
   } | null
   parentPost?: {
     __typename?: 'Post'
-    author?: { __typename?: 'User'; id: any; name?: string | null } | null
+    author?: { __typename?: 'User'; id: string; name?: string | null } | null
   } | null
 }
 
@@ -549,7 +506,7 @@ export type AuthQueryVariables = Exact<{ [key: string]: never }>
 
 export type AuthQuery = {
   __typename?: 'Query'
-  auth?: { __typename?: 'User'; id: any; name?: string | null } | null
+  auth?: { __typename?: 'User'; id: string; name?: string | null } | null
 }
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
@@ -567,7 +524,7 @@ export type UserQuery = {
   __typename?: 'Query'
   user?: {
     __typename?: 'User'
-    id: any
+    id: string
     creationTime?: string | null
     bio?: string | null
     birthday?: string | null
@@ -598,7 +555,7 @@ export type MyProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type MyProfileQuery = {
   __typename?: 'Query'
-  myProfile?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
+  myProfile?: { __typename?: 'User'; id: string; imageUrl?: string | null } | null
 }
 
 export type PostsQueryVariables = Exact<{
@@ -631,7 +588,7 @@ export type PostsQuery = {
       imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
@@ -639,14 +596,14 @@ export type PostsQuery = {
     } | null
     author?: {
       __typename?: 'User'
-      id: any
+      id: string
       name?: string | null
       nickname?: string | null
       imageUrl?: string | null
     } | null
     parentPost?: {
       __typename?: 'Post'
-      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      author?: { __typename?: 'User'; id: string; name?: string | null } | null
     } | null
   }> | null
 }
@@ -689,26 +646,26 @@ export type CommentsQuery = {
       sharedCount?: number | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
       } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     }> | null
     author?: {
       __typename?: 'User'
-      id: any
+      id: string
       name?: string | null
       nickname?: string | null
       imageUrl?: string | null
     } | null
     parentPost?: {
       __typename?: 'Post'
-      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      author?: { __typename?: 'User'; id: string; name?: string | null } | null
     } | null
   }> | null
 }
@@ -735,10 +692,10 @@ export type CreateCommentMutation = {
       likeCount?: number | null
       commentCount?: number | null
       sharedCount?: number | null
-      author?: { __typename?: 'User'; id: any } | null
+      author?: { __typename?: 'User'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
       comments?: Array<{ __typename?: 'Post'; id: string }> | null
     }
@@ -773,7 +730,7 @@ export type PostQuery = {
     sharedCount?: number | null
     author?: {
       __typename?: 'User'
-      id: any
+      id: string
       name?: string | null
       nickname?: string | null
       imageUrl?: string | null
@@ -788,7 +745,7 @@ export type PostQuery = {
       imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
@@ -804,7 +761,7 @@ export type PostQuery = {
       imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
@@ -831,7 +788,7 @@ export type CertJwtMutationVariables = Exact<{
   input: CertAgreementInput
 }>
 
-export type CertJwtMutation = { __typename?: 'Mutation'; certJWT: any }
+export type CertJwtMutation = { __typename?: 'Mutation'; certJWT: string }
 
 export type MyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
 
@@ -839,7 +796,7 @@ export type MyCertAgreementQuery = {
   __typename?: 'Query'
   myCertAgreement?: {
     __typename?: 'User'
-    id: any
+    id: string
     cherry?: number | null
     certAgreement?: {
       __typename?: 'CertAgreement'
@@ -868,12 +825,12 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser?: { __typename?: 'User'; id: any; name?: string | null } | null
+  updateUser?: { __typename?: 'User'; id: string; name?: string | null } | null
 }
 
 export type SampleCertJwtQueryVariables = Exact<{ [key: string]: never }>
 
-export type SampleCertJwtQuery = { __typename?: 'Query'; sampleCertJWT: any }
+export type SampleCertJwtQuery = { __typename?: 'Query'; sampleCertJWT: string }
 
 export type VerifyCertJwtMutationVariables = Exact<{
   jwt: Scalars['JWT']
@@ -1063,101 +1020,6 @@ export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>
 export type DeletePostMutationOptions = Apollo.BaseMutationOptions<
   DeletePostMutation,
   DeletePostMutationVariables
->
-export const CreatePushSubscriptionDocument = gql`
-  mutation CreatePushSubscription($input: PushSubscription!) {
-    createPushSubscription(input: $input)
-  }
-`
-export type CreatePushSubscriptionMutationFn = Apollo.MutationFunction<
-  CreatePushSubscriptionMutation,
-  CreatePushSubscriptionMutationVariables
->
-
-/**
- * __useCreatePushSubscriptionMutation__
- *
- * To run a mutation, you first call `useCreatePushSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreatePushSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createPushSubscriptionMutation, { data, loading, error }] = useCreatePushSubscriptionMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreatePushSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    CreatePushSubscriptionMutation,
-    CreatePushSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<
-    CreatePushSubscriptionMutation,
-    CreatePushSubscriptionMutationVariables
-  >(CreatePushSubscriptionDocument, options)
-}
-export type CreatePushSubscriptionMutationHookResult = ReturnType<
-  typeof useCreatePushSubscriptionMutation
->
-export type CreatePushSubscriptionMutationResult =
-  Apollo.MutationResult<CreatePushSubscriptionMutation>
-export type CreatePushSubscriptionMutationOptions = Apollo.BaseMutationOptions<
-  CreatePushSubscriptionMutation,
-  CreatePushSubscriptionMutationVariables
->
-export const DeletePushSubscriptionDocument = gql`
-  mutation DeletePushSubscription {
-    deletePushSubscription
-  }
-`
-export type DeletePushSubscriptionMutationFn = Apollo.MutationFunction<
-  DeletePushSubscriptionMutation,
-  DeletePushSubscriptionMutationVariables
->
-
-/**
- * __useDeletePushSubscriptionMutation__
- *
- * To run a mutation, you first call `useDeletePushSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeletePushSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deletePushSubscriptionMutation, { data, loading, error }] = useDeletePushSubscriptionMutation({
- *   variables: {
- *   },
- * });
- */
-export function useDeletePushSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    DeletePushSubscriptionMutation,
-    DeletePushSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<
-    DeletePushSubscriptionMutation,
-    DeletePushSubscriptionMutationVariables
-  >(DeletePushSubscriptionDocument, options)
-}
-export type DeletePushSubscriptionMutationHookResult = ReturnType<
-  typeof useDeletePushSubscriptionMutation
->
-export type DeletePushSubscriptionMutationResult =
-  Apollo.MutationResult<DeletePushSubscriptionMutation>
-export type DeletePushSubscriptionMutationOptions = Apollo.BaseMutationOptions<
-  DeletePushSubscriptionMutation,
-  DeletePushSubscriptionMutationVariables
 >
 export const DeleteSharingPostDocument = gql`
   mutation DeleteSharingPost($sharedPostId: ID!) {
@@ -2128,9 +1990,7 @@ export type CertsFieldPolicy = {
 export type MutationKeySpecifier = (
   | 'certJWT'
   | 'createPost'
-  | 'createPushSubscription'
   | 'deletePost'
-  | 'deletePushSubscription'
   | 'deleteSharingPost'
   | 'disconnectFromGoogleOAuth'
   | 'disconnectFromKakaoOAuth'
@@ -2151,9 +2011,7 @@ export type MutationKeySpecifier = (
 export type MutationFieldPolicy = {
   certJWT?: FieldPolicy<any> | FieldReadFunction<any>
   createPost?: FieldPolicy<any> | FieldReadFunction<any>
-  createPushSubscription?: FieldPolicy<any> | FieldReadFunction<any>
   deletePost?: FieldPolicy<any> | FieldReadFunction<any>
-  deletePushSubscription?: FieldPolicy<any> | FieldReadFunction<any>
   deleteSharingPost?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromGoogleOAuth?: FieldPolicy<any> | FieldReadFunction<any>
   disconnectFromKakaoOAuth?: FieldPolicy<any> | FieldReadFunction<any>
@@ -2226,23 +2084,6 @@ export type PostDeletionResultKeySpecifier = (
 export type PostDeletionResultFieldPolicy = {
   deletedPost?: FieldPolicy<any> | FieldReadFunction<any>
   sharedPost?: FieldPolicy<any> | FieldReadFunction<any>
-}
-export type PushKeySpecifier = (
-  | 'content'
-  | 'creationTime'
-  | 'deletionTime'
-  | 'id'
-  | 'imageUrls'
-  | 'updateTime'
-  | PushKeySpecifier
-)[]
-export type PushFieldPolicy = {
-  content?: FieldPolicy<any> | FieldReadFunction<any>
-  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
-  deletionTime?: FieldPolicy<any> | FieldReadFunction<any>
-  id?: FieldPolicy<any> | FieldReadFunction<any>
-  imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
-  updateTime?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type QueryKeySpecifier = (
   | 'auth'
@@ -2410,10 +2251,6 @@ export type StrictTypedTypePolicies = {
       | PostDeletionResultKeySpecifier
       | (() => undefined | PostDeletionResultKeySpecifier)
     fields?: PostDeletionResultFieldPolicy
-  }
-  Push?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
-    keyFields?: false | PushKeySpecifier | (() => undefined | PushKeySpecifier)
-    fields?: PushFieldPolicy
   }
   Query?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | QueryKeySpecifier | (() => undefined | QueryKeySpecifier)

@@ -1,58 +1,41 @@
 /* eslint-disable no-undef */
 /// <reference lib="webworker" />
 
-export declare const serviceWorker: ServiceWorkerGlobalScope
+// Add an import, export, or an empty 'export {}' statement to make it a module. ts(1208)
+export declare const self: ServiceWorkerGlobalScope
 
-// // listen to message event from window
-// serviceWorker.addEventListener('message', (e) => {
-//   // HOW TO TEST THIS?
-//   // Run this in your browser console:
-//   //     window.navigator.serviceWorker.controller.postMessage({command: 'log', message: 'hello world'})
-//   // OR use next-pwa injected workbox object
-//   //     window.workbox.messageSW({command: 'log', message: 'hello world'})
-//   console.log(e?.data)
-// })
-
-serviceWorker.addEventListener('install', (e) => {
-  console.log('install', { event: e })
-  e.waitUntil(serviceWorker.skipWaiting())
+// listen to message event from window
+self.addEventListener('message', (e) => {
+  // HOW TO TEST THIS?
+  // Run this in your browser console:
+  //     window.navigator.serviceWorker.controller.postMessage({command: 'log', message: 'hello world'})
+  // OR use next-pwa injected workbox object
+  //     window.workbox.messageSW({command: 'log', message: 'hello world'})
+  console.log(e.data)
 })
 
-serviceWorker.addEventListener('activate', (e) => {
-  console.log('activate', { event: e })
+self.addEventListener('install', (e) => {
+  console.log('👀 - install', e)
+  e.waitUntil(self.skipWaiting())
 })
 
-serviceWorker.addEventListener('push', (e) => {
+self.addEventListener('activate', (e) => {
+  console.log('👀 - activate', e)
+})
+
+self.addEventListener('push', (e) => {
   const message = e.data?.json()
+  console.log('👀 - message', message)
 
   e.waitUntil(
-    serviceWorker.registration.showNotification(message.title, {
-      body: message.body,
-      icon: '/images/apple-touch-icon.png',
+    self.registration.showNotification(message.sender.nickname, {
+      body: message.content,
+      icon: message.sender.imageUrl,
     })
   )
 })
 
-serviceWorker.addEventListener('notificationclick', (e) => {
-  console.log('notificationclick', { event: e })
-  serviceWorker.clients.openWindow('https://github.com/leegeunhyeok/web-push')
+self.addEventListener('notificationclick', (e) => {
+  console.log('notificationclick', e)
+  self.clients.openWindow('https://github.com/leegeunhyeok/web-push')
 })
-
-// serviceWorker.addEventListener('notificationclick', (e) => {
-//   e.notification.close()
-//   e.waitUntil(
-//     serviceWorker.clients
-//       .matchAll({ type: 'window', includeUncontrolled: true })
-//       .then((clientList) => {
-//         if (clientList.length === 0) return serviceWorker.clients.openWindow('/')
-
-//         let client = clientList[0]
-//         for (let i = 0; i < clientList.length; i++) {
-//           if (clientList[i].focused) {
-//             client = clientList[i]
-//           }
-//         }
-//         return client.focus()
-//       })
-//   )
-// })

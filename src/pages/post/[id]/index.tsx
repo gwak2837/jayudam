@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../../apollo/error'
+import { toastError } from '../../../apollo/error'
 import {
   FlexBetween,
   FlexCenter,
@@ -71,7 +71,7 @@ export default function PostPage() {
   // Post 불러오기
   const { data, loading } = usePostQuery({
     fetchPolicy: 'no-cache',
-    onError: toastApolloError,
+    onError: toastError,
     skip: !postId,
     variables: { id: postId },
   })
@@ -84,7 +84,7 @@ export default function PostPage() {
 
   // 좋아요
   const [toggleLikingPostMutation, { loading: likeLoading }] = useToggleLikingPostMutation({
-    onError: toastApolloError,
+    onError: toastError,
     variables: { id: postId },
   })
 
@@ -297,7 +297,7 @@ function Comments({ postCreationRef }: Props2) {
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ comments }) => (!comments || comments.length === 0) && setHasMoreData(false),
     onError: (error) => {
-      toastApolloError(error)
+      toastError(error)
       setHasMoreData(false)
     },
     skip: !postId,
@@ -335,7 +335,7 @@ function Comments({ postCreationRef }: Props2) {
 
   // 프로필 불러오기
   const { data: data2, loading: profileLoading } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -350,7 +350,7 @@ function Comments({ postCreationRef }: Props2) {
       setIsSubmitionSuccess(true)
       setHasMoreData(true)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: addNewComment,
   })
 

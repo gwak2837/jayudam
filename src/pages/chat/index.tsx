@@ -4,10 +4,13 @@ import { toast } from 'react-toastify'
 
 import LoginLink from '../../components/atoms/LoginLink'
 import PageHead from '../../components/PageHead'
+import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
 import { NEXT_PUBLIC_BACKEND_URL } from '../../utils/constants'
 
 export default function ChatPage() {
+  useNeedToLogin()
+
   // Event Source
   const eventSource = useRef<EventSource>()
 
@@ -61,7 +64,7 @@ export default function ChatPage() {
 
   const [sending, setSending] = useState('')
 
-  const { mutate } = useMutation(async (newMessage) =>
+  const { mutate } = useMutation(async () =>
     fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/send`, {
       method: 'POST',
       headers: {
@@ -71,7 +74,13 @@ export default function ChatPage() {
           '',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ chatroomId: 'chatroomId', message: sending }),
+      body: JSON.stringify({
+        chatroomId: 'chatroomId',
+        message: {
+          content: sending,
+          type: 0,
+        },
+      }),
     })
   )
 
@@ -81,6 +90,25 @@ export default function ChatPage() {
     mutate()
   }
 
+  function test(e: any) {
+    fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/test`, {
+      method: 'POST',
+      headers: {
+        authorization:
+          globalThis.sessionStorage?.getItem('jwt') ??
+          globalThis.localStorage?.getItem('jwt') ??
+          '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: {
+          content: sending,
+          type: 0,
+        },
+      }),
+    })
+  }
+
   return (
     <PageHead title="대화 - 자유담" description="">
       <Navigation>
@@ -88,6 +116,7 @@ export default function ChatPage() {
           <div>
             <button onClick={connect}>들어가기</button>
             <button onClick={disconnect}>나가기</button>
+            <button onClick={test}>테스트</button>
           </div>
           <form onSubmit={send}>
             <input value={sending} onChange={(e) => setSending(e.target.value)} />

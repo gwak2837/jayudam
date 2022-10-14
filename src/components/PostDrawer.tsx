@@ -3,7 +3,7 @@ import { toast } from 'react-toastify'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../apollo/error'
+import { toastError } from '../apollo/error'
 import { Post, useDeletePostMutation } from '../graphql/generated/types-and-hooks'
 import BlockIcon from '../svgs/block.svg'
 import DeleteIcon from '../svgs/delete.svg'
@@ -34,7 +34,7 @@ function PostDrawer_() {
       closeDrawer()
       toast.success('이야기 삭제 완료')
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: (cache, { data }) =>
       data?.deletePost?.deletionTime === null && cache.evict({ id: `Post:${data.deletePost.id}` }),
   })

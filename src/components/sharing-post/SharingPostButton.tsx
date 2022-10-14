@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
 import {
   Post,
   useDeleteSharingPostMutation,
@@ -60,7 +60,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
 
   // 프로필 불러오기
   const { data } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -73,7 +73,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
       setSharingPostModal(false)
       setIsSubmitionSuccess(true)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: (cache, { data }) =>
       data &&
       cache.modify({
@@ -109,7 +109,7 @@ export default function SharingPostButton({ post, sharedPost }: Props2) {
     onCompleted: () => {
       setDeletingSharingPost(false)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: (cache, { data }) =>
       data?.deleteSharingPost?.deletedPost?.deletionTime === null &&
       cache.evict({ id: `Post:${data.deleteSharingPost.deletedPost.id}` }),

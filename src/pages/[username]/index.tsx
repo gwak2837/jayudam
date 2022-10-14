@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
 import {
   Absolute as Absolute_,
   FlexBigGap as FlexBigGap_,
@@ -67,7 +67,7 @@ export default function UserPage() {
     loading: userLoading,
     error,
   } = useUserQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !pageUsername || pageUsername === 'null' || pageUsername === 'undefined',
     variables: {
       name: pageUsername === currentUsername ? null : pageUsername,
@@ -92,7 +92,7 @@ export default function UserPage() {
         )
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   function logout() {

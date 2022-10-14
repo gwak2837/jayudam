@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../apollo/error'
+import { toastError } from '../apollo/error'
 import { Post, useToggleLikingPostMutation } from '../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../pages/post'
 import { Bold, Button, GridColumn4 } from '../pages/post/[id]'
@@ -105,7 +105,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
 
   // 좋아요
   const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
-    onError: toastApolloError,
+    onError: toastError,
     variables: { id: post.id },
   })
 

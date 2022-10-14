@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
 import Modal from '../../components/atoms/Modal'
 import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
 import PageHead from '../../components/PageHead'
@@ -120,7 +120,7 @@ export default function VerificationPage() {
         setShowResult(true)
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   const allCerts = data?.verifyCertJWT
@@ -156,7 +156,7 @@ export default function VerificationPage() {
         verifyCertJwtMutation({ variables: { jwt: sampleCertJWT } })
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   function getSampleCertJWT() {

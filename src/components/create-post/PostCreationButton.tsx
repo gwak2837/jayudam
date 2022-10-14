@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
 import { useCreatePostMutation, useMyProfileQuery } from '../../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../../pages/post'
 import QuillPenIcon from '../../svgs/quill-pen.svg'
@@ -41,7 +41,7 @@ export default function PostCreationButton({ show }: Props) {
 
   // 프로필 불러오기
   const { data } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -54,7 +54,7 @@ export default function PostCreationButton({ show }: Props) {
       setIsModalOpened(false)
       setIsSubmitionSuccess(true)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: (cache, { data }) =>
       data &&
       cache.modify({

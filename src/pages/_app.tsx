@@ -14,7 +14,7 @@ import { RecoilRoot, useRecoilState } from 'recoil'
 import { ThemeProvider } from 'styled-components'
 
 import { client } from '../apollo/client'
-import { toastApolloError } from '../apollo/error'
+import { toastError } from '../apollo/error'
 import WebPush from '../components/push/WebPush'
 import { useAuthQuery } from '../graphql/generated/types-and-hooks'
 import { GlobalStyle } from '../styles/global'
@@ -123,7 +123,7 @@ function Authentication({ children }: Props) {
       }
     },
     onError: (error) => {
-      toastApolloError(error)
+      toastError(error)
       globalThis.sessionStorage?.removeItem('jwt')
       globalThis.localStorage?.removeItem('jwt')
       setCurrentUser({ name: null })
