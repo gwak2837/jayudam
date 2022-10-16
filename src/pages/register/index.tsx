@@ -8,6 +8,8 @@ import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
 import { toastError } from '../../apollo/error'
+import { TABLET_MIN_WIDTH } from '../../common/constants'
+import { currentUser } from '../../common/recoil'
 import Checkbox from '../../components/atoms/Checkbox'
 import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
 import PageHead from '../../components/PageHead'
@@ -15,8 +17,6 @@ import {
   useIsUniqueUsernameLazyQuery,
   useUpdateUserMutation,
 } from '../../graphql/generated/types-and-hooks'
-import { TABLET_MIN_WIDTH } from '../../utils/constants'
-import { currentUser } from '../../utils/recoil'
 
 export default function RegisterPage() {
   const [{ name }, setCurrentUser] = useRecoilState(currentUser)

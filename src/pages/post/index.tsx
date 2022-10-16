@@ -6,6 +6,7 @@ import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastError } from '../../apollo/error'
+import { currentUser } from '../../common/recoil'
 import PostCreationButton from '../../components/create-post/PostCreationButton'
 import { PostCreation, PostCreationForm } from '../../components/create-post/PostCreationForm'
 import PageHead from '../../components/PageHead'
@@ -21,7 +22,6 @@ import useInfiniteScroll from '../../hooks/useInfiniteScroll'
 import Navigation from '../../layouts/Navigation'
 import { Skeleton } from '../../styles'
 import { uploadFormDataFiles } from '../../utils/fetch'
-import { currentUser } from '../../utils/recoil'
 
 export default function PostsPage() {
   const { name } = useRecoilValue(currentUser)

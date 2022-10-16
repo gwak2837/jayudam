@@ -8,6 +8,8 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
 import { toastError } from '../../../apollo/error'
+import { NODE_ENV } from '../../../common/constants'
+import { currentUser } from '../../../common/recoil'
 import {
   FlexBetween,
   FlexCenter,
@@ -52,8 +54,6 @@ import HeartIcon from '../../../svgs/HeartIcon'
 import ShareIcon from '../../../svgs/ShareIcon'
 import ThreeDotsIcon from '../../../svgs/three-dots.svg'
 import { stopPropagation } from '../../../utils'
-import { NODE_ENV } from '../../../utils/constants'
-import { currentUser } from '../../../utils/recoil'
 import { borderRadiusCircle } from '..'
 
 const description = '자유담에서 이야기해보세요'

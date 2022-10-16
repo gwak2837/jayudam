@@ -8,6 +8,17 @@ import styled from 'styled-components'
 
 import { toastError } from '../../apollo/error'
 import {
+  MOBILE_MIN_HEIGHT,
+  NEXT_PUBLIC_BACKEND_URL,
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  NEXT_PUBLIC_KAKAO_REST_API_KEY,
+  NEXT_PUBLIC_NAVER_CLIENT_ID,
+  TABLET_MIN_WIDTH,
+  TABLET_MIN_WIDTH_1,
+} from '../../common/constants'
+import { formatBirthday, formatSimpleDate } from '../../common/date'
+import { currentUser } from '../../common/recoil'
+import {
   Absolute as Absolute_,
   FlexBigGap as FlexBigGap_,
   FlexCenterSmallGap,
@@ -32,17 +43,6 @@ import MapIcon from '../../svgs/map.svg'
 import NaverLogo from '../../svgs/naver-logo.svg'
 import SexIcon from '../../svgs/sex.svg'
 import { getUsername } from '../../utils'
-import {
-  MOBILE_MIN_HEIGHT,
-  NEXT_PUBLIC_BACKEND_URL,
-  NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-  NEXT_PUBLIC_KAKAO_REST_API_KEY,
-  NEXT_PUBLIC_NAVER_CLIENT_ID,
-  TABLET_MIN_WIDTH,
-  TABLET_MIN_WIDTH_1,
-} from '../../utils/constants'
-import { formatBirthday, formatSimpleDate } from '../../utils/date'
-import { currentUser } from '../../utils/recoil'
 import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
 export default function UserPage() {

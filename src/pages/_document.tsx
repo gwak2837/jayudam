@@ -1,14 +1,14 @@
 import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from 'styled-components'
 
-import { theme } from '../styles/global'
 import {
   APPLICATION_SHORT_NAME,
   AUTHOR,
   CANONICAL_URL,
   KEYWORDS,
   SUBJECT,
-} from '../utils/constants'
+} from '../common/constants'
+import { theme } from '../styles/global'
 
 export default class JayudamDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {

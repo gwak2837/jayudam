@@ -5,6 +5,8 @@ import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastError } from '../../apollo/error'
+import { TABLET_MIN_WIDTH } from '../../common/constants'
+import { currentUser } from '../../common/recoil'
 import {
   Post,
   useDeleteSharingPostMutation,
@@ -17,8 +19,6 @@ import { SubmitButton } from '../../pages/register'
 import { theme } from '../../styles/global'
 import ShareIcon from '../../svgs/ShareIcon'
 import { stopPropagation } from '../../utils'
-import { TABLET_MIN_WIDTH } from '../../utils/constants'
-import { currentUser } from '../../utils/recoil'
 import { FlexColumn, GridCenterCenter } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'

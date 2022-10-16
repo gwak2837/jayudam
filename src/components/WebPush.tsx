@@ -3,9 +3,9 @@ import { useMutation } from '@tanstack/react-query'
 import { ReactNode, useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
-import { toastError } from '../../apollo/error'
-import { NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../../utils/constants'
-import { currentUser, serviceWorker } from '../../utils/recoil'
+import { toastError } from '../apollo/error'
+import { NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../common/constants'
+import { currentUser, serviceWorker } from '../common/recoil'
 
 type Props = {
   children: ReactNode

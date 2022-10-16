@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
+import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../../common/constants'
 import PageHead from '../../components/PageHead'
 import Navigation from '../../layouts/Navigation'
-import { MOBILE_MIN_HEIGHT, TABLET_MIN_WIDTH } from '../../utils/constants'
 
 export default function SubmitPage() {
   return (

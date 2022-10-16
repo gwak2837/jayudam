@@ -6,6 +6,7 @@ import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { toastError } from '../../apollo/error'
+import { currentUser } from '../../common/recoil'
 import {
   Post,
   useCreatePostMutation,
@@ -16,7 +17,6 @@ import { Button, addNewComment } from '../../pages/post/[id]'
 import { theme } from '../../styles/global'
 import CommentIcon from '../../svgs/CommentIcon'
 import { stopPropagation } from '../../utils'
-import { currentUser } from '../../utils/recoil'
 import {
   FlexCenter,
   FlexColumn,

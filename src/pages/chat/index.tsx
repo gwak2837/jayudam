@@ -1,87 +1,56 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 
+import { toastError } from '../../apollo/error'
+import { NEXT_PUBLIC_BACKEND_URL } from '../../common/constants'
 import LoginLink from '../../components/atoms/LoginLink'
 import PageHead from '../../components/PageHead'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
-import { NEXT_PUBLIC_BACKEND_URL } from '../../utils/constants'
+import { fetchWithAuth } from '../../utils/fetch'
 
 export default function ChatPage() {
   useNeedToLogin()
 
-  // Event Source
-  const eventSource = useRef<EventSource>()
+  // Chatroom
+  const { isLoading, isError, data, error } = useQuery(['chatrooms'], () =>
+    fetchWithAuth('/chat/room', {
+      headers: { 'Content-Type': 'application/json' },
+    }).then((response) => response.json())
+  )
 
-  function connect() {
-    const jwt =
-      globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt') ?? ''
-
-    if (!jwt) {
-      toast.warn(
-        <div>
-          로그인이 필요합니다. <LoginLink />
-        </div>
-      )
-      return
+  useEffect(() => {
+    if (isError) {
+      console.log('👀 - error', error)
+      // toast.warn(error)
     }
+  }, [error, isError])
 
-    const querystring = new URLSearchParams({
-      jwt,
-      chatroomIds: "['1', '2', '3']",
-    })
-
-    eventSource.current = new EventSource(
-      `${NEXT_PUBLIC_BACKEND_URL}/chat/subscribe?${querystring}`
-    )
-
-    eventSource.current.onopen = (e) => {
-      console.log('👀 - onopen', e)
-    }
-
-    eventSource.current.onmessage = (e) => {
-      setMessages((prev) => [...prev, e.data])
-    }
-
-    eventSource.current.onerror = (e) => {
-      toast.warn('EventSource 연결 오류')
-    }
-
-    eventSource.current.addEventListener('timeout', (e) => {
-      console.log('👀 - timeout', e)
-    })
-  }
-
-  function disconnect() {
-    if (eventSource.current) {
-      eventSource.current.close()
-    }
-  }
+  console.log('👀 - data', data)
 
   // Message
   const [messages, setMessages] = useState(['Hello world!'])
 
   const [sending, setSending] = useState('')
 
-  const { mutate } = useMutation(async () =>
-    fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/send`, {
-      method: 'POST',
-      headers: {
-        authorization:
-          globalThis.sessionStorage?.getItem('jwt') ??
-          globalThis.localStorage?.getItem('jwt') ??
-          '',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chatroomId: 'chatroomId',
-        message: {
-          content: sending,
-          type: 0,
+  const { mutate } = useMutation(
+    async () =>
+      fetchWithAuth('/chat/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          chatroomId: 'chatroomId',
+          message: {
+            content: sending,
+            type: 0,
+          },
+        }),
       }),
-    })
+    { onError: toastError }
   )
 
   function send(e: any) {
@@ -112,18 +81,19 @@ export default function ChatPage() {
   return (
     <PageHead title="대화 - 자유담" description="">
       <Navigation>
-        <main>
-          <div>
-            <button onClick={connect}>들어가기</button>
-            <button onClick={disconnect}>나가기</button>
-            <button onClick={test}>테스트</button>
-          </div>
-          <form onSubmit={send}>
-            <input value={sending} onChange={(e) => setSending(e.target.value)} />
-          </form>
+        <main style={{ overflow: 'auto' }}>
+          <pre style={{ overflow: 'auto', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
+
           <ul>
-            {messages.map((e, i) => (
-              <li key={i}>{e}</li>
+            {data?.map((chatroom: any) => (
+              <li key={chatroom.id}>
+                <Link href={`/chat/${chatroom.id}`}>
+                  <div>{chatroom.name}</div>
+                  <div>{chatroom.imageUrl}</div>
+                  <div>{chatroom.unreadCount}</div>
+                  <div>{chatroom.lastChat.content}</div>
+                </Link>
+              </li>
             ))}
           </ul>
         </main>
