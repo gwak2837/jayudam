@@ -25,7 +25,7 @@ export default function ServerSentEvents({ children }: Props) {
   const setEventSource = useSetRecoilState(eventSource)
 
   useEffect(() => {
-    if (isLoading || isError || !data) return
+    if (!name || isLoading || isError || !data) return
 
     const jwt =
       globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt') ?? ''
@@ -54,7 +54,7 @@ export default function ServerSentEvents({ children }: Props) {
       eventSource.close()
       setEventSource(null)
     }
-  }, [data, error, isError, isLoading, setEventSource])
+  }, [data, error, isError, isLoading, name, setEventSource])
 
   return <>{children}</>
 }
