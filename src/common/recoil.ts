@@ -30,3 +30,10 @@ export const serviceWorker = atom<ServiceWorker>({
     pushSubscription: null,
   },
 })
+
+type TEventSource = EventSource | null
+
+export const eventSource = atom<TEventSource>({
+  key: 'eventSource',
+  default: null,
+})

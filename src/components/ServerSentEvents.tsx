@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { toast } from 'react-toastify'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { NEXT_PUBLIC_BACKEND_URL } from '../common/constants'
+import { currentUser, eventSource } from '../common/recoil'
 import { fetchWithAuth } from '../utils/fetch'
 
 type Props = {
@@ -10,47 +12,49 @@ type Props = {
 }
 
 export default function ServerSentEvents({ children }: Props) {
+  const { name } = useRecoilValue(currentUser)
+
   // All my chatroom id
-  const { isLoading, isError, data, error } = useQuery(['chatroomIds'], () =>
-    fetchWithAuth('/chat/room', {
-      headers: { 'Content-Type': 'application/json' },
-    }).then((response) => response.json())
+  const { isLoading, isError, data, error } = useQuery(
+    ['chatroomIds'],
+    () => fetchWithAuth('/chat/room-id'),
+    { enabled: Boolean(name) }
   )
 
   // EventSource
-  const eventSource = useRef<EventSource>()
+  const setEventSource = useSetRecoilState(eventSource)
 
   useEffect(() => {
-    if (!data || error) return
+    if (isLoading || isError || !data) return
 
     const jwt =
       globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt') ?? ''
 
     if (!jwt) return
 
-    eventSource.current = new EventSource(
+    const eventSource = new EventSource(
       `${NEXT_PUBLIC_BACKEND_URL}/chat/subscribe?${new URLSearchParams({
         jwt,
         chatroomIds: JSON.stringify(data),
       })}`
     )
 
-    eventSource.current.onopen = (e) => {
-      console.log('👀 - onopen', e)
+    eventSource.onopen = () => {
       toast.success('EventSource 연결 성공')
     }
 
-    eventSource.current.onerror = (e) => {
+    eventSource.onerror = (e) => {
       console.log('👀 - onerror', e)
       toast.warn('EventSource 연결 오류')
     }
 
+    setEventSource(eventSource)
+
     return () => {
-      if (eventSource.current) {
-        eventSource.current.close()
-      }
+      eventSource.close()
+      setEventSource(null)
     }
-  }, [])
+  }, [data, error, isError, isLoading, setEventSource])
 
   return <>{children}</>
 }

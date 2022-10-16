@@ -32,5 +32,5 @@ export async function fetchWithAuth(url: string, init?: RequestInit) {
     }
   }
 
-  return fetch(`${NEXT_PUBLIC_BACKEND_URL}${url}`, init)
+  return fetch(`${NEXT_PUBLIC_BACKEND_URL}${url}`, init).then((response) => response.json())
 }

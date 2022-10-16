@@ -21,6 +21,7 @@ import {
 } from '../common/constants'
 import { gaScript, pageview } from '../common/google-analytics'
 import Authentication from '../components/Authentication'
+import ServerSentEvents from '../components/ServerSentEvents'
 import WebPush from '../components/WebPush'
 import { GlobalStyle } from '../styles/global'
 import { theme } from '../styles/global'
@@ -82,12 +83,14 @@ export default function JayudamApp({ Component, pageProps }: AppProps) {
         <QueryClientProvider client={queryClient}>
           <ApolloProvider client={client}>
             <RecoilRoot>
-              <WebPush>
-                <Authentication>
-                  {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
-                  <Component key={router.asPath} {...pageProps} />
-                </Authentication>
-              </WebPush>
+              <Authentication>
+                <WebPush>
+                  <ServerSentEvents>
+                    {/* https://github.com/vercel/next.js/issues/9992#issuecomment-784133959 */}
+                    <Component key={router.asPath} {...pageProps} />
+                  </ServerSentEvents>
+                </WebPush>
+              </Authentication>
             </RecoilRoot>
           </ApolloProvider>
           <ReactQueryDevtools />
