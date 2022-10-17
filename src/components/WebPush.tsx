@@ -1,11 +1,12 @@
 /* eslint-disable no-undef */
 import { useMutation } from '@tanstack/react-query'
 import { ReactNode, useEffect } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 
 import { toastError } from '../apollo/error'
-import { NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../common/constants'
-import { currentUser, serviceWorker } from '../common/recoil'
+import { NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../common/constants'
+import { currentUser } from '../common/recoil'
 import { fetchWithAuth } from '../utils/fetch'
 
 type Props = {
@@ -15,10 +16,8 @@ type Props = {
 export default function WebPush({ children }: Props) {
   const { name } = useRecoilValue(currentUser)
 
-  // Web push
-  const setServiceWorker = useSetRecoilState(serviceWorker)
-
-  const { mutate: createPushSubscription } = useMutation<unknown, Error, PushSubscriptionJSON>(
+  // Web Push
+  const { mutate: createPushSubscriptionM } = useMutation<unknown, Error, PushSubscriptionJSON>(
     (pushSubscription) =>
       fetchWithAuth('/push', {
         method: 'POST',
@@ -30,7 +29,7 @@ export default function WebPush({ children }: Props) {
     { onError: toastError }
   )
 
-  const { mutate: deletePushSubscription } = useMutation(
+  const { mutate: deletePushSubscriptionM } = useMutation(
     async () => fetchWithAuth('/push', { method: 'DELETE' }),
     { onError: toastError }
   )
@@ -39,8 +38,9 @@ export default function WebPush({ children }: Props) {
     let registration: ServiceWorkerRegistration | null | undefined
     let pushSubscription: PushSubscription | null
 
-    async function getPushSubscription() {
+    async function createPushSubscription() {
       registration = await navigator.serviceWorker.getRegistration()
+      console.log('👀 - registration', registration)
       if (!registration) return
 
       pushSubscription = await registration.pushManager?.getSubscription()
@@ -51,36 +51,56 @@ export default function WebPush({ children }: Props) {
         })
 
       const pushSubscriptionInfo = pushSubscription.toJSON()
+      console.log('👀 - pushSubscriptionInfo', pushSubscriptionInfo)
       if (!pushSubscriptionInfo.endpoint || !pushSubscriptionInfo.keys) return
 
-      createPushSubscription(pushSubscriptionInfo)
-
-      setServiceWorker({
-        serviceWorkerRegistration: registration,
-        pushSubscription: pushSubscription,
-      })
+      createPushSubscriptionM(pushSubscriptionInfo)
     }
 
-    async function removePushSubscription() {
+    async function deletePushSubscription() {
       const unsubscribed = await pushSubscription?.unsubscribe()
       if (!unsubscribed) return
 
-      deletePushSubscription()
-
-      setServiceWorker({
-        serviceWorkerRegistration: registration,
-        pushSubscription: null,
-      })
+      deletePushSubscriptionM()
     }
 
     if (name) {
-      getPushSubscription()
+      createPushSubscription()
 
       return () => {
-        removePushSubscription()
+        deletePushSubscription()
       }
     }
-  }, [createPushSubscription, deletePushSubscription, name, setServiceWorker])
+  }, [createPushSubscriptionM, deletePushSubscriptionM, name])
+
+  // HTTP/2 Server Push
+  useEffect(() => {
+    if (!name) return
+
+    const jwt =
+      globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt') ?? ''
+
+    if (!jwt) return
+
+    const eventSource = new EventSource(
+      `${NEXT_PUBLIC_BACKEND_URL}/subscribe?${new URLSearchParams({ jwt })}`
+    )
+
+    eventSource.onopen = () => {
+      toast.success('EventSource 연결 성공')
+    }
+
+    eventSource.onerror = (e) => {
+      console.log('👀 - onerror', e)
+      toast.warn('EventSource 연결 오류')
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close()
+      }
+    }
+  }, [name])
 
   return <>{children}</>
 }

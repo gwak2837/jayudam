@@ -17,23 +17,3 @@ export const commentIdToMoveToAtom = atom({
   key: 'commentIdToMoveTo',
   default: '',
 })
-
-type ServiceWorker = {
-  serviceWorkerRegistration?: ServiceWorkerRegistration | null
-  pushSubscription?: PushSubscription | null
-}
-
-export const serviceWorker = atom<ServiceWorker>({
-  key: 'serviceWorker',
-  default: {
-    serviceWorkerRegistration: null,
-    pushSubscription: null,
-  },
-})
-
-type TEventSource = EventSource | null
-
-export const eventSource = atom<TEventSource>({
-  key: 'eventSource',
-  default: null,
-})

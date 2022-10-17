@@ -61,7 +61,7 @@ export default function ChatroomsPage() {
                   <FlexLink href={`/chat/${chatroom.id}`}>
                     <SqureImage
                       src={chatroom.imageUrl ?? '/images/shortcut-icon.webp'}
-                      alt={chatroom.imageUrl}
+                      alt={chatroom.imageUrl ?? 'chatroom-image'}
                       width="64"
                       height="64"
                     />
