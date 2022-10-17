@@ -7,6 +7,7 @@ import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { currentUser } from '../../common/recoil'
+import { FlexCenter, FlexColumn } from '../../components/atoms/Flex'
 import PageHead from '../../components/PageHead'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
@@ -47,36 +48,33 @@ export default function ChatroomsPage() {
   return (
     <PageHead title="대화 - 자유담" description="">
       <Navigation>
-        <main style={{ overflow: 'auto' }}>
-          <pre style={{ overflow: 'auto', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
-
+        <main>
           <form onSubmit={test}>
             <input onChange={(e) => setText(e.target.value)} value={text} />
           </form>
 
           <ul>
             {isLoading && <li>불러오는 중</li>}
-            {isSuccess ? (
+            {isSuccess &&
               data.map((chatroom: any) => (
                 <Padding key={chatroom.id}>
                   <FlexLink href={`/chat/${chatroom.id}`}>
                     <SqureImage
                       src={chatroom.imageUrl ?? '/images/shortcut-icon.webp'}
                       alt={chatroom.imageUrl}
-                      width="100"
-                      height="100"
+                      width="64"
+                      height="64"
                     />
                     <FlexGrow1>
                       <div>{chatroom.name}</div>
-                      <div>{chatroom.lastChat.content}</div>
+                      <div>{chatroom.lastChat.content ?? <br />}</div>
                     </FlexGrow1>
-                    <div>{chatroom.unreadCount}</div>
+                    <FlexCenter>
+                      <RedCircles>{chatroom.unreadCount}</RedCircles>
+                    </FlexCenter>
                   </FlexLink>
                 </Padding>
-              ))
-            ) : (
-              <pre style={{ overflow: 'auto', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
-            )}
+              ))}
           </ul>
         </main>
       </Navigation>
@@ -102,6 +100,14 @@ const FlexLink = styled(Link)`
   gap: 1rem;
 `
 
-const FlexGrow1 = styled.div`
+const FlexGrow1 = styled(FlexColumn)`
+  justify-content: center;
   flex: 1;
+`
+
+const RedCircles = styled.div`
+  background: ${(p) => p.theme.error};
+  border-radius: 99px;
+  color: #fff;
+  padding: 0 0.5rem;
 `
