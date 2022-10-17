@@ -44,11 +44,14 @@ export default function WebPush({ children }: Props) {
       if (!registration) return
 
       pushSubscription = await registration.pushManager?.getSubscription()
-      if (!pushSubscription)
+      console.log('👀 - pushSubscription', pushSubscription)
+      if (!pushSubscription) {
         pushSubscription = await registration.pushManager.subscribe({
           applicationServerKey: NEXT_PUBLIC_VAPID_PUBLIC_KEY,
           userVisibleOnly: true,
         })
+        console.log('👀 - pushSubscription2', pushSubscription)
+      }
 
       const pushSubscriptionInfo = pushSubscription.toJSON()
       console.log('👀 - pushSubscriptionInfo', pushSubscriptionInfo)
