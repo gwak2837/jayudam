@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { currentUser } from '../../common/recoil'
 import { FlexCenter, FlexColumn } from '../../components/atoms/Flex'
 import PageHead from '../../components/PageHead'
+import { pushSubscription } from '../../components/WebPush'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
 import { fetchWithAuth } from '../../utils/fetch'
@@ -28,6 +29,8 @@ export default function ChatroomsPage() {
 
   function test(e: any) {
     e.preventDefault()
+
+    if (!pushSubscription) return toast.warn('브라우저 알림 기능을 사용할 수 없습니다')
 
     fetchWithAuth('/push/test', {
       method: 'POST',

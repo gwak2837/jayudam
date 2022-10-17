@@ -36,9 +36,6 @@ export default function WebPush({ children }: Props) {
   )
 
   useEffect(() => {
-    let registration: ServiceWorkerRegistration | null | undefined
-    let pushSubscription: PushSubscription | null
-
     async function createPushSubscription() {
       registration = await navigator.serviceWorker.getRegistration()
       if (!registration || !registration.pushManager) return
@@ -46,7 +43,7 @@ export default function WebPush({ children }: Props) {
       pushSubscription = await registration.pushManager.getSubscription()
       if (!pushSubscription) {
         const result = await enableNotificationAPI()
-        if (!result) return
+        if (!result) return toast.warn(m)
 
         pushSubscription = await registration.pushManager.subscribe({
           applicationServerKey: NEXT_PUBLIC_VAPID_PUBLIC_KEY,
@@ -85,7 +82,7 @@ export default function WebPush({ children }: Props) {
 
     if (!jwt) return
 
-    const eventSource = new EventSource(
+    eventSource = new EventSource(
       `${NEXT_PUBLIC_BACKEND_URL}/subscribe?${new URLSearchParams({ jwt })}`
     )
 
@@ -107,3 +104,20 @@ export default function WebPush({ children }: Props) {
 
   return <>{children}</>
 }
+
+export let registration: ServiceWorkerRegistration | null | undefined
+export let pushSubscription: PushSubscription | null
+export let eventSource: EventSource | undefined
+
+const m = (
+  <div>
+    브라우저 알림을 사용할 수 없습니다{' '}
+    <a
+      href="https://jayudam.notion.site/1ce3f0eba60848fda440ab758fff336d"
+      target="_blank"
+      rel="noreferrer"
+    >
+      해결하기
+    </a>
+  </div>
+)
