@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { NextRouter } from 'next/router'
 import { MouseEvent } from 'react'
 
@@ -99,4 +100,31 @@ export async function sha256(message: string) {
   return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
+}
+
+export async function enableNotificationAPI() {
+  if (!window.Notification) {
+    console.log('알림 지원 안함')
+    return false
+  }
+
+  if (Notification.permission === 'granted') {
+    console.log('알림 이미 허용됨')
+    return true
+  } else if (Notification.permission === 'denied') {
+    console.log('알림 이미 거부됨')
+    return false
+  }
+
+  const result = await Notification.requestPermission()
+
+  if (result === 'denied') {
+    console.log('알림 권한 거부함')
+    return false
+  } else if (result === 'default') {
+    console.log('알림 권한 선택 안함')
+    return false
+  }
+
+  return true
 }

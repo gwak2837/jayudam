@@ -7,6 +7,7 @@ import { useRecoilValue } from 'recoil'
 import { toastError } from '../apollo/error'
 import { NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../common/constants'
 import { currentUser } from '../common/recoil'
+import { enableNotificationAPI } from '../utils'
 import { fetchWithAuth } from '../utils/fetch'
 
 type Props = {
@@ -44,8 +45,8 @@ export default function WebPush({ children }: Props) {
 
       pushSubscription = await registration.pushManager.getSubscription()
       if (!pushSubscription) {
-        const result = await Notification.requestPermission()
-        if (result !== 'granted') return
+        const result = await enableNotificationAPI()
+        if (!result) return
 
         pushSubscription = await registration.pushManager.subscribe({
           applicationServerKey: NEXT_PUBLIC_VAPID_PUBLIC_KEY,
@@ -103,36 +104,6 @@ export default function WebPush({ children }: Props) {
       }
     }
   }, [name])
-
-  useEffect(() => {
-    async function a() {
-      if (!window.Notification) {
-        console.log('알림 지원 안함')
-        return
-      }
-
-      if (Notification.permission === 'granted') {
-        console.log('알림 이미 허용됨')
-        return
-      } else if (Notification.permission === 'denied') {
-        console.log('알림 이미 거부됨')
-        return
-      }
-
-      const result = await Notification.requestPermission()
-      if (result === 'denied') {
-        console.log('알림 권한 거부함')
-        return
-      } else if (result === 'default') {
-        console.log('알림 권한 선택 안함')
-        return
-      }
-
-      new Notification('알림 허용함!')
-    }
-
-    a()
-  }, [])
 
   return <>{children}</>
 }
