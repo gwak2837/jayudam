@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import Image from 'next/future/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
+import styled from 'styled-components'
 
 import { currentUser } from '../../common/recoil'
 import PageHead from '../../components/PageHead'
@@ -15,11 +18,9 @@ export default function ChatroomsPage() {
   const { name } = useRecoilValue(currentUser)
 
   // Chatroom
-  const { isLoading, isSuccess, data } = useQuery(
-    ['chatrooms'],
-    () => fetchWithAuth('/chat/room'),
-    { enabled: Boolean(name) }
-  )
+  const { isLoading, isSuccess, data } = useQuery(['chatrooms'], () => fetchWithAuth('/chatroom'), {
+    enabled: Boolean(name),
+  })
 
   // Push 알림 테스트
   const [text, setText] = useState('')
@@ -27,7 +28,7 @@ export default function ChatroomsPage() {
   function test(e: any) {
     e.preventDefault()
 
-    fetchWithAuth('/chat/test', {
+    fetchWithAuth('/push/test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,6 +40,8 @@ export default function ChatroomsPage() {
         },
       }),
     })
+      .then((result) => toast.info(result.message))
+      .catch((err) => console.error(err))
   }
 
   return (
@@ -55,14 +58,21 @@ export default function ChatroomsPage() {
             {isLoading && <li>불러오는 중</li>}
             {isSuccess ? (
               data.map((chatroom: any) => (
-                <li key={chatroom.id}>
-                  <Link href={`/chat/${chatroom.id}`}>
-                    <div>{chatroom.name}</div>
-                    <div>{chatroom.imageUrl}</div>
+                <Padding key={chatroom.id}>
+                  <FlexLink href={`/chat/${chatroom.id}`}>
+                    <SqureImage
+                      src={chatroom.imageUrl ?? '/images/shortcut-icon.webp'}
+                      alt={chatroom.imageUrl}
+                      width="100"
+                      height="100"
+                    />
+                    <FlexGrow1>
+                      <div>{chatroom.name}</div>
+                      <div>{chatroom.lastChat.content}</div>
+                    </FlexGrow1>
                     <div>{chatroom.unreadCount}</div>
-                    <div>{chatroom.lastChat.content}</div>
-                  </Link>
-                </li>
+                  </FlexLink>
+                </Padding>
               ))
             ) : (
               <pre style={{ overflow: 'auto', margin: 0 }}>{JSON.stringify(data, null, 2)}</pre>
@@ -73,3 +83,25 @@ export default function ChatroomsPage() {
     </PageHead>
   )
 }
+
+const Padding = styled.li`
+  border: 1px solid ${(p) => p.theme.shadow};
+  padding: 1rem;
+
+  :hover {
+    background: ${(p) => p.theme.shadow};
+  }
+`
+
+const SqureImage = styled(Image)`
+  border-radius: 50%;
+`
+
+const FlexLink = styled(Link)`
+  display: flex;
+  gap: 1rem;
+`
+
+const FlexGrow1 = styled.div`
+  flex: 1;
+`

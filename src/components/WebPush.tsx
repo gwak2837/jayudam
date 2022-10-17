@@ -4,8 +4,9 @@ import { ReactNode, useEffect } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { toastError } from '../apollo/error'
-import { NEXT_PUBLIC_BACKEND_URL, NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../common/constants'
+import { NEXT_PUBLIC_VAPID_PUBLIC_KEY } from '../common/constants'
 import { currentUser, serviceWorker } from '../common/recoil'
+import { fetchWithAuth } from '../utils/fetch'
 
 type Props = {
   children: ReactNode
@@ -18,14 +19,10 @@ export default function WebPush({ children }: Props) {
   const setServiceWorker = useSetRecoilState(serviceWorker)
 
   const { mutate: createPushSubscription } = useMutation<unknown, Error, PushSubscriptionJSON>(
-    async (pushSubscription) =>
-      fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/push`, {
+    (pushSubscription) =>
+      fetchWithAuth('/push', {
         method: 'POST',
         headers: {
-          authorization:
-            globalThis.sessionStorage?.getItem('jwt') ??
-            globalThis.localStorage?.getItem('jwt') ??
-            '',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ pushSubscription }),
@@ -34,18 +31,7 @@ export default function WebPush({ children }: Props) {
   )
 
   const { mutate: deletePushSubscription } = useMutation(
-    async (pushSubscription) =>
-      fetch(`${NEXT_PUBLIC_BACKEND_URL}/chat/push`, {
-        method: 'POST',
-        headers: {
-          authorization:
-            globalThis.sessionStorage?.getItem('jwt') ??
-            globalThis.localStorage?.getItem('jwt') ??
-            '',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pushSubscription }),
-      }),
+    async () => fetchWithAuth('/push', { method: 'DELETE' }),
     { onError: toastError }
   )
 

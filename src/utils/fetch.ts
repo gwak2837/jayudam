@@ -32,5 +32,8 @@ export async function fetchWithAuth(url: string, init?: RequestInit) {
     }
   }
 
-  return fetch(`${NEXT_PUBLIC_BACKEND_URL}${url}`, init).then((response) => response.json())
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}${url}`, init)
+  if (!response.ok) throw new Error()
+
+  return response.json()
 }

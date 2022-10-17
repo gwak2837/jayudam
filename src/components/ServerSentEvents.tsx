@@ -1,11 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
 import { ReactNode, useEffect } from 'react'
 import { toast } from 'react-toastify'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
 import { NEXT_PUBLIC_BACKEND_URL } from '../common/constants'
-import { currentUser, eventSource } from '../common/recoil'
-import { fetchWithAuth } from '../utils/fetch'
+import { currentUser } from '../common/recoil'
 
 type Props = {
   children: ReactNode
@@ -14,29 +12,18 @@ type Props = {
 export default function ServerSentEvents({ children }: Props) {
   const { name } = useRecoilValue(currentUser)
 
-  // All my chatroom id
-  const { isLoading, isError, data, error } = useQuery(
-    ['chatroomIds'],
-    () => fetchWithAuth('/chat/room-id'),
-    { enabled: Boolean(name) }
-  )
-
   // EventSource
-  const setEventSource = useSetRecoilState(eventSource)
 
   useEffect(() => {
-    if (!name || isLoading || isError || !data) return
+    if (!name) return
 
     const jwt =
       globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt') ?? ''
 
     if (!jwt) return
 
-    const eventSource = new EventSource(
-      `${NEXT_PUBLIC_BACKEND_URL}/chat/subscribe?${new URLSearchParams({
-        jwt,
-        chatroomIds: JSON.stringify(data),
-      })}`
+    eventSource = new EventSource(
+      `${NEXT_PUBLIC_BACKEND_URL}/subscribe?${new URLSearchParams({ jwt })}`
     )
 
     eventSource.onopen = () => {
@@ -48,13 +35,15 @@ export default function ServerSentEvents({ children }: Props) {
       toast.warn('EventSource 연결 오류')
     }
 
-    setEventSource(eventSource)
-
     return () => {
-      eventSource.close()
-      setEventSource(null)
+      if (eventSource) {
+        eventSource.close()
+        eventSource = null
+      }
     }
-  }, [data, error, isError, isLoading, name, setEventSource])
+  }, [name])
 
   return <>{children}</>
 }
+
+export let eventSource: EventSource | null = null
