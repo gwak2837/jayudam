@@ -8,7 +8,7 @@ export default function ChatroomPage() {
   // Message
   const { mutate } = useMutation(
     async () =>
-      fetchWithAuth('/chat/send', {
+      fetchWithAuth('/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
