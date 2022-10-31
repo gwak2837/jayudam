@@ -20,7 +20,7 @@ export default function ChatroomPage() {
   // Message
   const [message, setMessage] = useState('')
 
-  const { mutate } = useMutation(
+  const { mutate, isLoading, isError } = useMutation(
     () =>
       fetchWithAuth('/chat', {
         method: 'POST',
@@ -35,7 +35,15 @@ export default function ChatroomPage() {
           },
         }),
       }),
-    { onError: toastError }
+    {
+      onError: toastError,
+      onSuccess: (data, variables, content) => {
+        // refetch()
+        console.log('👀 - content', content)
+        console.log('👀 - variables', variables)
+        console.log('👀 - data', data)
+      },
+    }
   )
 
   function send(e: any) {
@@ -46,21 +54,29 @@ export default function ChatroomPage() {
   }
 
   // Chatroom
-  const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
-    useInfiniteQuery(
-      ['chatroom', chatroomId],
-      ({ pageParam }) =>
-        fetchWithAuth(
-          `/chatroom/${chatroomId}?${new URLSearchParams({
-            ...(pageParam && { lastChatId: pageParam }),
-          })}`
-        ),
-      {
-        enabled: Boolean(chatroomId),
-        getNextPageParam: (lastPage) => lastPage.lastChatId,
-        onError: toastError,
-      }
-    )
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    refetch,
+    status,
+  } = useInfiniteQuery(
+    ['chatroom', chatroomId],
+    ({ pageParam }) =>
+      fetchWithAuth(
+        `/chatroom/${chatroomId}?${new URLSearchParams({
+          ...(pageParam && { lastChatId: pageParam }),
+        })}`
+      ),
+    {
+      enabled: Boolean(chatroomId),
+      getNextPageParam: (lastPage) => lastPage.lastChatId,
+      onError: toastError,
+    }
+  )
 
   const pages = data?.pages
 
@@ -79,7 +95,7 @@ export default function ChatroomPage() {
             ?.map((page, i) => (
               <Fragment key={i}>
                 {page.data
-                  .map((chat) => (
+                  .map((chat: any) => (
                     <Li key={chat.id}>
                       <div>{chat.creationTime}</div>
                       <div>{chat.content}</div>
@@ -92,6 +108,11 @@ export default function ChatroomPage() {
               </Fragment>
             ))
             .reverse()}
+          {isLoading && (
+            <Li>
+              <div>{message}</div>
+            </Li>
+          )}
         </main>
       </Navigation>
     </PageHead>

@@ -45,7 +45,7 @@ export default function ChatroomsPage() {
 
   // HTTP/2 Push
   useEffect(() => {
-    function a(e) {
+    function a(e: any) {
       console.log('👀 - e', e)
     }
 
