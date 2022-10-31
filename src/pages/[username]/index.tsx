@@ -42,7 +42,7 @@ import MailIcon from '../../svgs/mail.svg'
 import MapIcon from '../../svgs/map.svg'
 import NaverLogo from '../../svgs/naver-logo.svg'
 import SexIcon from '../../svgs/sex.svg'
-import { getUsername } from '../../utils'
+import { getUsername } from '../../utils/react'
 import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
 export default function UserPage() {
@@ -204,7 +204,7 @@ export default function UserPage() {
               <button>따르기</button>
               <button>선물하기</button>
               <div>
-                <Link href="/chat">대화</Link>
+                <Link href="/chatroom">대화</Link>
               </div>
 
               <KakaoButton disabled={logoutLoading} onClick={goToKakaoLoginPage}>

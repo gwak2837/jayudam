@@ -45,12 +45,12 @@ export default function LoginPage() {
 
           <Text>
             자유담은 <br />
-            <PrimaryColorText>성인</PrimaryColorText> 에게만 오픈된 공간이에요.
+            <PrimaryColorText>안전한 사람</PrimaryColorText> 에게만 오픈된 공간이에요.
           </Text>
 
           <AutoLoginCheckbox />
 
-          <H5>비바톤 계정으로 익명 성인인증을 해주세요</H5>
+          <H5>비바톤 계정으로 익명인증을 해주세요</H5>
 
           <BBathonButton onClick={goToBBathonLoginPage}>비바톤 익명 로그인</BBathonButton>
 

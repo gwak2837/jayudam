@@ -24,7 +24,7 @@ export type Scalars = {
   NonNegativeInt: number
   PositiveInt: number
   URL: string
-  UUID: string
+  UUID: any
 }
 
 export type Cert = {
@@ -319,7 +319,7 @@ export type User = {
   followerCount?: Maybe<Scalars['String']>
   followingCount?: Maybe<Scalars['String']>
   grade?: Maybe<Grade>
-  id: Scalars['UUID']
+  id: Scalars['ID']
   imageUrl?: Maybe<Scalars['String']>
   imageUrls?: Maybe<Array<Scalars['String']>>
   isPrivate?: Maybe<Scalars['Boolean']>

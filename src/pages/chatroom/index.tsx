@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/future/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
 import { currentUser } from '../../common/recoil'
-import { FlexCenter, FlexColumn } from '../../components/atoms/Flex'
+import { FlexCenter, FlexColumn, TextOverflow as TextOverflow_ } from '../../components/atoms/Flex'
 import PageHead from '../../components/PageHead'
-import { pushSubscription } from '../../components/WebPush'
+import { eventSource, pushSubscription } from '../../components/WebPush'
 import useNeedToLogin from '../../hooks/useNeedToLogin'
 import Navigation from '../../layouts/Navigation'
 import { fetchWithAuth } from '../../utils/fetch'
@@ -19,20 +19,15 @@ export default function ChatroomsPage() {
 
   const { name } = useRecoilValue(currentUser)
 
-  // Chatroom
-  const { isLoading, isSuccess, data } = useQuery(['chatrooms'], () => fetchWithAuth('/chatroom'), {
-    enabled: Boolean(name),
-  })
-
-  // Push 알림 테스트
+  // Web Push 알림 테스트
   const [text, setText] = useState('')
 
-  function test(e: any) {
+  async function test(e: any) {
     e.preventDefault()
 
     if (!pushSubscription) return toast.warn('브라우저 알림 기능을 사용할 수 없습니다')
 
-    fetchWithAuth('/push/test', {
+    const result = await fetchWithAuth('/push/test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,14 +39,32 @@ export default function ChatroomsPage() {
         },
       }),
     })
-      .then((result) => toast.info(result.message))
-      .catch((err) => console.error(err))
+
+    toast.info(result.message)
   }
 
+  // HTTP/2 Push
+  useEffect(() => {
+    function a(e) {
+      console.log('👀 - e', e)
+    }
+
+    eventSource?.addEventListener('chatroom', a)
+
+    return () => {
+      eventSource?.removeEventListener('chatroom', a)
+    }
+  }, [])
+
+  // Chatroom
+  const { isLoading, isSuccess, data } = useQuery(['chatroom'], () => fetchWithAuth('/chatroom'), {
+    enabled: Boolean(name),
+  })
+
   return (
-    <PageHead title="대화 - 자유담" description="">
+    <PageHead title="대화방 - 자유담" description="">
       <Navigation>
-        <main>
+        <main style={{ overflow: 'auto' }}>
           <form onSubmit={test}>
             <input onChange={(e) => setText(e.target.value)} value={text} />
           </form>
@@ -61,20 +74,22 @@ export default function ChatroomsPage() {
             {isSuccess &&
               data.map((chatroom: any) => (
                 <Padding key={chatroom.id}>
-                  <FlexLink href={`/chat/${chatroom.id}`}>
+                  <FlexLink href={`/chatroom/${chatroom.id}`}>
                     <SqureImage
-                      src={chatroom.imageUrl ?? '/images/shortcut-icon.webp'}
-                      alt={chatroom.imageUrl ?? 'chatroom-image'}
+                      src={chatroom.otherUser?.imageUrl || '/images/shortcut-icon.webp'}
+                      alt={chatroom.otherUser?.imageUrl || 'chatroom-image'}
                       width="64"
                       height="64"
                     />
                     <FlexGrow1>
-                      <div>{chatroom.name}</div>
-                      <div>{chatroom.lastChat.content ?? <br />}</div>
+                      <TextOverflow>{chatroom.otherUser?.nickname}</TextOverflow>
+                      <TextOverflow>{chatroom.lastChat.content ?? <br />}</TextOverflow>
                     </FlexGrow1>
-                    <FlexCenter>
-                      <RedCircles>{chatroom.unreadCount}</RedCircles>
-                    </FlexCenter>
+                    {+chatroom.unreadCount > 0 && (
+                      <FlexCenter>
+                        <RedCircles>{chatroom.unreadCount}</RedCircles>
+                      </FlexCenter>
+                    )}
                   </FlexLink>
                 </Padding>
               ))}
@@ -105,7 +120,10 @@ const FlexLink = styled(Link)`
 
 const FlexGrow1 = styled(FlexColumn)`
   justify-content: center;
+  gap: 0.5rem;
   flex: 1;
+
+  min-width: 0;
 `
 
 const RedCircles = styled.div`
@@ -113,4 +131,8 @@ const RedCircles = styled.div`
   border-radius: 99px;
   color: #fff;
   padding: 0 0.5rem;
+`
+
+const TextOverflow = styled(TextOverflow_)`
+  min-width: 2rem;
 `

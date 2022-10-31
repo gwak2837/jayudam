@@ -13,7 +13,6 @@ generates:
         NonNegativeInt: number
         PositiveInt: number
         URL: string
-        UUID: string
     plugins:
       - typescript
       - typescript-operations

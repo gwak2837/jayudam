@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { NextRouter } from 'next/router'
+
 import { MouseEvent } from 'react'
 
 export function parseJWT(token: string) {
@@ -38,10 +38,6 @@ export function stopPropagation(e: MouseEvent<HTMLElement>) {
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-export function getUsername(router: NextRouter) {
-  return ((router.query.username ?? '') as string).slice(1)
 }
 
 const urlPattern = new RegExp(

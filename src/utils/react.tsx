@@ -1,3 +1,4 @@
+import { NextRouter } from 'next/router'
 import { Fragment, KeyboardEvent } from 'react'
 
 export function applyLineBreak(oneLine: string) {
@@ -22,4 +23,8 @@ export function submitWhenCmdEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
     const parentForm = (e.target as any).form as HTMLFormElement
     parentForm.dispatchEvent(submitEvent)
   }
+}
+
+export function getUsername(router: NextRouter) {
+  return ((router.query.username ?? '') as string).slice(1)
 }

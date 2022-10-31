@@ -82,23 +82,27 @@ export default function WebPush({ children }: Props) {
 
     if (!jwt) return
 
-    eventSource = new EventSource(
-      `${NEXT_PUBLIC_BACKEND_URL}/subscribe?${new URLSearchParams({ jwt })}`
-    )
+    function openEventSource() {
+      eventSource = new EventSource(
+        `${NEXT_PUBLIC_BACKEND_URL}/subscribe?${new URLSearchParams({ jwt })}`
+      )
 
-    eventSource.onopen = () => {
-      toast.success('EventSource 연결 성공')
+      eventSource.onopen = () => {
+        toast.success('EventSource 연결 성공')
+      }
+
+      eventSource.onerror = (e) => {
+        console.log('👀 - onerror', e)
+        toast.warn('EventSource 연결 오류')
+      }
     }
 
-    eventSource.onerror = (e) => {
-      console.log('👀 - onerror', e)
-      toast.warn('EventSource 연결 오류')
-    }
+    window.addEventListener('focus', openEventSource)
+    window.addEventListener('blur', closeEventSource)
 
     return () => {
-      if (eventSource) {
-        eventSource.close()
-      }
+      window.removeEventListener('focus', openEventSource)
+      window.removeEventListener('blur', closeEventSource)
     }
   }, [name])
 
@@ -121,3 +125,9 @@ const m = (
     </a>
   </div>
 )
+
+function closeEventSource() {
+  if (eventSource) {
+    eventSource.close()
+  }
+}
