@@ -1,4 +1,4 @@
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { MouseEvent, useState } from 'react'
 import styled from 'styled-components'
 

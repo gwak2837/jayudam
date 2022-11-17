@@ -1,5 +1,5 @@
 import { ApolloCache } from '@apollo/client'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
