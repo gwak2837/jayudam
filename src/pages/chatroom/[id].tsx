@@ -1,4 +1,4 @@
-import { useMutation, useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Fragment, useState } from 'react'
@@ -100,7 +100,7 @@ export default function ChatroomPage() {
                       <div>{chat.creationTime}</div>
                       <div>{chat.content}</div>
                       <Link href={`/@${chat.user.name}`}>
-                        <div>{chat.user.nickname}</div>
+                        {chat.user.nickname}
                       </Link>
                     </Li>
                   ))

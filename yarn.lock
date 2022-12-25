@@ -3340,16 +3340,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.2.3":
-  version: 29.2.3
-  resolution: "@types/jest@npm:29.2.3"
-  dependencies:
-    expect: ^29.0.0
-    pretty-format: ^29.0.0
-  checksum: 55370906711b600a05b9e497c22aa74d80d8adcdbe4ac2f1bc9311f6f6ca0dd192862b6f38df6ac0d45e92396bcd796e377b1d8058c10bdfd584aeee580c3ce1
-  languageName: node
-  linkType: hard
-
 "@types/js-yaml@npm:^4.0.0":
   version: 4.0.5
   resolution: "@types/js-yaml@npm:4.0.5"
@@ -6006,7 +5996,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expect@npm:^29.0.0, expect@npm:^29.3.1":
+"expect@npm:^29.3.1":
   version: 29.3.1
   resolution: "expect@npm:29.3.1"
   dependencies:
@@ -7409,7 +7399,6 @@ __metadata:
     "@tanstack/react-query-devtools": ^4.16.1
     "@testing-library/react": ^13.4.0
     "@types/gtag.js": ^0.0.12
-    "@types/jest": ^29.2.3
     "@types/node": ^18.11.9
     "@types/qrcode": ^1.5.0
     "@types/react": ^18.0.25
@@ -9404,7 +9393,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^29.0.0, pretty-format@npm:^29.3.1":
+"pretty-format@npm:^29.3.1":
   version: 29.3.1
   resolution: "pretty-format@npm:29.3.1"
   dependencies:

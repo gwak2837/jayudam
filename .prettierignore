@@ -1,3 +1,2 @@
-.yarn/plugins
-.yarn/releases
+.yarn
 .pnp.*

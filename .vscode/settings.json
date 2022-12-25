@@ -7,7 +7,9 @@
   "editor.formatOnPaste": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
+  "files.autoSave": "onFocusChange",
   "files.eol": "\n",
+
   "search.exclude": {
     "**/.git": true,
     "**/.next": true,
