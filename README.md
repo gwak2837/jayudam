@@ -8,10 +8,6 @@
 - [Node.js](https://nodejs.org/en/) 16.14
 - [Yarn](https://yarnpkg.com/getting-started/install#install-corepack) 3.2
 - [Git](https://git-scm.com/download) 2.36
-- [Docker](https://www.docker.com/products/docker-desktop/) 20.10
-- Docker compose 2.6
-- [PostgreSQL](https://www.postgresql.org/download/) 14.3
-- [Redis](https://redis.io/download/) 7.0
 
 ## ☁ Cloud
 

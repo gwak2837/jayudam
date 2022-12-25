@@ -2,8 +2,8 @@ import { MouseEvent, ReactNode, TouchEvent, useCallback, useEffect, useRef, useS
 import { createPortal } from 'react-dom'
 import styled from 'styled-components'
 
+import { MOBILE_MIN_HEIGHT } from '../../common/constants'
 import { stopPropagation } from '../../utils'
-import { MOBILE_MIN_HEIGHT } from '../../utils/constants'
 import { FlexCenterCenter as FlexCenterCenter_ } from './Flex'
 
 let moveListener: any

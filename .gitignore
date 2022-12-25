@@ -153,3 +153,4 @@ dist
 
 # Next PWA
 public/*.js
+public/*.map

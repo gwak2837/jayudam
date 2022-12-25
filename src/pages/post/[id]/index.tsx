@@ -1,5 +1,5 @@
 import { ApolloCache } from '@apollo/client'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react'
@@ -7,7 +7,9 @@ import { toast } from 'react-toastify'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../../apollo/error'
+import { toastError } from '../../../apollo/error'
+import { NODE_ENV } from '../../../common/constants'
+import { currentUser } from '../../../common/recoil'
 import {
   FlexBetween,
   FlexCenter,
@@ -52,8 +54,6 @@ import HeartIcon from '../../../svgs/HeartIcon'
 import ShareIcon from '../../../svgs/ShareIcon'
 import ThreeDotsIcon from '../../../svgs/three-dots.svg'
 import { stopPropagation } from '../../../utils'
-import { NODE_ENV } from '../../../utils/constants'
-import { currentUser } from '../../../utils/recoil'
 import { borderRadiusCircle } from '..'
 
 const description = '자유담에서 이야기해보세요'
@@ -71,7 +71,7 @@ export default function PostPage() {
   // Post 불러오기
   const { data, loading } = usePostQuery({
     fetchPolicy: 'no-cache',
-    onError: toastApolloError,
+    onError: toastError,
     skip: !postId,
     variables: { id: postId },
   })
@@ -84,7 +84,7 @@ export default function PostPage() {
 
   // 좋아요
   const [toggleLikingPostMutation, { loading: likeLoading }] = useToggleLikingPostMutation({
-    onError: toastApolloError,
+    onError: toastError,
     variables: { id: postId },
   })
 
@@ -296,7 +296,10 @@ function Comments({ postCreationRef }: Props2) {
   const { data, loading, fetchMore } = useCommentsQuery({
     notifyOnNetworkStatusChange: true,
     onCompleted: ({ comments }) => (!comments || comments.length === 0) && setHasMoreData(false),
-    onError: toastApolloError,
+    onError: (error) => {
+      toastError(error)
+      setHasMoreData(false)
+    },
     skip: !postId,
     variables: { parentId: postId, limit },
   })
@@ -305,7 +308,7 @@ function Comments({ postCreationRef }: Props2) {
 
   const infiniteScrollRef = useInfiniteScroll({
     hasMoreData,
-    onIntersecting: async () =>
+    onIntersecting: () =>
       comments &&
       comments.length > 0 &&
       fetchMore({
@@ -313,13 +316,26 @@ function Comments({ postCreationRef }: Props2) {
           lastId: comments[comments.length - 1].id,
         },
       })
-        .then((response) => response.data.comments?.length !== limit && setHasMoreData(false))
+        .then(({ data }) => {
+          const comments = data.comments
+
+          if (comments) {
+            const actualLimit = comments.reduce(
+              (acc, comment) => acc + (comment.commentCount || 1),
+              0
+            )
+
+            if (actualLimit !== limit) setHasMoreData(false)
+          } else {
+            setHasMoreData(false)
+          }
+        })
         .catch(() => setHasMoreData(false)),
   })
 
   // 프로필 불러오기
   const { data: data2, loading: profileLoading } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -334,7 +350,7 @@ function Comments({ postCreationRef }: Props2) {
       setIsSubmitionSuccess(true)
       setHasMoreData(true)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: addNewComment,
   })
 
@@ -385,7 +401,6 @@ function Comments({ postCreationRef }: Props2) {
 
         {!comments && postId && !loading && (
           <Relative>
-            <Image src="/images/no-comment.jpg" alt="no post" fill />
             <CenterH2>No Comment</CenterH2>
           </Relative>
         )}
@@ -395,10 +410,28 @@ function Comments({ postCreationRef }: Props2) {
         (hasMoreData ? (
           <CenterText ref={infiniteScrollRef}>무한 스크롤</CenterText>
         ) : (
-          comments && <CenterText>모든 댓글을 불러왔어요</CenterText>
+          comments && (
+            <CenterText onClick={() => setHasMoreData(true)}>이야기 더 불러오기</CenterText>
+          )
         ))}
     </>
   )
+}
+
+export function addNewComment(cache: ApolloCache<any>, { data }: any) {
+  if (!data) return
+
+  const newPost = {
+    __ref: `Post:${data.createPost?.newPost.id}`,
+  }
+
+  return cache.modify({
+    broadcast: false,
+    fields: {
+      comments: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
+      posts: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
+    },
+  })
 }
 
 const limit = NODE_ENV === 'production' ? 20 : 2
@@ -510,22 +543,6 @@ export const Button = styled.button<{ color?: string; selected?: boolean }>`
     }
   }
 `
-
-export function addNewComment(cache: ApolloCache<any>, { data }: any) {
-  if (!data) return
-
-  const newPost = {
-    __ref: `Post:${data.createPost?.newPost.id}`,
-  }
-
-  return cache.modify({
-    broadcast: false,
-    fields: {
-      comments: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
-      posts: (existingPosts) => (existingPosts ? [newPost, ...existingPosts] : [newPost]),
-    },
-  })
-}
 
 const Relative = styled.div`
   position: relative;

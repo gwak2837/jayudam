@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components'
 
+import { TABLET_MIN_WIDTH } from '../common/constants'
 import { Theme } from '../styled-components'
-import { TABLET_MIN_WIDTH } from '../utils/constants'
 
 export const GlobalStyle = createGlobalStyle`
   * {

@@ -1,14 +1,14 @@
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
+import { currentUser } from '../../common/recoil'
 import { useCreatePostMutation, useMyProfileQuery } from '../../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../../pages/post'
 import QuillPenIcon from '../../svgs/quill-pen.svg'
-import { currentUser } from '../../utils/recoil'
 import LoginLink from '../atoms/LoginLink'
 import Modal from '../atoms/Modal'
 import PostCreationModalForm from './PostCreationModalForm'
@@ -41,7 +41,7 @@ export default function PostCreationButton({ show }: Props) {
 
   // 프로필 불러오기
   const { data } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -54,7 +54,7 @@ export default function PostCreationButton({ show }: Props) {
       setIsModalOpened(false)
       setIsSubmitionSuccess(true)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: (cache, { data }) =>
       data &&
       cache.modify({

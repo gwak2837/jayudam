@@ -1,26 +1,18 @@
-import Image from 'next/future/image'
 import { ChangeEvent, ReactNode, RefObject, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
+import { currentUser } from '../../common/recoil'
 import { theme } from '../../styles/global'
 import ImageIcon from '../../svgs/image.svg'
 import { resizeTextareaHeight, submitWhenCmdEnter } from '../../utils/react'
-import { currentUser } from '../../utils/recoil'
 import { AutoTextarea_ } from '../atoms/AutoTextarea'
-import {
-  Absolute,
-  FlexBetweenCenter,
-  FlexBigGap,
-  FlexCenter,
-  FlexCenterBigGap,
-  FlexGap as FlexGap_,
-} from '../atoms/Flex'
+import { FlexBetweenCenter, FlexCenter, FlexCenterBigGap } from '../atoms/Flex'
 import LoginLink from '../atoms/LoginLink'
 import { Card } from '../PostCard'
-import { PostImages, PostImagesPreview } from '../PostImages'
+import { PostImagesPreview } from '../PostImages'
 import { PrimaryButton } from '../sharing-post/SharingPostButton'
 
 type Props = {

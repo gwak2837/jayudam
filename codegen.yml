@@ -4,15 +4,22 @@ schema:
 documents: src/**/*.graphql
 generates:
   src/graphql/generated/types-and-hooks.ts:
+    config:
+      scalars:
+        DateTime: string
+        EmailAddress: string
+        JWT: string
+        NonEmptyString: string
+        NonNegativeInt: number
+        PositiveInt: number
+        URL: string
     plugins:
       - typescript
       - typescript-operations
       - typescript-react-apollo
       - typescript-apollo-client-helpers
-    config:
-      scalars:
-        DateTime: string
-        URL: string
+      # - typescript-react-query
+
 hooks:
   afterAllFileWrite:
     - prettier --write

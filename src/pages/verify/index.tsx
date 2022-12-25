@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
+import { TABLET_MIN_WIDTH_1 } from '../../common/constants'
+import { formatISOLocalDate } from '../../common/date'
 import Modal from '../../components/atoms/Modal'
 import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
 import PageHead from '../../components/PageHead'
 import {
-  Sex,
   useSampleCertJwtLazyQuery,
   useVerifyCertJwtMutation,
 } from '../../graphql/generated/types-and-hooks'
@@ -22,8 +23,6 @@ import TestTubeIcon from '../../svgs/test-tube.svg'
 import VerifyIcon from '../../svgs/VerifyIcon'
 import XCircleIcon from '../../svgs/x-circle.svg'
 import { getViewportWidth, parseJWT } from '../../utils'
-import { TABLET_MIN_WIDTH_1 } from '../../utils/constants'
-import { formatISOLocalDate } from '../../utils/date'
 
 export default function VerificationPage() {
   useNeedToLogin()
@@ -120,7 +119,7 @@ export default function VerificationPage() {
         setShowResult(true)
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   const allCerts = data?.verifyCertJWT
@@ -156,7 +155,7 @@ export default function VerificationPage() {
         verifyCertJwtMutation({ variables: { jwt: sampleCertJWT } })
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   function getSampleCertJWT() {

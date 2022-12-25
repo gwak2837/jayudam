@@ -1,11 +1,12 @@
-import Image from 'next/future/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
+import { currentUser } from '../../common/recoil'
 import {
   Post,
   useCreatePostMutation,
@@ -16,7 +17,6 @@ import { Button, addNewComment } from '../../pages/post/[id]'
 import { theme } from '../../styles/global'
 import CommentIcon from '../../svgs/CommentIcon'
 import { stopPropagation } from '../../utils'
-import { currentUser } from '../../utils/recoil'
 import {
   FlexCenter,
   FlexColumn,
@@ -66,7 +66,7 @@ export default function CommentCreationButton({ parentPost }: Props) {
 
   // 프로필 불러오기
   const { data } = useMyProfileQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 
@@ -79,7 +79,7 @@ export default function CommentCreationButton({ parentPost }: Props) {
       setIsModalOpened(false)
       setIsSubmitionSuccess(true)
     },
-    onError: toastApolloError,
+    onError: toastError,
     update: addNewComment,
   })
 

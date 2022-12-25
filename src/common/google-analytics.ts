@@ -22,3 +22,10 @@ export function event({ action, category, label, value }: GTagEvent) {
     value: value,
   })
 }
+
+export const gaScript = `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){window.dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '${NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}', {page_path: window.location.pathname});
+`

@@ -1,4 +1,4 @@
-import Image from 'next/future/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
@@ -7,7 +7,9 @@ import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
+import { TABLET_MIN_WIDTH } from '../../common/constants'
+import { currentUser } from '../../common/recoil'
 import Checkbox from '../../components/atoms/Checkbox'
 import SingleSelectionButtons from '../../components/atoms/SingleSelectionButtons'
 import PageHead from '../../components/PageHead'
@@ -15,8 +17,6 @@ import {
   useIsUniqueUsernameLazyQuery,
   useUpdateUserMutation,
 } from '../../graphql/generated/types-and-hooks'
-import { TABLET_MIN_WIDTH } from '../../utils/constants'
-import { currentUser } from '../../utils/recoil'
 
 export default function RegisterPage() {
   const [{ name }, setCurrentUser] = useRecoilState(currentUser)
@@ -57,7 +57,7 @@ export default function RegisterPage() {
 
   // Username 중복 검사
   const [isUniqueUsername, { loading: isUniqueUsernameLoading }] = useIsUniqueUsernameLazyQuery({
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   const isUniqueUsernameTimeout = useRef<any>(null)
@@ -101,7 +101,7 @@ export default function RegisterPage() {
         toast.success('정보 등록에 성공했어요')
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   function updateUser(input: RegisterFormValues) {

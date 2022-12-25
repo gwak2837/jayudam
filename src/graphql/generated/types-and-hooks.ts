@@ -16,13 +16,13 @@ export type Scalars = {
   Float: number
   Any: any
   DateTime: string
-  EmailAddress: any
-  JWT: any
+  EmailAddress: string
+  JWT: string
   Latitude: any
   Longitude: any
-  NonEmptyString: any
-  NonNegativeInt: any
-  PositiveInt: any
+  NonEmptyString: string
+  NonNegativeInt: number
+  PositiveInt: number
   URL: string
   UUID: any
 }
@@ -319,7 +319,7 @@ export type User = {
   followerCount?: Maybe<Scalars['String']>
   followingCount?: Maybe<Scalars['String']>
   grade?: Maybe<Grade>
-  id: Scalars['UUID']
+  id: Scalars['ID']
   imageUrl?: Maybe<Scalars['String']>
   imageUrls?: Maybe<Array<Scalars['String']>>
   isPrivate?: Maybe<Scalars['Boolean']>
@@ -376,10 +376,10 @@ export type CreatePostMutation = {
       likeCount?: number | null
       commentCount?: number | null
       sharedCount?: number | null
-      author?: { __typename?: 'User'; id: any } | null
+      author?: { __typename?: 'User'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     }
   } | null
@@ -419,7 +419,7 @@ export type DeleteSharingPostMutation = {
       sharingPost?: { __typename?: 'Post'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     } | null
     sharedPost?: {
@@ -456,14 +456,14 @@ export type SharePostMutation = {
       sharingPost?: { __typename?: 'Post'; id: string } | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
       } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     }
     sharedPost?: {
@@ -491,14 +491,14 @@ export type PostCardFragment = {
   sharedCount?: number | null
   author?: {
     __typename?: 'User'
-    id: any
+    id: string
     name?: string | null
     nickname?: string | null
     imageUrl?: string | null
   } | null
   parentPost?: {
     __typename?: 'Post'
-    author?: { __typename?: 'User'; id: any; name?: string | null } | null
+    author?: { __typename?: 'User'; id: string; name?: string | null } | null
   } | null
 }
 
@@ -506,7 +506,7 @@ export type AuthQueryVariables = Exact<{ [key: string]: never }>
 
 export type AuthQuery = {
   __typename?: 'Query'
-  auth?: { __typename?: 'User'; id: any; name?: string | null } | null
+  auth?: { __typename?: 'User'; id: string; name?: string | null } | null
 }
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
@@ -524,7 +524,7 @@ export type UserQuery = {
   __typename?: 'Query'
   user?: {
     __typename?: 'User'
-    id: any
+    id: string
     creationTime?: string | null
     bio?: string | null
     birthday?: string | null
@@ -555,7 +555,7 @@ export type MyProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type MyProfileQuery = {
   __typename?: 'Query'
-  myProfile?: { __typename?: 'User'; id: any; imageUrl?: string | null } | null
+  myProfile?: { __typename?: 'User'; id: string; imageUrl?: string | null } | null
 }
 
 export type PostsQueryVariables = Exact<{
@@ -588,7 +588,7 @@ export type PostsQuery = {
       imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
@@ -596,14 +596,14 @@ export type PostsQuery = {
     } | null
     author?: {
       __typename?: 'User'
-      id: any
+      id: string
       name?: string | null
       nickname?: string | null
       imageUrl?: string | null
     } | null
     parentPost?: {
       __typename?: 'Post'
-      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      author?: { __typename?: 'User'; id: string; name?: string | null } | null
     } | null
   }> | null
 }
@@ -646,26 +646,26 @@ export type CommentsQuery = {
       sharedCount?: number | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
       } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
     }> | null
     author?: {
       __typename?: 'User'
-      id: any
+      id: string
       name?: string | null
       nickname?: string | null
       imageUrl?: string | null
     } | null
     parentPost?: {
       __typename?: 'Post'
-      author?: { __typename?: 'User'; id: any; name?: string | null } | null
+      author?: { __typename?: 'User'; id: string; name?: string | null } | null
     } | null
   }> | null
 }
@@ -692,10 +692,10 @@ export type CreateCommentMutation = {
       likeCount?: number | null
       commentCount?: number | null
       sharedCount?: number | null
-      author?: { __typename?: 'User'; id: any } | null
+      author?: { __typename?: 'User'; id: string } | null
       parentPost?: {
         __typename?: 'Post'
-        author?: { __typename?: 'User'; id: any; name?: string | null } | null
+        author?: { __typename?: 'User'; id: string; name?: string | null } | null
       } | null
       comments?: Array<{ __typename?: 'Post'; id: string }> | null
     }
@@ -730,7 +730,7 @@ export type PostQuery = {
     sharedCount?: number | null
     author?: {
       __typename?: 'User'
-      id: any
+      id: string
       name?: string | null
       nickname?: string | null
       imageUrl?: string | null
@@ -745,7 +745,7 @@ export type PostQuery = {
       imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
@@ -761,7 +761,7 @@ export type PostQuery = {
       imageUrls?: Array<string> | null
       author?: {
         __typename?: 'User'
-        id: any
+        id: string
         name?: string | null
         nickname?: string | null
         imageUrl?: string | null
@@ -788,7 +788,7 @@ export type CertJwtMutationVariables = Exact<{
   input: CertAgreementInput
 }>
 
-export type CertJwtMutation = { __typename?: 'Mutation'; certJWT: any }
+export type CertJwtMutation = { __typename?: 'Mutation'; certJWT: string }
 
 export type MyCertAgreementQueryVariables = Exact<{ [key: string]: never }>
 
@@ -796,7 +796,7 @@ export type MyCertAgreementQuery = {
   __typename?: 'Query'
   myCertAgreement?: {
     __typename?: 'User'
-    id: any
+    id: string
     cherry?: number | null
     certAgreement?: {
       __typename?: 'CertAgreement'
@@ -825,12 +825,12 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser?: { __typename?: 'User'; id: any; name?: string | null } | null
+  updateUser?: { __typename?: 'User'; id: string; name?: string | null } | null
 }
 
 export type SampleCertJwtQueryVariables = Exact<{ [key: string]: never }>
 
-export type SampleCertJwtQuery = { __typename?: 'Query'; sampleCertJWT: any }
+export type SampleCertJwtQuery = { __typename?: 'Query'; sampleCertJWT: string }
 
 export type VerifyCertJwtMutationVariables = Exact<{
   jwt: Scalars['JWT']

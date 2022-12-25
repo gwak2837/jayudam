@@ -6,7 +6,15 @@ import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
+import { MOBILE_MIN_WIDTH } from '../../common/constants'
+import {
+  formatISOLocalDate,
+  getNMonthBefore,
+  getNYearBefore,
+  getTimeFromDateString,
+} from '../../common/date'
+import { currentUser } from '../../common/recoil'
 import AppleCheckbox from '../../components/atoms/AppleCheckbox'
 import { FlexCenterCenter } from '../../components/atoms/Flex'
 import SingleSelectionButtons_ from '../../components/atoms/SingleSelectionButtons'
@@ -21,14 +29,6 @@ import Navigation from '../../layouts/Navigation'
 import CherryIcon from '../../svgs/cherry.svg'
 import TimerIcon from '../../svgs/timer.svg'
 import { getViewportWidth, parseJWT } from '../../utils'
-import { MOBILE_MIN_WIDTH } from '../../utils/constants'
-import {
-  formatISOLocalDate,
-  getNMonthBefore,
-  getNYearBefore,
-  getTimeFromDateString,
-} from '../../utils/date'
-import { currentUser } from '../../utils/recoil'
 import { SubmitButton } from '../register'
 
 export default function QRCodePage() {
@@ -86,7 +86,7 @@ export default function QRCodePage() {
       toCanvas(qrCodeImageRef.current, certJWT, { width: qrcodeWidth })
       restart(new Date(parseJWT(certJWT).exp * 1000))
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   async function getCertJWT(form: CertAgreementForm) {
@@ -206,7 +206,7 @@ export default function QRCodePage() {
         certJWTMutation({ variables: { input } })
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
     skip: !name,
   })
 

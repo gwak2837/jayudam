@@ -1,14 +1,14 @@
 import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from 'styled-components'
 
-import { theme } from '../styles/global'
 import {
   APPLICATION_SHORT_NAME,
   AUTHOR,
   CANONICAL_URL,
   KEYWORDS,
   SUBJECT,
-} from '../utils/constants'
+} from '../common/constants'
+import { theme } from '../styles/global'
 
 export default class JayudamDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -53,6 +53,7 @@ export default class JayudamDocument extends Document {
           <link rel="mask-icon" href="/safari-pinned-tab.svg" color={theme.primary} />
           <link rel="shortcut icon" href="/images/shortcut-icon.png" />
           <link rel="canonical" href={CANONICAL_URL} />
+          
           <link
             href="/images/iphone5_splash.webp"
             media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"

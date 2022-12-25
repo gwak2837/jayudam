@@ -1,11 +1,23 @@
-import Image from 'next/future/image'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../../apollo/error'
+import { toastError } from '../../apollo/error'
+import {
+  MOBILE_MIN_HEIGHT,
+  NEXT_PUBLIC_BACKEND_URL,
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  NEXT_PUBLIC_KAKAO_REST_API_KEY,
+  NEXT_PUBLIC_NAVER_CLIENT_ID,
+  TABLET_MIN_WIDTH,
+  TABLET_MIN_WIDTH_1,
+} from '../../common/constants'
+import { formatBirthday, formatSimpleDate } from '../../common/date'
+import { currentUser } from '../../common/recoil'
 import {
   Absolute as Absolute_,
   FlexBigGap as FlexBigGap_,
@@ -30,18 +42,7 @@ import MailIcon from '../../svgs/mail.svg'
 import MapIcon from '../../svgs/map.svg'
 import NaverLogo from '../../svgs/naver-logo.svg'
 import SexIcon from '../../svgs/sex.svg'
-import { getUsername } from '../../utils'
-import {
-  MOBILE_MIN_HEIGHT,
-  NEXT_PUBLIC_BACKEND_URL,
-  NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-  NEXT_PUBLIC_KAKAO_REST_API_KEY,
-  NEXT_PUBLIC_NAVER_CLIENT_ID,
-  TABLET_MIN_WIDTH,
-  TABLET_MIN_WIDTH_1,
-} from '../../utils/constants'
-import { formatBirthday, formatSimpleDate } from '../../utils/date'
-import { currentUser } from '../../utils/recoil'
+import { getUsername } from '../../utils/react'
 import { GoogleButton, KakaoButton, NaverButton } from '../login'
 
 export default function UserPage() {
@@ -66,7 +67,7 @@ export default function UserPage() {
     loading: userLoading,
     error,
   } = useUserQuery({
-    onError: toastApolloError,
+    onError: toastError,
     skip: !pageUsername || pageUsername === 'null' || pageUsername === 'undefined',
     variables: {
       name: pageUsername === currentUsername ? null : pageUsername,
@@ -91,7 +92,7 @@ export default function UserPage() {
         )
       }
     },
-    onError: toastApolloError,
+    onError: toastError,
   })
 
   function logout() {
@@ -202,6 +203,9 @@ export default function UserPage() {
 
               <button>따르기</button>
               <button>선물하기</button>
+              <div>
+                <Link href="/chatroom">대화</Link>
+              </div>
 
               <KakaoButton disabled={logoutLoading} onClick={goToKakaoLoginPage}>
                 <KakaoLogo />

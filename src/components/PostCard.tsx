@@ -1,4 +1,4 @@
-import Image from 'next/future/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Fragment, MouseEvent, ReactNode, memo, useEffect, useRef } from 'react'
@@ -6,7 +6,8 @@ import { toast } from 'react-toastify'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import styled from 'styled-components'
 
-import { toastApolloError } from '../apollo/error'
+import { toastError } from '../apollo/error'
+import { currentUser } from '../common/recoil'
 import { Post, useToggleLikingPostMutation } from '../graphql/generated/types-and-hooks'
 import { borderRadiusCircle } from '../pages/post'
 import { Bold, Button, GridColumn4 } from '../pages/post/[id]'
@@ -17,17 +18,7 @@ import HeartIcon from '../svgs/HeartIcon'
 import ShareIcon from '../svgs/ShareIcon'
 import ThreeDotsIcon from '../svgs/three-dots.svg'
 import { stopPropagation } from '../utils'
-import { applyLineBreak } from '../utils/react'
-import { currentUser } from '../utils/recoil'
-import {
-  FlexBetween,
-  FlexCenter,
-  FlexColumn,
-  GrayText,
-  GridGap,
-  GridXSmallGap,
-  Grid as Grid_,
-} from './atoms/Flex'
+import { FlexBetween, FlexCenter, FlexColumn, GrayText, GridGap, GridXSmallGap } from './atoms/Flex'
 import LoginLink from './atoms/LoginLink'
 import CommentCreationButton from './create-post/CommentCreationButton'
 import { postDrawer } from './PostDrawer'
@@ -114,7 +105,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
 
   // 좋아요
   const [toggleLikingPostMutation, { loading }] = useToggleLikingPostMutation({
-    onError: toastApolloError,
+    onError: toastError,
     variables: { id: post.id },
   })
 
@@ -143,7 +134,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
 
   return (
     <>
-      <FlexColumnGap>
+      <FlexColumnGap onClick={goToPostPage}>
         <Image
           src={author?.imageUrl ?? '/images/shortcut-icon.webp'}
           alt="profile"
@@ -155,7 +146,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
         {children?.[0]}
       </FlexColumnGap>
 
-      <GridGapPointer>
+      <GridGapPointer onClick={goToPostPage}>
         <FlexBetweenGap>
           <FlexCenterGap>
             <TextOverflow>
@@ -165,7 +156,7 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
             </TextOverflow>
             {author && (
               <OverflowAuto>
-                <GrayLink href={`/@${author.name}`}>
+                <GrayLink href={`/@${author.name}`} onClick={stopPropagation}>
                   <GreyH5> @{author.name}</GreyH5>
                 </GrayLink>
               </OverflowAuto>
@@ -185,11 +176,13 @@ function PostContent({ children, post, showButtons, showParentAuthor, showShared
         {showParentAuthor && parentAuthor && author && parentAuthor.name !== author.name && (
           <TextOverflow>
             <GrayText>Replying to </GrayText>
-            <Link href={`/@${parentAuthor.name}`}>@{parentAuthor.name}</Link>
+            <Link href={`/@${parentAuthor.name}`} onClick={stopPropagation}>
+              @{parentAuthor.name}
+            </Link>
           </TextOverflow>
         )}
 
-        <GridXSmallGap onClick={goToPostPage}>
+        <GridXSmallGap>
           {post.deletionTime
             ? `${new Date(post.deletionTime).toLocaleString()} 에 삭제된 글이에요`
             : post.content && applyLineBreakNHashtag(post.content)}
@@ -259,15 +252,20 @@ function PostLoadingCard_() {
 export function applyLineBreakNHashtag(oneLine?: string | null) {
   return oneLine?.split('\n').map((sentence, i) => (
     <OverflowWrapP key={i}>
-      {sentence.split(' ').map((word, j) =>
-        word.startsWith('#') ? (
-          <Link key={j} href={`/search?q=${word}`} onClick={stopPropagation}>
-            {word}&nbsp;
-          </Link>
-        ) : (
-          <Fragment key={j}>{word}&nbsp;</Fragment>
-        )
-      )}
+      {sentence
+        .split(/( |#[^\s#]+)/g)
+        .filter((word) => word !== '')
+        .map((word, j) =>
+          /#[^\s#]+/g.test(word) ? (
+            <Link key={j} href={`/search?q=${word}`} onClick={stopPropagation}>
+              {word}
+            </Link>
+          ) : word === ' ' ? (
+            <Fragment key={j}>&nbsp;</Fragment>
+          ) : (
+            <Fragment key={j}>{word}</Fragment>
+          )
+        )}
     </OverflowWrapP>
   ))
 }
@@ -277,6 +275,11 @@ export const Card = styled(GridGap)`
 
   border: 1px solid ${(p) => p.theme.shadow};
   padding: 0.8rem 1rem;
+
+  :hover,
+  :focus {
+    background: ${(p) => p.theme.shadow};
+  }
 `
 
 const OverflowWrapP = styled.p`

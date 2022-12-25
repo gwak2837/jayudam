@@ -2,8 +2,8 @@ import { ApolloClient, NormalizedCacheObject, createHttpLink } from '@apollo/cli
 import { setContext } from '@apollo/client/link/context'
 import { createPersistedQueryLink } from '@apollo/client/link/persisted-queries'
 
+import { NEXT_PUBLIC_BACKEND_URL } from '../common/constants'
 import { sha256 } from '../utils'
-import { NEXT_PUBLIC_BACKEND_URL } from '../utils/constants'
 import cache from './cache'
 
 const httpLink = createHttpLink({

@@ -1,6 +1,5 @@
-import { ApolloError } from '@apollo/client'
 import { toast } from 'react-toastify'
 
-export function toastApolloError(error: ApolloError) {
+export function toastError(error: Error) {
   toast.warn(error.message, { autoClose: 5000 })
 }

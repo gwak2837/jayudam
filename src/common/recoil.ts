@@ -1,4 +1,5 @@
 import { atom } from 'recoil'
+
 import { Post } from '../graphql/generated/types-and-hooks'
 
 type CurrentUser = {
